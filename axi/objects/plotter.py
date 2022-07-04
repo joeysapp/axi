@@ -31,50 +31,45 @@ class Plotter:
     def info(self):
         try:
             p = self.p[self.h]
-            return '%i (%d %d %d %d %i))' % (p.x, p.y, p.z, p.t, p.d)
+            return 'info() %i (%f %f %f %f %i))' % (self.h, p['x'], p['y'], p['z'], p['t'], p['d'])
         except Exception as e:
             return e
 
     def info_set(self):
         return None
     
-    def goto(self, p):
-        if (p.x > self.b.x and p.x < self.b.X and p.y > self.b.y and p.y < self.b.Y):
-        # if (p[0] > self.b[0][0] and p[0] < self.b[0][1] and p[1] > self.b[1][0] and p[1] < self.b[1][1]):
-            self._axidraw.goto(p[0], p[1])
+#    def goto(self, p):
+#        if (p['x'] > self.b['x'] and p['x'] < self.b['X'] and p['y'] > self.b['y'] and p['y'] < self.b['Y']):
+#            self._axidraw.goto(p['x'], p['y'])
 
     # here's the creative bit
-    def get_next(self, x, y):
-        t = (time.process_time()) % math.pi
-        #v = map(t, 0, math.pi, -math.pi, math.pi)
-        v = (time.process_time()*500.0)
+    def get_next(self):
+        p = self.p[self.h]
+        t = p['t'] % math.pi
+        v = map(t, 0, math.pi, -math.pi, math.pi)
+        #v = (time.process_time()*500.0)
         
         r = 5
         nx = 25 + r*math.cos(v);
         ny = 25 + r*math.sin(v);
-        print(self.b)
-        if (nx > self.b.X or nx < self.b.x):
-            #nx = self.b.x
-            nx = random.randrange(self.b.x, self.b.X);
-            #self._axidraw.penup()
-        if (ny > self.b.Y or ny < self.b.y):
-            ny = random.randrange(self.b.y, self.b.Y);
+        if (nx > self.b['X'] or nx < self.b['x']):
+            self._axidraw.penup()
+            nx = random.randrange(self.b['x'], self.b['X']);
+        if (ny > self.b['Y'] or ny < self.b['y']):
+            ny = random.randrange(self.b['y'], self.b['Y']);
             #ny = self.b[1][1]
             #self._axidraw.penup()
-        print('\t[%f][%s]' % (t, self.info()))
-        return [nx, ny]
-
-    def path_extend(self, **kwargs):
-        h = self.h;
-        [x, y, z, t, d] = self.p[self.h]
-        [nx, ny] = self.get_next(x, y);
-        self.p.append({ 'x': nx, 'y': ny, 'z': 0, 't': 0, 'd': 0 })
+        print('\tget_next[%s]' % (self.info()))
+        t = time.process_time()
+        self.p.append({ 'x': nx, 'y': ny, 'z': 0, 't': t, 'd': 0 })
 
     def step(self):
-        print('a');
-        self.path_extend()
-        #self.goto(self.p[self.h])
+        self.get_next()
+        p = self.p[self.h]
+        if (p['x'] > self.b['x'] and p['x'] < self.b['X'] and p['y'] > self.b['y'] and p['y'] < self.b['Y']):
+            self._axidraw.goto(p['x'], p['y'])
         self.h = self.h + 1
+        # print('step', self.h, self.p[self.h])
 
     def _connect(self):
         try:

@@ -71,7 +71,7 @@ def main() -> int:
     plotter = Plotter(args)
     while not exit_signal.is_set():
         plotter.step()
-        exit_signal.wait(0.005)
+        exit_signal.wait(0.1)
         print('__main__ loop')
     print('__main__ interrupt')
     plotter._disconnect()
