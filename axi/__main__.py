@@ -1,11 +1,15 @@
 """
 Invokes base functionality when axi is run as a script.
-Example: python3 -m axi -a maze -t 100
+Example: python3 -m axi -a square -t 100
 """
 
 import argparse
 import sys
 import textwrap
+
+import signal
+from threading import Event
+exit_signal = Event()
 
 # https://docs.python.org/3/library/__main__.html
 # https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#python-requires
@@ -30,9 +34,16 @@ class FooAction(argparse.Action):
         print('\n\n%r %r %r' % (namespace, values, option_string))
         setattr(namespace, self.dest, values)
 
+def handle_interrupt(s, _frame):
+    print('__main__ -> handle_interrupt(%d)' % s)
+    exit_signal.set()
+
+
 def main() -> int:
     """Connect and talk to Axidraw"""
-    # setattr(argparse, 'version', get_version())
+    for s in ('TERM', 'HUP', 'INT'):
+        signal.signal(getattr(signal, 'SIG'+s), handle_interrupt);
+
     parser = argparse.ArgumentParser(
         prog='axi',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -47,35 +58,29 @@ def main() -> int:
             ability to prevent axidraw interrupts
             or otherwise sketch-breaking events.
         ''' % get_version()),
-        epilog='Written by joeysapp'
+        epilog='Written by @joeysapp'
     )
-    parser.add_argument('-a', '--action', help='action for the plotter')
-    parser.add_argument('-t', '--time', help='min/max time action can take in s', type=int)
-    parser.add_argument('-d', '--debug', help=textwrap.dedent('''
-    display live debug information,\n
-    levels of verbosity correspond\t\t
-    number of arguments e.g. -ddd.
-    '''), action='count', default=0) #action=FooAction,)
+    # parser.add_argument('-p', '--pos', nargs=2, help='xy pos for plotter')
+    # parser.add_argument('-a', '--action', help='action for the plotter')
+    # parser.add_argument('-t', '--time', default=30, help='min/max time action can take in s', type=int)
+    parser.add_argument('-d', '--debug', help='display live debug information, levels of verbosity correspond number of arguments e.g. -ddd', action='count', default=0) #action=FooAction,)
     # parser.add_argument('-v', '--verbose', help='display live debug information', action=FooAction)
     # parser.add_argument('-v', '--version', help='s', action='version', version='%(prog)s %(version)s')
     args = parser.parse_args()
     result = 1;
-    try:
-        action = args.action
-        time = args.time
-        debug = args.debug
-        plotter = Plotter(action=action,
-                          time_min=time,
-                          time_max=time,
-                          debug=debug)
-        #plotter = Plotter.setup(action=action, time_min=time, time_max=time)
-        result = 0
-    except Exception as e:
-        #print('Error: %s' % e, file=sys.stderr)
-        print('./axi/__main__ exception: %s' % e);        
-    print("args are: ", args)
+    plotter = Plotter(args)
+    while not exit_signal.is_set():
+        plotter.step()
+        exit_signal.wait(0.005)
+        print('__main__ loop')
+    print('__main__ interrupt')
+    plotter._disconnect()
+        
+#    try:
+#        loop = Loop(args)
+#        result = 0
+#    except Exception as e:
+#        print('./axi/__main__ exception: %s' % e);        
     return result
 
-#if __name__ == "__main__":
-    # print("./axi/__main__ , name= %s" % __name__)
 sys.exit(main())

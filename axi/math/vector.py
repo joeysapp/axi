@@ -1,8 +1,12 @@
 class Vector:
-    def __init__(self, **kwargs):
-        self.pos = [0, 0]
-        self.vel = [0, 0]
-        self.acc = [0, 0]
+
+ #   def mag(vec):
+#  return (vec[0]**2 + vec[1]**2)**0.5
+
+    def __init__(self, x, y, z, **kwargs):
+        self.pos = [x, y, z]
+        self.vel = [0, 0, 0]
+        self.acc = [0, 0, 0]
 
         self._x = 0;
         self._y = 0;
