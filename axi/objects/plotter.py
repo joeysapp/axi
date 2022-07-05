@@ -7,90 +7,86 @@ import time
 
 # from axi.util import Console
 from axi.math import Vector
+from axi.objects import Path
 from axi.util import map
 
+
+# Users/____/Library/Python/3.8/lib/python/site-package/plotink/ebb_serial.py
 # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
+
+class PlotterBounds:
+    def __init__(self, **kwards):
+        print('objects/plotter/PlotterBounds.__init__')
+        self.min_x = 0;
+        self.max_x = 50;
+        self.min_y = 0;
+        self.max_y = 50;
+
+    def check(self, path_entry) -> bool:
+        if (path_entry.x < self.min_x or path_entry.x > self.max_x):
+            return False
+        elif (path_entry.y < self.min_y or path-entry.y > self.max_y):
+            return False
+        return True
+
+#    def wrap_bounds(self, path_entry):
+#        
+
 
 class Plotter:
     def __init__(self, args, **kwargs):
-        print('Plotter.__init__')
+        print('objects/plotter/Plotter.__init__')
         for k, v in kwargs.items():
             print("Plotter.__init__: %s == %s" % (k, v))
         self._axidraw = axidraw.AxiDraw()
         self._connect()
-        self.d = False
-        self.h = 0
-        self.p = [{ 'x': 0, 'y': 0, 'z': 0, 't': 0, 'd': 0}]
-        self.b = { 'x': 0, 'X': 100, 'y': 0, 'Y': 100 } # def get_bounds_interactive()
-        # self.log = Console()
+        self.bounds = PlotterBounds()
+        self.traversed_path = None
 
     # def pause(self):
     # def resume(self):
     # def pauseToChangePenHeight(self):
 
-    def info(self):
-        try:
-            p = self.p[self.h]
-            return 'info() %i (%f %f %f %f %i))' % (self.h, p['x'], p['y'], p['z'], p['t'], p['d'])
-        except Exception as e:
-            return e
+    def path_extend(self, path_extension):
+        self.path.extend(path_extension)
 
-    def info_set(self):
-        return None
-    
-#    def goto(self, p):
-#        if (p['x'] > self.b['x'] and p['x'] < self.b['X'] and p['y'] > self.b['y'] and p['y'] < self.b['Y']):
-#            self._axidraw.goto(p['x'], p['y'])
+    def path_traverse_step(self, path_entry, path_idx):
+        print('objects/plotter/path_traverse_step(%i / %i)' % (self.path_idx, len(self.path)))
+        serial_pen_pos = self._axidraw.usb_query('QP\r') # 1 if up, 0 if down
 
-    # here's the creative bit
-    def get_next(self):
-        p = self.p[self.h]
-        t = p['t'] % math.pi
-        v = map(t, 0, math.pi, -math.pi, math.pi)
-        #v = (time.process_time()*500.0)
+        last_path_entry = self.traversed_path[-1]
+        last_pen_pos = last_path_entry.pen_pos
+        if (last_pen_pos != serial_pen_pos):
+            print('\t(path_pen_pos=%i serial_pen_pos=%i)' % (path_pen_pos, serial_pen_pos))
+            time.sleep(25)
+
+        # path object can go anywhere, robot cannot
+        if (self.bounds.check(path_entry)):
+            self._axidraw.goto(path_entry.x, path_entry.y)
+        else:
+            self.bounds.wrap_bounds(path_entry)
+            print(' out of bounds ')
         
-        r = 5
-        nx = 25 + r*math.cos(v);
-        ny = 25 + r*math.sin(v);
-        if (nx > self.b['X'] or nx < self.b['x']):
-            self._axidraw.penup()
-            nx = random.randrange(self.b['x'], self.b['X']);
-        if (ny > self.b['Y'] or ny < self.b['y']):
-            ny = random.randrange(self.b['y'], self.b['Y']);
-            #ny = self.b[1][1]
-            #self._axidraw.penup()
-        print('\tget_next[%s]' % (self.info()))
-        t = time.process_time()
-        self.p.append({ 'x': nx, 'y': ny, 'z': 0, 't': t, 'd': 0 })
-
-    def step(self):
-        self.get_next()
-        p = self.p[self.h]
-        if (p['x'] > self.b['x'] and p['x'] < self.b['X'] and p['y'] > self.b['y'] and p['y'] < self.b['Y']):
-            self._axidraw.goto(p['x'], p['y'])
-        self.h = self.h + 1
-        # print('step', self.h, self.p[self.h])
 
     def _connect(self):
         try:
-            print( )
             self._axidraw.interactive()
             self._axidraw.connect()
             self._configure();
-            print('objects/plotter/_connect \t %s' % self._axidraw.usb_query('V\r'))
+            print('objects/plotter/_connect ok \t %s' % self._axidraw.usb_query('V\r'))
         except Exception as err:
-            print("failed to connect", err);
+            print('objects/plotter/_connect fail %s', err);
             pass
 
     def _disconnect(self):
         try:
-            print('objects/plotter/_disconnect')
+            print('objects/plotter/_disconnect ok')
             self._axidraw.penup()
             self._axidraw.goto(0, 0);
             time.sleep(0.5);
             self._axidraw.disconnect()
         except Exception as err:
-            print("failed to disconnect", err);
+            print('objects/plotter/_disconnect fail %s', err);
             pass
             
     def _disable_motors(self):
@@ -98,10 +94,22 @@ class Plotter:
 
     def _enable_motors(self):
         self._axidraw.usb_command('EM,1,1\r');
-                 
+
+    def setPenBounds(self):
+        self._axidraw.usb_command('SC,4,%i' % self.pen_pos_up)
+        self._axidraw.usb_command('SC,5,%i' % self.pen_pos_down)
+
     def _configure(self):
         """ examples_config/axidraw_conf_copy.py """
         print('objects/plotter/_configure');
+        #self._axidraw.options.pen_pos_down = 50
+        #self._axidraw.options.pen_pos_up = 0
+        #self._axidraw.options.speed_pendown = 25 # maximum speed while pendown
+        #self._axidraw.options.speed_penup = 75 # maximum speed while penup
+
+        #self._axidraw.usb_command('SC,4,%i' % self.pen_pos_up)
+        #self._axidraw.usb_command('SC,5,%i' % self.pen_pos_down)
+
         self._axidraw.options.units = 2 # (in, cm, mm)
         self._axidraw.options.model = 2 # https://axidraw.com/doc/py_api/#model
         # self._axidraw.options.report_time = True # end of plot, throws err?
@@ -114,11 +122,7 @@ class Plotter:
         self._axidraw.options.webhook_url = '';
         self._axidraw.options.check_updates = False
         self._axidraw.options.random_start = False # randomize start location of closed paths
-        self._axidraw.options.speed_pendown = 25 # maximum speed while pendown
-        self._axidraw.options.speed_penup = 75 # maximum speed while penup
         self._axidraw.options.accel = 75 
-        #self._axidraw.options.pen_pos_down = 50
-        #self._axidraw.options.pen_pos_up = 0
         self._axidraw.options.pen_rate_lower = 75
         self._axidraw.options.pen_rate_raise = 50
 
