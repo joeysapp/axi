@@ -16,8 +16,10 @@ exit_signal = Event()
 # https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#python-requires
 
 from .objects import Plotter
-from .objects import Path
+from .objects import Path, PathEntry
 from .objects import Generator
+
+from .math import Vector
 
 
 VERSION = (0, 0, 1)
@@ -75,7 +77,7 @@ def main() -> int:
 
     gen = Generator()
 
-    path = Path(args);
+    path = Path(args, initial_path_entry=PathEntry(pos=Vector(0, 0, 0)));
     path_idx = 0
     # path.generate_path() # all at once
     # path.add(Square(10, 10, xpos, ypos))
@@ -83,7 +85,7 @@ def main() -> int:
 
     plotter = Plotter(args)
 
-    loop_delay = 0.5
+    loop_delay = 0.005
     while not exit_signal.is_set():
         print('__main__ loop[%i / %i]' % (path_idx, path.length))
         current_path_entry = path.get(path_idx)

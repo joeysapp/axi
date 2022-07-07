@@ -3,7 +3,7 @@ from axi.math import Vector
 #from axi.objects import Generator
 
 class PathEntry:
-    def __init__(self, pos=Vector(0, 0, 0), vel=Vector(0, 0, 0), acc=Vector(0, 0, 0), pen_pos=0, time=0):
+    def __init__(self, pos=Vector(0, 0, 0), vel=Vector(0, 0, 0), acc=Vector(0, 0, 0), pen_pos=1, time=0):
         self.pos = pos;
         self.vel = vel;
         self.acc = acc;

@@ -18,21 +18,26 @@ class PlotterBounds:
     def __init__(self, **kwards):
         print('objects/plotter/PlotterBounds.__init__')
         self.min = Vector(0, 0, 0)
-        self.max = Vector(50, 50, 0);
+        self.max = Vector(100, 100, 0);
         self.min_x = 0;
         self.max_x = 50;
         self.min_y = 0;
         self.max_y = 50;
 
+    def get_random_pos(self, path_entry) -> Vector:
+        x = random.random() * (self.max.x - self.min.x)
+        y = random.random() * (self.max.y - self.min.z)
+        z = random.random() * (self.max.z - self.min.z)
+        return Vector(x, y, z)
+
     def check(self, path_entry) -> bool:
-        print('objects/plotter/PlotterBounds.check('+str(path_entry.pos)+')', end='')
-        if (path_entry.pos.x < self.min_x or path_entry.pos.x > self.max_x):
-            print('FALSE')
+        x = path_entry.pos.x;
+        y = path_entry.pos.y;
+        z = path_entry.pos.z;
+        if (x < self.min.x or x > self.max.x):
             return False
-        elif (path_entry.pos.y < self.min_y or path_entry.pos.y > self.max_y):
-            print('FALSE')
+        if (y < self.min.y or y > self.max.y):
             return False
-        print('True')
         return True
 
 #    def wrap_bounds(self, path_entry):
@@ -62,17 +67,29 @@ class Plotter:
 
         last_path_entry = self.traversed_path.get(-1)
         last_pen_pos = last_path_entry.pen_pos
+        next_pen_pos = path_entry.pen_pos
 
-        if (last_pen_pos != serial_pen_pos):
-            print('\t(last_pen_pos=%s serial_pen_pos=%s) need to change pen pos' % (last_pen_pos, serial_pen_pos))
+        if (last_pen_pos != next_pen_pos):
+            print('\t(last=%s next=%s serial=%s) need to change pen pos' % (last_pen_pos, next_pen_pos, serial_pen_pos))
+            if (next_pen_pos == 0): # last entry was lowered, raise pen
+                #self._axidraw.usb_command('SC,4,%i' % self.pen_pos_up)
+                self._axidraw.pendown();
+            elif (next_pen_pos == 1):
+                self._axidraw.penup()
+            # self._axidraw.usb_command('SC,5,%i' % self.pen_pos_down)            
             time.sleep(0.5)
 
         # path object can go anywhere, robot cannot
-        if (self.bounds.check(path_entry)):
-            self._axidraw.goto(path_entry.pos.x, path_entry.pos.y)
-        else:
-            self.bounds.wrap_bounds(path_entry)
-            print(' out of bounds ')
+        if (not self.bounds.check(path_entry)):
+            path_entry.pen_pos = 1
+            path_entry.pos = self.bounds.get_random_pos(path_entry)
+            
+            self._axidraw.penup()
+            time.sleep(0.5)
+
+            
+        self._axidraw.goto(path_entry.pos.x, path_entry.pos.y)
+        self.traversed_path.extend(path_entry)
         
 
     def _connect(self):
