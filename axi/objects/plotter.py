@@ -17,16 +17,22 @@ from axi.util import map
 class PlotterBounds:
     def __init__(self, **kwards):
         print('objects/plotter/PlotterBounds.__init__')
+        self.min = Vector(0, 0, 0)
+        self.max = Vector(50, 50, 0);
         self.min_x = 0;
         self.max_x = 50;
         self.min_y = 0;
         self.max_y = 50;
 
     def check(self, path_entry) -> bool:
-        if (path_entry.x < self.min_x or path_entry.x > self.max_x):
+        print('objects/plotter/PlotterBounds.check('+str(path_entry.pos)+')', end='')
+        if (path_entry.pos.x < self.min_x or path_entry.pos.x > self.max_x):
+            print('FALSE')
             return False
-        elif (path_entry.y < self.min_y or path-entry.y > self.max_y):
+        elif (path_entry.pos.y < self.min_y or path_entry.pos.y > self.max_y):
+            print('FALSE')
             return False
+        print('True')
         return True
 
 #    def wrap_bounds(self, path_entry):
@@ -41,28 +47,29 @@ class Plotter:
         self._axidraw = axidraw.AxiDraw()
         self._connect()
         self.bounds = PlotterBounds()
-        self.traversed_path = None
+        self.traversed_path = Path(args)
 
     # def pause(self):
     # def resume(self):
     # def pauseToChangePenHeight(self):
 
     def path_extend(self, path_extension):
-        self.path.extend(path_extension)
+        self.traversed_path.extend(path_extension)
 
-    def path_traverse_step(self, path_entry, path_idx):
-        print('objects/plotter/path_traverse_step(%i / %i)' % (self.path_idx, len(self.path)))
+    def path_step(self, path_entry, path_idx):
+        print('objects/plotter/path_step to: %s' % (str(path_entry)))
         serial_pen_pos = self._axidraw.usb_query('QP\r') # 1 if up, 0 if down
 
-        last_path_entry = self.traversed_path[-1]
+        last_path_entry = self.traversed_path.get(-1)
         last_pen_pos = last_path_entry.pen_pos
+
         if (last_pen_pos != serial_pen_pos):
-            print('\t(path_pen_pos=%i serial_pen_pos=%i)' % (path_pen_pos, serial_pen_pos))
-            time.sleep(25)
+            print('\t(last_pen_pos=%s serial_pen_pos=%s) need to change pen pos' % (last_pen_pos, serial_pen_pos))
+            time.sleep(0.5)
 
         # path object can go anywhere, robot cannot
         if (self.bounds.check(path_entry)):
-            self._axidraw.goto(path_entry.x, path_entry.y)
+            self._axidraw.goto(path_entry.pos.x, path_entry.pos.y)
         else:
             self.bounds.wrap_bounds(path_entry)
             print(' out of bounds ')

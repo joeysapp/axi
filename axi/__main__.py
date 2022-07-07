@@ -6,6 +6,7 @@ Example: python3 -m axi -a square -t 100
 import argparse
 import sys
 import textwrap
+import time
 
 import signal
 from threading import Event
@@ -16,6 +17,8 @@ exit_signal = Event()
 
 from .objects import Plotter
 from .objects import Path
+from .objects import Generator
+
 
 VERSION = (0, 0, 1)
 
@@ -36,7 +39,7 @@ class FooAction(argparse.Action):
         setattr(namespace, self.dest, values)
 
 def handle_interrupt(s, _frame):
-    print('__main__ -> handle_interrupt(%d)' % s)
+    print('\n\n__main__->handle_interrupt(%s)' % s)
     exit_signal.set()
 
 
@@ -70,7 +73,7 @@ def main() -> int:
     args = parser.parse_args()
     result = 1;
 
-    # gen = Generator(args)
+    gen = Generator()
 
     path = Path(args);
     path_idx = 0
@@ -80,24 +83,20 @@ def main() -> int:
 
     plotter = Plotter(args)
 
+    loop_delay = 0.5
     while not exit_signal.is_set():
         print('__main__ loop[%i / %i]' % (path_idx, path.length))
-        current_path_entry = path.entries[path_idx]
-        next_path_entry = gen(current_path_entry)
+        current_path_entry = path.get(path_idx)
+        next_path_entry = gen.next(path_entry=current_path_entry)
 
         path.extend(next_path_entry)
-        plotter.path_iterative_step(next_path_entry, path_idx)
-     
-        exit_signal.wait(0.5)
-        # extend/alter path
-    print('__main__ interrupt')
+
+        plotter.path_step(next_path_entry, path_idx)
+        path_idx += 1
+        exit_signal.wait(loop_delay)
+    print('__main__ ending at [t=%f]' % time.process_time())
     plotter._disconnect()
-        
-#    try:
-#        loop = Loop(args)
-#        result = 0
-#    except Exception as e:
-#        print('./axi/__main__ exception: %s' % e);        
+    # path.save()      
     return result
 
 sys.exit(main())
