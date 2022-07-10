@@ -21,9 +21,10 @@ class Vector:
         return (self.x**2 + self.z**2 + self.z**2)**0.5
 
     def add(self, vec):
-        self.x += vec.x
-        self.y += vec.y
-        self.z += vec.z
+        # self.x += vec.x
+        # self.y += vec.y
+        # self.z += vec.z
+        return Vector(self.x + vec.x, self.y + vec.y, self.z + vec.z);
     
     def limit(self, l):
         if (self.x > l):
