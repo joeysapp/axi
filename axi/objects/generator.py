@@ -21,7 +21,7 @@ class Generator:
         path_entry.acc.limit(0.5);
 
         path_entry.vel.add(path_entry.acc)
-        path_entry.vel.limit(1)
+        path_entry.vel.limit(2)
 
         path_entry.pos.add(path_entry.vel)
         x = path_entry.pos.x;
@@ -31,8 +31,8 @@ class Generator:
 
         time = path_entry.time + 1
         pen_pos = path_entry.pen_pos
-        if (pen_pos == 1):
-            pen_pos = 0
+        # if (pen_pos == 1):
+        #     pen_pos = 0
 
         next_path_entry = PathEntry(pos=Vector(x=nx, y=ny, z=nz), time=time, pen_pos=pen_pos)
         return next_path_entry;

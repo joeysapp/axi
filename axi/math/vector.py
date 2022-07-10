@@ -1,15 +1,24 @@
 class Vector:
-
- #   def mag(vec):
-#  return (vec[0]**2 + vec[1]**2)**0.5
-
     def __init__(self, x, y, z, **kwargs):
         self.x = x;
         self.y = y;
         self.z = z;
+
+    def __eq__(self, vector):
+        if isinstance(vector, Vector):
+            return self.x == vector.x and \
+                   self.y == vector.y and \
+                   self.z == vector.z
+        return False
     
     def __str__(self):
-        return '(%f %f %f)' % (self.x, self.y, self.z)
+        return 'Vector(%f %f %f)' % (self.x, self.y, self.z)
+
+    def __len__(self):
+        return self.mag()
+
+    def mag(self):
+        return (self.x**2 + self.z**2 + self.z**2)**0.5
 
     def add(self, vec):
         self.x += vec.x

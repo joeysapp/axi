@@ -11,15 +11,18 @@ class PathEntry:
         self.time = time;
 
     def __str__(self):
-        return '%s %s %s %s %s' % (self.pos, self.vel, self.acc, self.pen_pos, self.time)
+        return 'PathEntry(\n\tpos=%s\n\tvel=%s\n\tacc=%s\n\tpen_pos=%s\n\ttime=%s\n)' % (self.pos, self.vel, self.acc, self.pen_pos, self.time)
 
 class Path:
-    def __init__(self, args, initial_path_entry=PathEntry(), path_entries=None, **kwargs):
+    def __init__(self, args, initial_path_entry=None, path_entries=None, **kwargs):
         print("Path.__init__")
         for k, v in kwargs.items():
             print("Path.__init__: %s == %s" % (k, v))
         
-        self.path_entries = path_entries or [initial_path_entry]
+        if initial_path_entry:
+            self.path_entries = [initial_path_entry]
+        else:
+            self.path_entries = [PathEntry()]
         self.length = 0;
         # append, e=nd of list
         # extend, iterable to end of list

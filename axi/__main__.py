@@ -22,7 +22,7 @@ from .objects import Generator
 from .math import Vector
 
 
-VERSION = (0, 0, 1)
+VERSION = (0, 0, 2)
 
 def get_version() -> str:
     v = '%i.%i.%i' % VERSION
@@ -44,12 +44,12 @@ def handle_interrupt(s, _frame):
     print('\n\n__main__->handle_interrupt(%s)' % s)
     exit_signal.set()
 
-
 def main() -> int:
     """Connect and talk to Axidraw"""
+    result = 1;
+    # safely disconnect from axidraw and send it to 0,0 on ctrl-c
     for s in ('TERM', 'HUP', 'INT'):
         signal.signal(getattr(signal, 'SIG'+s), handle_interrupt);
-
     parser = argparse.ArgumentParser(
         prog='axi',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -66,39 +66,35 @@ def main() -> int:
         ''' % get_version()),
         epilog='Written by @joeysapp'
     )
-    # parser.add_argument('-p', '--pos', nargs=2, help='xy pos for plotter')
-    # parser.add_argument('-a', '--action', help='action for the plotter')
-    # parser.add_argument('-t', '--time', default=30, help='min/max time action can take in s', type=int)
-    parser.add_argument('-d', '--debug', help='display live debug information, levels of verbosity correspond number of arguments e.g. -ddd', action='count', default=0) #action=FooAction,)
-    # parser.add_argument('-v', '--verbose', help='display live debug information', action=FooAction)
-    # parser.add_argument('-v', '--version', help='s', action='version', version='%(prog)s %(version)s')
-    args = parser.parse_args()
-    result = 1;
+    parser.add_argument('-p', '--pos', nargs=2, help='initial (x y) pos for plotter')
+    parser.add_argument('-b', '--bounds', nargs=4, help='bounds relative to pos, xmin ymin xmax ymax')
+    parser.add_argument('-d', '--debug', help='display debug info', action='count', default=0)
+    cli_args = parser.parse_args()
 
-    gen = Generator()
+    # gen adds to path, using internal actions such as:
+    # Shapes
+    ## Square(xpos ypos xlength ylength rotation)
+    ## Circle(xpos hpos radius sides)      # sides=3 is triangle
+    gen = Generator(cli_args)
+    path = Path(cli_args, initial_path_entry=PathEntry(pos=Vector(0, 0, 0)));
+    plotter = Plotter(cli_args)
 
-    path = Path(args, initial_path_entry=PathEntry(pos=Vector(0, 0, 0)));
     path_idx = 0
-    # path.generate_path() # all at once
-    # path.add(Square(10, 10, xpos, ypos))
-    # path.add(Grid(Square(random, random)))
-
-    plotter = Plotter(args)
-
     loop_delay = 0.005
     while not exit_signal.is_set():
-        print('__main__ loop[%i / %i]' % (path_idx, path.length))
+        print('\n\n\n__main__ loop(%i / %i)' % (path_idx, path.length))
         current_path_entry = path.get(path_idx)
-        next_path_entry = gen.next(path_entry=current_path_entry)
+        plotter.path_step(current_path_entry, path_idx)
 
+        # gen.set_options();
+        next_path_entry = gen.next(path_entry=current_path_entry)
         path.extend(next_path_entry)
 
-        plotter.path_step(next_path_entry, path_idx)
         path_idx += 1
         exit_signal.wait(loop_delay)
-    print('__main__ ending at [t=%f]' % time.process_time())
+    print('__main__ exit(t=%f)' % time.process_time())
     plotter._disconnect()
-    # path.save()      
+    # path.save()
     return result
 
 sys.exit(main())
