@@ -11,7 +11,10 @@ class PathEntry:
         self.time = time;
 
     def __str__(self):
-        return 'PathEntry(\n\tpos=%s\n\tvel=%s\n\tacc=%s\n\tpen_pos=%s\n\ttime=%s\n)' % (self.pos, self.vel, self.acc, self.pen_pos, self.time)
+        a = '< '+str(self.time)+ ' ' + str(self.pen_pos)+ ' '
+        s = str(self.pos)+' '+str(self.vel)+' '+str(self.acc)+' >'
+        return a + s
+        # return 'PathEntry(\n\tpos=%s\n\tvel=%s\n\tacc=%s\n\tpen_pos=%s\n\ttime=%s\n)' % (self.pos, self.vel, self.acc, self.pen_pos, self.time)
 
 class Path:
     def __init__(self, args, initial_path_entry=None, path_entries=None, **kwargs):

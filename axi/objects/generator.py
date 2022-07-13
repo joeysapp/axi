@@ -26,21 +26,16 @@ class Generator:
         ndiv = 16.
         t = path_entry.time / 1000;
         n = osn.noise3(x/ndiv, y/ndiv, t)
-        print(n)
+        print('\t 001 n =', n, end='\n')
         n = map(n, -1, 1, 0, math.pi * 2)
         path_entry.acc = Vector(math.cos(n), math.sin(n), 0.0)
         path_entry.acc.limit(0.5);
         path_entry.vel.limit(2)
 
-
         ## end creative part
         next_vel = path_entry.vel.add(path_entry.acc)
         next_pos = path_entry.pos.add(path_entry.vel)
         time = path_entry.time + 1
-        pen_pos = path_entry.pen_pos
-        # if (pen_pos == 1):
-        #     pen_pos = 0
-
-        print('gen.next_pos', str(next_pos))
-        next_path_entry = PathEntry(pos=next_pos, vel=next_vel, time=time, pen_pos=pen_pos)
+        # pen_pos = path_entry.pen_pos
+        next_path_entry = PathEntry(pos=next_pos, vel=next_vel, acc=Vector(0, 0, 0), time=time)
         return next_path_entry;

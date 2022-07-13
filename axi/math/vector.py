@@ -12,10 +12,13 @@ class Vector:
         return False
     
     def __str__(self):
-        return 'Vector(%f %f %f)' % (self.x, self.y, self.z)
+        return '(%f %f %f)' % (self.x, self.y, self.z)
 
     def __len__(self):
         return self.mag()
+
+    def dist(self, vec) -> float:
+        return ((self.x - vec.x) ** 2 + (self.y - vec.y) ** 2) ** 0.5
 
     def mag(self):
         return (self.x**2 + self.z**2 + self.z**2)**0.5

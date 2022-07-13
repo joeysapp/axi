@@ -13,48 +13,6 @@ from axi.util import map
 # Users/____/Library/Python/3.8/lib/python/site-package/plotink/ebb_serial.py
 # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
 
-class PlotterBounds:
-    def __init__(self, **kwards):
-        print('objects/plotter/PlotterBounds.__init__')
-        self.min = Vector(0.1, 0.1, 0.1)
-        self.max = Vector(100., 100., 100.);
-
-    def wrap(self, path_entry):        
-        print('\twrap_pos1 pen_pos=%s pos=%s' % (path_entry.pen_pos, str(path_entry.pos)))
-
-        if (not self.check(path_entry)):
-            path_entry.pen_pos = 1
-        else:
-            path_entry.pen_pos = 0
-        x = max(self.min.x, (path_entry.pos.x + self.max.x)) % self.max.x
-        y = max(self.min.y, (path_entry.pos.y + self.max.y)) % self.max.y
-        z = max(self.min.z, (path_entry.pos.z + self.max.z)) % self.max.z
-        path_entry.pos = Vector(x, y, z)
-        print('\twrap_pos1 pen_pos=%s pos=%s' % (path_entry.pen_pos, str(path_entry.pos)))
-        # return Vector(x, y, z)
-
-    def get_random_pos(self, path_entry) -> Vector:
-        x = random.random() * (self.max.x - self.min.x)
-        y = random.random() * (self.max.y - self.min.z)
-        z = random.random() * (self.max.z - self.min.z)
-        return Vector(x, y, z)
-
-    def check(self, path_entry) -> bool:
-        x = path_entry.pos.x;
-        y = path_entry.pos.y;
-        z = path_entry.pos.z;
-        check_val = True;
-        if (x < self.min.x or x > self.max.x):
-            check_val = False
-        if (y < self.min.y or y > self.max.y):
-            check_val = False
-        print('check_val: ', check_val);
-        return check_val
-
-#    def wrap_bounds(self, path_entry):
-#        
-
-
 class Plotter:
     def __init__(self, args, **kwargs):
         print('objects/plotter/Plotter.__init__')
@@ -62,7 +20,10 @@ class Plotter:
             print("Plotter.__init__: %s == %s" % (k, v))
         self._axidraw = axidraw.AxiDraw()
         self._connect()
-        self.bounds = PlotterBounds()
+        self.min = [Vector(0, 0, 0), Vector(0, 0, 0)]
+        self.max = [Vector(100, 100, 0), Vector(100, 100, 0)]
+        self.shift_x = 0
+        self.shift_y = 0
         self.traversed_path = Path(args)
 
     # def pause(self):
@@ -73,30 +34,43 @@ class Plotter:
         self.traversed_path.extend(path_extension)
 
     def path_step(self, path_entry, path_idx):
-        print('objects/plotter/path_step to path[%i]:\n%s' % (path_idx, str(path_entry)))
+        print('objects/plotter/path_step[%i] : \n\t%s' % (path_idx, str(path_entry)))
         serial_pen_pos = int(self._axidraw.usb_query('QP\r')) # 1 if up, 0 if down
 
         last_path_entry = self.traversed_path.get(-1)
         last_pen_pos = last_path_entry.pen_pos
+        last_pos = last_path_entry.pos
 
-        self.bounds.wrap(path_entry);
-        pen_pos = path_entry.pen_pos
+        pos = path_entry.pos
+        while (pos.x > self.max[0].x):
+            pos.x -= self.max.x[0]
+        while (pos.x < self.min[0].x):
+            pos.x += self.max[0].x
 
-        # print(type(serial_pen_pos))
-        # print(type(last_pen_pos))
-        # print(type(next_pen_pos))
+        while (pos.y > self.max[1].y):
+            pos.y -= self.max.y[1]
+        while (pos.y < self.min[1].y):
+            pos.y += self.max[1].y
 
-        print('pen_pos= %s, last_pen_pos= %s' % (pen_pos, last_pen_pos))
-        if (pen_pos == 1):
+        d = last_pos.dist(pos);
+        print('d: ', d)
+        if (d > 10):
+            print('wrapped')
+            path_entry.pen_pos = 1
             self._axidraw.penup()
-            time.sleep(0.05)
-        else:
+            time.sleep(0.5);
+        elif (last_pen_pos == 1):
+            print('lower')
+            path_entry.pen_pos = 0
             self._axidraw.pendown()
-            time.sleep(0.05)
-        # else if (pen_pos === '0' and not in_bounds): raise
+            time.sleep(0.5)
 
-        self._axidraw.goto(path_entry.pos.x, path_entry.pos.y)
+        # else if (pen_pos === '0' and not in_bounds): raise
+        self._axidraw.goto(pos.x, pos.y)
+        # path_entry.pos = pos
+        print('extending with: ', path_entry)
         self.traversed_path.extend(path_entry)
+        return path_entry.pen_pos
 
     def _connect(self):
         try:
