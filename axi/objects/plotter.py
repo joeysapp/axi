@@ -48,7 +48,7 @@ class Plotter:
             pos.x += self.max[0].x
 
         while (pos.y > self.max[1].y):
-            pos.y -= self.max.y[1]
+            pos.y -= self.max[1].y
         while (pos.y < self.min[1].y):
             pos.y += self.max[1].y
 
@@ -106,8 +106,8 @@ class Plotter:
     def _configure(self):
         """ examples_config/axidraw_conf_copy.py """
         print('objects/plotter/_configure');
-        #self._axidraw.options.pen_pos_down = 50
-        #self._axidraw.options.pen_pos_up = 0
+        self._axidraw.options.pen_pos_down = 0
+        self._axidraw.options.pen_pos_up = 75
         #self._axidraw.options.speed_pendown = 25 # maximum speed while pendown
         #self._axidraw.options.speed_penup = 75 # maximum speed while penup
 

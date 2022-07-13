@@ -20,6 +20,11 @@ class Vector:
     def dist(self, vec) -> float:
         return ((self.x - vec.x) ** 2 + (self.y - vec.y) ** 2) ** 0.5
 
+    def mult(self, f):
+        self.x *= f
+        self.y *= f
+        self.z *= f
+
     def mag(self):
         return (self.x**2 + self.z**2 + self.z**2)**0.5
 

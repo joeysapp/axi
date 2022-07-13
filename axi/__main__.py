@@ -80,7 +80,7 @@ def main() -> int:
     plotter = Plotter(cli_args)
 
     path_idx = 0
-    loop_delay = 0.005
+    loop_delay = 0.0005
     while not exit_signal.is_set():
         print('\n\n\n__main__ loop(%i / %i)' % (path_idx, path.length))
         current_path_entry = path.get(path_idx)
