@@ -23,13 +23,13 @@ class Generator:
         x = path_entry.pos.x;
         y = path_entry.pos.y;
         z = path_entry.pos.z;
-        ndiv = 4.
-        t = path_entry.time / 1000;
-        n = osn.noise3(x/ndiv, y/ndiv, t)
+        ndiv = 16.
+        t = path_entry.time / 1000000.;
+        n = osn.noise3(x/ndiv, y/ndiv, 0)
         print('\t 001 n =', n, end='\n')
         n = map(n, -1, 1, 0, math.pi * 2)
 
-        path_entry.vel.mult(0.50)
+        path_entry.vel.mult(0.95)
 
         path_entry.acc = Vector(math.cos(n), math.sin(n), 0.0)
         path_entry.acc.limit(1);
@@ -39,11 +39,14 @@ class Generator:
         next_vel = path_entry.vel.add(path_entry.acc)
         next_pos = path_entry.pos.add(path_entry.vel)
 
-        if (next_pos.x > 100 or next_pos.x < 0):
-            next_pos.x = random.random()*100
+        if (next_pos.x > 66 or next_pos.x < 33):
+            next_pos.x = 33 + random.random()*33.
+            next_pos.y = random.random()*225
+
             next_vel = Vector(0, 0, 0)
-        if (next_pos.y > 100 or next_pos.y < 0):
-            next_pos.y = random.random()*100
+        if (next_pos.y > 225 or next_pos.y < 0):
+            next_pos.x = 33 + random.random()*33.0
+            next_pos.y = random.random()*225
             next_vel = Vector(0, 0, 0)
 
         time = path_entry.time + 1

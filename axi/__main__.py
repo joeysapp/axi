@@ -76,13 +76,15 @@ def main() -> int:
     ## Square(xpos ypos xlength ylength rotation)
     ## Circle(xpos hpos radius sides)      # sides=3 is triangle
     gen = Generator(cli_args)
-    path = Path(cli_args, initial_path_entry=PathEntry(pos=Vector(0, 0, 0)));
+    path = Path(cli_args, initial_path_entry=start);
     plotter = Plotter(cli_args)
 
     path_idx = 0
     loop_delay = 0.0005
     while not exit_signal.is_set():
+
         print('\n\n\n__main__ loop(%i / %i)' % (path_idx, path.length))
+        if (path_idx >= 
         current_path_entry = path.get(path_idx)
         print('000 ', end='')
         next_path_entry = gen.next(path_entry=current_path_entry)

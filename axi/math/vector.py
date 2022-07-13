@@ -35,13 +35,13 @@ class Vector:
         return Vector(self.x + vec.x, self.y + vec.y, self.z + vec.z);
     
     def limit(self, l):
-        if (self.x > l):
+        if (self.x >= l):
             self.x = l
-        elif (self.x < -l):
+        elif (self.x <= -l):
             self.x = -l
-        if (self.y > l):
+        if (self.y >= l):
             self.y = l
-        elif (self.y < -l):
+        elif (self.y <= -l):
             self.y = -l
 
 

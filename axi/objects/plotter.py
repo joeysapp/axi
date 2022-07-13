@@ -21,7 +21,7 @@ class Plotter:
         self._axidraw = axidraw.AxiDraw()
         self._connect()
         self.min = [Vector(0, 0, 0), Vector(0, 0, 0)]
-        self.max = [Vector(100, 100, 0), Vector(100, 100, 0)]
+        self.max = [Vector(100, 200, 0), Vector(100, 200, 0)]
         self.shift_x = 0
         self.shift_y = 0
         self.traversed_path = Path(args)
@@ -30,9 +30,17 @@ class Plotter:
     # def resume(self):
     # def pauseToChangePenHeight(self):
 
+    # used to traverse a Path
+    def path_execute(self, path):
+        for path_entry in path.path_entries:
+            self._axidraw.goto(pos.x, pos.y)
+            self.traversed_path.extend(path_entry)
+            time.sleep(0.5)
+
     def path_extend(self, path_extension):
         self.traversed_path.extend(path_extension)
 
+    # used with iteratively-generated Path items from ./generator.py
     def path_step(self, path_entry, path_idx):
         print('objects/plotter/path_step[%i] : \n\t%s' % (path_idx, str(path_entry)))
         serial_pen_pos = int(self._axidraw.usb_query('QP\r')) # 1 if up, 0 if down
