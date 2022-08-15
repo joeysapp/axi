@@ -1,7 +1,11 @@
 from axi.util import Console
 from axi.util import map
-from .path import PathEntry
 from axi.math import Vector
+
+
+from .path import Path, PathEntry
+
+from axi.shapes import Square
 
 import random, math
 
@@ -15,8 +19,16 @@ class Generator:
         self.settings = settings
         osn.seed(42)
 
+    def get_shape_path(self, type, pos, options) -> Path:
+        path = None
+        if (type == 'square'):
+            path = Square(pos, options)
+        elif (type == 'circle'):
+            path = Circle(pos, options)
+        elif (type == 'spiral'):
+            path = Spiral(pos, options)
     
-    def next(self, path_entry) -> PathEntry:
+    def _next_simplex_fun(self, path_entry) -> PathEntry:
         # self._generator....
         print('objects/generator/next')
         ## creative part 

@@ -79,19 +79,23 @@ def main() -> int:
     path = Path(cli_args, initial_path_entry=start);
     plotter = Plotter(cli_args)
 
+    bounds = []
+
     path_idx = 0
     loop_delay = 0.0005
     while not exit_signal.is_set():
 
         print('\n\n\n__main__ loop(%i / %i)' % (path_idx, path.length))
-        if (path_idx >= 
-        current_path_entry = path.get(path_idx)
+
+        # current_path_entry = path.get(path_idx)
+
         print('000 ', end='')
-        next_path_entry = gen.next(path_entry=current_path_entry)
+        # next_path_entry = gen._next_simplex_fun(path_entry=current_path_entry)
         print('001 ', end='')
-        next_pen_pos = plotter.path_step(current_path_entry, path_idx)
-        next_path_entry.pen_pos = next_pen_pos
-        path.extend(next_path_entry)
+
+        # next_pen_pos = plotter.path_step(current_path_entry, path_idx)
+        # next_path_entry.pen_pos = next_pen_pos
+        # path.extend(next_path_entry)
 
         # gen.set_options();
 

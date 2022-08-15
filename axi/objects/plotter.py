@@ -20,10 +20,6 @@ class Plotter:
             print("Plotter.__init__: %s == %s" % (k, v))
         self._axidraw = axidraw.AxiDraw()
         self._connect()
-        self.min = [Vector(0, 0, 0), Vector(0, 0, 0)]
-        self.max = [Vector(100, 200, 0), Vector(100, 200, 0)]
-        self.shift_x = 0
-        self.shift_y = 0
         self.traversed_path = Path(args)
 
     # def pause(self):
@@ -32,6 +28,7 @@ class Plotter:
 
     # used to traverse a Path
     def path_execute(self, path):
+        # will the interrupt signal handle a nested loop? probably?
         for path_entry in path.path_entries:
             self._axidraw.goto(pos.x, pos.y)
             self.traversed_path.extend(path_entry)
