@@ -1,9 +1,11 @@
 #!/usr/bin/python3.8
 """
-Invokes base functionality when axi is run as a script.
-Example: python3.8 -m axi -a square -t 100
+
+axi module for interacting with Axidraw via serial
+$ python3.8 -m axi
+
 """
-VERSION = (0, 1, 0)
+VERSION = (0, 0, 0)
 
 import argparse, sys, textwrap, time, os
 from .objects import Plotter, Graph, Node, Generator
@@ -67,7 +69,7 @@ def axi() -> int:
         #"max": { "x": 431.8, "y": 279.4 },
     }
     # Interrupt signal delay - fraction of a second
-    loop_delay = 0.1
+    loop_delay = 0.5
 
     while not exit_signal.is_set():
         Console.log("\n\n__main__.loop -> head={}\n".format(head))

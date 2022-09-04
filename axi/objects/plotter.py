@@ -58,8 +58,10 @@ class Plotter:
         if (action == "raise"):
             print("... raise... ")
             self.axidraw.penup()
+            time.sleep(0.5)
         elif (action == "lower"):
             self.axidraw.pendown()
+            time.sleep(0.5)
         elif (action == "move"):
             # todo(joeysapp): determine how far we're moving and how long to wait
             self.axidraw.goto(pos.x, pos.y);

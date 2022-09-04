@@ -40,22 +40,34 @@ class Generator:
             pos = node.pos
 
             n = fmap(random.random(), 0, 1, 0, math.pi*2)
-            m = 1
+
+            t = i/10.0
+            t = math.sin(t);
+            print("t = {}".format(t))
+            m = 0.9 + t
+
             nx = pos.x + m * math.cos(n) # x is technically the vertical component
             ny = pos.y + m * math.sin(n) # y is techincally the horizontal component
             action = "move"
-            if (node.action == "finish" or node.action == "none"):
+            if (node.action == "finish" or node.action == "none" or action == "raise"):
                 action = "lower"
             elif (i == amt-1):
                 action = "finish"
 
             if (nx <= bounds["min"]["x"] or nx >= bounds["max"]["x"]):
+                node = Node(id=id, pos=Vector(pos.x, pos.y, pos.z), action='raise', neighbors=[id+1])
+                nodes[id] = node
+                id = id + 1
                 nx = random.randrange(bounds["min"]["x"], bounds["max"]["x"])
             if (ny <= bounds["min"]["y"] or ny >= bounds["max"]["y"]):
+                node = Node(id=id, pos=Vector(pos.x, pos.y, pos.z), action='raise', neighbors=[id+1])
+                nodes[id] = node
+                id = id + 1
                 ny = random.randrange(bounds["min"]["y"], bounds["max"]["y"])
 
             node = Node(id=id, pos=Vector(nx, ny, pos.z), action=action, neighbors=[id+1])
             nodes[id] = node
+
             
         return { "id": head.id + 1, "nodes": nodes }
 
