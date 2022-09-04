@@ -7,7 +7,7 @@ from .path import Path, PathEntry
 
 from axi.shapes import Square
 
-import random, math
+import random, math, time
 
 import opensimplex as osn
 

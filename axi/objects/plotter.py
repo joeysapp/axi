@@ -5,7 +5,7 @@ import math
 import random
 import time
 
-# from axi.util import Console
+from axi.util import Console
 from axi.math import Vector
 from axi.objects import Path
 from axi.util import map
@@ -13,57 +13,36 @@ from axi.util import map
 # Users/____/Library/Python/3.8/lib/python/site-package/plotink/ebb_serial.py
 # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
 
+# Wrapper of axidraw object 
 class Plotter:
     def __init__(self, args, **kwargs):
         print('objects/plotter/Plotter.__init__')
         for k, v in kwargs.items():
             print("Plotter.__init__: %s == %s" % (k, v))
         self._axidraw = axidraw.AxiDraw()
-        self._connect()
-        self.traversed_path = Path(args)
+        self._head = None
+        self.connect()
 
     # def pause(self):
     # def resume(self):
     # def pauseToChangePenHeight(self):
 
-    # used to traverse a Path
-    def path_execute(self, path):
-        # will the interrupt signal handle a nested loop? probably?
-        for path_entry in path.path_entries:
-            self._axidraw.goto(pos.x, pos.y)
-            self.traversed_path.extend(path_entry)
-            time.sleep(0.5)
-
-    def path_extend(self, path_extension):
-        self.traversed_path.extend(path_extension)
-
-    # used with iteratively-generated Path items from ./generator.py
-    def path_step(self, path_entry, path_idx):
-        print('objects/plotter/path_step[%i] : \n\t%s' % (path_idx, str(path_entry)))
-        serial_pen_pos = int(self._axidraw.usb_query('QP\r')) # 1 if up, 0 if down
-
-        last_path_entry = self.traversed_path.get(-1)
-        last_pen_pos = last_path_entry.pen_pos
-        last_pos = last_path_entry.pos
-
-        pos = path_entry.pos
-        while (pos.x > self.max[0].x):
-            pos.x -= self.max.x[0]
-        while (pos.x < self.min[0].x):
-            pos.x += self.max[0].x
-
-        while (pos.y > self.max[1].y):
-            pos.y -= self.max[1].y
-        while (pos.y < self.min[1].y):
-            pos.y += self.max[1].y
+    def step(self, path_entry):
+        print('objects/plotter/step[%i] : \n\t %s' % (path_idx, str(path_entry)))
+        serial_pen_state = int(self._axidraw.usb_query('QP\r')) # 1 if up, 0 if down
+        last_path_entry = self._head
+        if (last_path_entry != None):
+            # start of path
+            foo = 1
+        else:
+            self._head = path_entry
 
         d = last_pos.dist(pos);
         print('d: ', d)
         if (d > 10):
             print('wrapped')
             path_entry.pen_pos = 1
-            self._axidraw.penup()
-            time.sleep(0.5);
+            self.axidraw.penup()
         elif (last_pen_pos == 1):
             print('lower')
             path_entry.pen_pos = 0
@@ -77,7 +56,17 @@ class Plotter:
         self.traversed_path.extend(path_entry)
         return path_entry.pen_pos
 
-    def _connect(self):
+    def set_pen_position_range(self):
+        self._axidraw.usb_command('SC,4,%i' % self.pen_pos_up)
+        self._axidraw.usb_command('SC,5,%i' % self.pen_pos_down)
+
+    def disable_motors(self):
+        self._axidraw.usb_command('EM,0,0\r');
+
+    def enable_motors(self):
+        self._axidraw.usb_command('EM,1,1\r');
+
+    def connect(self):
         try:
             self._axidraw.interactive()
             self._axidraw.connect()
@@ -87,7 +76,7 @@ class Plotter:
             print('objects/plotter/_connect fail %s', err);
             pass
 
-    def _disconnect(self):
+    def disconnect(self):
         try:
             print('objects/plotter/_disconnect ok')
             self._axidraw.penup()
@@ -97,18 +86,8 @@ class Plotter:
         except Exception as err:
             print('objects/plotter/_disconnect fail %s', err);
             pass
-            
-    def _disable_motors(self):
-        self._axidraw.usb_command('EM,0,0\r');
 
-    def _enable_motors(self):
-        self._axidraw.usb_command('EM,1,1\r');
-
-    def setPenBounds(self):
-        self._axidraw.usb_command('SC,4,%i' % self.pen_pos_up)
-        self._axidraw.usb_command('SC,5,%i' % self.pen_pos_down)
-
-    def _configure(self):
+    def configure(self):
         """ examples_config/axidraw_conf_copy.py """
         print('objects/plotter/_configure');
         self._axidraw.options.pen_pos_down = 0

@@ -9,14 +9,20 @@
 #     echo
 # done
 
+red   = "\033[1;31m"  
+blue  = "\033[1;34m"
+cyan  = "\033[1;36m"
+green = "\033[0;32m"
+reset = "\033[0;0m"
+bold  = "\033[;1m"
+reverse = "\033[;7m"
+
+
 class Console():
     def __init__(self, **kwargs):
         print("util/Console.py init", kwargs);
 
-red   = "\033[1;31m"  
-blue  = "\033[1;34m"
-CYAN  = "\033[1;36m"
-GREEN = "\033[0;32m"
-RESET = "\033[0;0m"
-BOLD    = "\033[;1m"
-REVERSE = "\033[;7m"
+    @classmethod
+    def log(cls, text):
+        print(bold+"[LOG]: "+reset+text)
+
