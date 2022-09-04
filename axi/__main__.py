@@ -1,109 +1,93 @@
+#!/usr/bin/python3.8
 """
 Invokes base functionality when axi is run as a script.
-Example: python3 -m axi -a square -t 100
+Example: python3.8 -m axi -a square -t 100
 """
+VERSION = (0, 1, 0)
 
-import argparse
-import sys
-import textwrap
-import time
+import argparse, sys, textwrap, time, os
+from .objects import Plotter, Graph, Node, Generator
+from .util import Console
 
+# note(@joeysapp): Ctrl-c won't break the serial connection
+# - https://docs.python.org/3.8/library/threading.html
 import signal
 from threading import Event
 exit_signal = Event()
-
-# https://docs.python.org/3/library/__main__.html
-# https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#python-requires
-
-from .objects import Plotter
-from .objects import Path, PathEntry
-from .objects import Generator
-
-from .math import Vector
-
-
-VERSION = (0, 0, 2)
-
-def get_version() -> str:
-    v = '%i.%i.%i' % VERSION
-    return v
-
-class FooAction(argparse.Action):
-    def __init__(self, option_strings, dest, nargs=None, **kwargs):
-        print("rawr", option_strings, nargs, kwargs)
-        if nargs is not None:
-            raise ValueError("nargs not allowed")
-        super().__init__(option_strings, dest, **kwargs)
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        print("RAWR", option_strings, nargs, kwargs)        
-        print('\n\n%r %r %r' % (namespace, values, option_string))
-        setattr(namespace, self.dest, values)
-
-def handle_interrupt(s, _frame):
-    print('\n\n__main__->handle_interrupt(%s)' % s)
+def handle_interrupt(signal, _frame):
+    Console.error("\n", signal, _frame, "\n");
+    std_result = 0
     exit_signal.set()
+for s in ('TERM', 'HUP', 'INT'):
+    signal.signal(getattr(signal, 'SIG'+s), handle_interrupt);
 
-def main() -> int:
-    """Connect and talk to Axidraw"""
-    result = 1;
-    # safely disconnect from axidraw and send it to 0,0 on ctrl-c
-    for s in ('TERM', 'HUP', 'INT'):
-        signal.signal(getattr(signal, 'SIG'+s), handle_interrupt);
+
+
+
+
+std_result = 1
+def axi() -> int:
     parser = argparse.ArgumentParser(
-        prog='axi',
+        prog="axi",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent('''
-        axi (%s)
+        axi {}
         ----------------------------
             This is a python module that can be
             ran as a script to connect to a local
             or remote axidraw and control it.
-
-            Featuring safe connections and the
-            ability to prevent axidraw interrupts
-            or otherwise sketch-breaking events.
-        ''' % get_version()),
-        epilog='Written by @joeysapp'
+        '''.format("%i.%i.%i".format(VERSION[0], VERSION[1], VERSION[2]))),
+        epilog="Written by @joeysapp"
     )
     parser.add_argument('-p', '--pos', nargs=2, help='initial (x y) pos for plotter')
     parser.add_argument('-b', '--bounds', nargs=4, help='bounds relative to pos, xmin ymin xmax ymax')
     parser.add_argument('-d', '--debug', help='display debug info', action='count', default=0)
     cli_args = parser.parse_args()
 
-    # gen adds to path, using internal actions such as:
-    # Shapes
-    ## Square(xpos ypos xlength ylength rotation)
-    ## Circle(xpos hpos radius sides)      # sides=3 is triangle
-    gen = Generator(cli_args)
-    path = Path(cli_args, initial_path_entry=start);
+    generator = Generator(cli_args)
+    graph = Graph(cli_args);
     plotter = Plotter(cli_args)
 
-    bounds = []
+    cmd = None
+    cmd = "(goto 20 20)"
+        # cmd = "(square (0 0) 10 10)"
+        # cmd = "(circle (0 0) radius=50 sides=3)"
+        # cmd = "(goto 20 20)"
 
-    path_idx = 0
-    loop_delay = 0.0005
+    # Graph "head", where the plotter will try to go next
+    head = None
+
+    # Used for generator and bounds checking for Plotter
+    bounds = [[0, 0], [279.4, 431.8]] # 11 x 17in -> 27.94 x 43.18cm -> mm
+
+    # Interrupt signal delay - fraction of a second
+    loop_delay = 0.5
+
     while not exit_signal.is_set():
+        Console.log("__main__.loop\n")
+        
+        # todo(@joeysapp on 2022-09-03):
+        # - Another thread, listening for user input for cmd
+        # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
 
-        print('\n\n\n__main__ loop(%i / %i)' % (path_idx, path.length))
+        if (cmd != None):
+            new_nodes = generator.do(cmd, head, bounds)
+            graph.add_nodes(new_nodes)
+            cmd = None
 
-        # current_path_entry = path.get(path_idx)
+        if (head != None and plotter.check_bounds(head, bounds)):
+            plotter.do(head)
 
-        print('000 ', end='')
-        # next_path_entry = gen._next_simplex_fun(path_entry=current_path_entry)
-        print('001 ', end='')
+            graph.extend_history()
+            graph.move_head_to_next_node()
 
-        # next_pen_pos = plotter.path_step(current_path_entry, path_idx)
-        # next_path_entry.pen_pos = next_pen_pos
-        # path.extend(next_path_entry)
+        head = graph.get_head()
 
-        # gen.set_options();
-
-        path_idx += 1
         exit_signal.wait(loop_delay)
-    print('__main__ exit(t=%f)' % time.process_time())
-    plotter._disconnect()
-    # path.save()
-    return result
 
-sys.exit(main())
+    Console.log("__main__.exit() at {:.2f} seconds\n".format(time.process_time()))
+    Console.log("graph: {}".format(graph))
+    plotter.disconnect()
+    return std_result
+
+sys.exit(axi())

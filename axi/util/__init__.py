@@ -1,4 +1,4 @@
 from .console import Console
-from .g import map
+from .math import fmap
 
-__all__ = ["Console", map] 
+__all__ = ["Console", fmap] 

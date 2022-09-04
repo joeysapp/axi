@@ -1,6 +1,5 @@
-#from .plotter import Plotter
-from .path import Path, PathEntry
+from .graph import Graph, Node
 from .plotter import Plotter
 from .generator import Generator
 
-__all__ = ['Path', 'PathEntry', 'Plotter', 'Generator'] 
+__all__ = ['Graph', 'Node', 'Plotter', 'Generator'] 

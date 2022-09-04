@@ -23,9 +23,9 @@ class Vector:
 
     def dist(self, vec) -> float:
         # note(@joeysapp): ** faster than math.pow, no fn call
-        return ((self.x - vec.x)**2 + \\
-                (self.y - vec.y)**2 + \\
-                (self.z - vec.z)**2))**0.5
+        return ((self.x - vec.x)**2 +
+                (self.y - vec.y)**2 +
+                (self.z - vec.z)**2)**0.5
 
     def mult(self, f):
         return Vector(self.x * f, self.y * f, self.z * f)
