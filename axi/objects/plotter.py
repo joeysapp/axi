@@ -56,6 +56,7 @@ class Plotter:
         action = node.action
         pos = node.pos
         if (action == "raise"):
+            print("... raise... ")
             self.axidraw.penup()
         elif (action == "lower"):
             self.axidraw.pendown()
@@ -145,18 +146,16 @@ class Plotter:
             "check_updates": False,
             "random_start": False, # randomize start location of closed paths
         }
-        # options/params are funny optparse things
         for k in self.params:
             setattr(self.axidraw.params, k, self.params[k])
         for k in self.options:
-            #Console.log("1  axi={}    self={}\n".format(getattr(self.axidraw.options, k), self.options[k] or None))
             setattr(self.axidraw.options, k, self.options[k])
-            #Console.log("2  axi={}    self={}\n\n".format(getattr(self.axidraw.options, k), self.options[k] or None))
         self.axidraw.update()
-        time.sleep(0.5)
-        Console.log("Plotter.configure() -> 0 -> \n{}\n".format(self.get_options()))            
+
+        # note(@joeysapp): Might need to be longer than half a second
+        update_delay = 0.5
+        time.sleep(update_delay)
+        Console.log("Plotter.configure() -> 0 -> {}\n".format(self.get_version()))            
         return 0
 
 # params = <module 'axidrawinternal.axidraw_conf' from '/Users/zooey/Library/Python/3.8/lib/python/site-packages/axidrawinternal/axidraw_conf.py'>
-
-# options = {'ids': [], 'selected_nodes': [], 'speed_pendown': 25, 'speed_penup': 75, 'accel': 75, 'pen_pos_down': 30, 'pen_pos_up': 60, 'pen_rate_lower': 50, 'pen_rate_raise': 75, 'pen_delay_down': 0, 'pen_delay_up': 0, 'no_rotate': False, 'const_speed': False, 'report_time': False, 'page_delay': 15, 'preview': False, 'rendering': 3, 'model': 1, 'port_config': 0, 'port': None, 'setup_type': 'align', 'resume_type': 'plot', 'auto_rotate': True, 'random_start': False, 'reordering': 0, 'resolution': 1, 'digest': 0, 'webhook': False, 'webhook_url': None, 'mode': 'interactive', 'submode': 'none', 'manual_cmd': 'fw_version', 'walk_dist': 1, 'layer': 1, 'copies': 1, 'units': 0}

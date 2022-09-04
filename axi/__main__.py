@@ -49,40 +49,57 @@ def axi() -> int:
     plotter = Plotter(cli_args)
 
     cmd = None
-    cmd = "(goto 20 20)"
+    #cmd = "(goto 20 20)"
         # cmd = "(square (0 0) 10 10)"
         # cmd = "(circle (0 0) radius=50 sides=3)"
         # cmd = "(goto 20 20)"
 
     # Graph "head", where the plotter will try to go next
-    head = None
+    head = graph.get_head()
 
     # Used for generator and bounds checking for Plotter
-    bounds = [[0, 0], [279.4, 431.8]] # 11 x 17in -> 27.94 x 43.18cm -> mm
-
+    # 11 x 17in -> 27.94 x 43.18cm -> mm
+    # "x" is the vertical axis on our graph
+    # "y" is the horiz axis on our graph
+    bounds = {
+        "min": { "x": 0, "y": 0 },
+        "max": { "x": 100, "y": 100 },
+        #"max": { "x": 431.8, "y": 279.4 },
+    }
     # Interrupt signal delay - fraction of a second
-    loop_delay = 0.5
+    loop_delay = 0.1
 
     while not exit_signal.is_set():
-        Console.log("__main__.loop\n")
+        Console.log("\n\n__main__.loop -> head={}\n".format(head))
         
         # todo(@joeysapp on 2022-09-03):
         # - Another thread, listening for user input for cmd
         # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
 
-        if (cmd != None):
-            new_nodes = generator.do(cmd, head, bounds)
-            graph.add_nodes(new_nodes)
-            cmd = None
-
+        # Plotter
         if (head != None and plotter.check_bounds(head, bounds)):
             plotter.do(head)
-
             graph.extend_history()
             graph.move_head_to_next_node()
 
-        head = graph.get_head()
+        # Decide where the plotter is going next
+        if (cmd != None):
+            # User/loaded-in commands
+            gen = generator.do(cmd, head, bounds)
+            graph.add_nodes(gen["nodes"])
+            graph.set_head(gen["id"])
 
+            cmd = None
+        elif (head.action == 'finish' or head.action == "none"):
+            # do things with previous graph entries: ....
+            # Random:
+            gen = generator.get_random(head, bounds)
+            graph.add_nodes(gen["nodes"])
+            print("WAT", head.action)
+            print("OK!", gen["id"])
+            graph.set_head(gen["id"])
+
+        head = graph.get_head()
         exit_signal.wait(loop_delay)
 
     Console.log("__main__.exit() at {:.2f} seconds\n".format(time.process_time()))

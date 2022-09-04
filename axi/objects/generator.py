@@ -9,24 +9,55 @@ from .graph import Graph, Node
 
 class Generator:
     def __init__(self, args):
-        Console.log("Generator.__init__( args={} )\n".format(args))
+        Console.log("Generator.__init__(args={})\n".format(args))
         osn.seed(42)
 
     # Returns a dictionary of nodes generated?
     # but how 2 know where 2 start.
     def do(self, cmd, head, bounds):
-        Console.log("Generator.do( cmd={}, heads={}, bounds={} )\n".format(cmd, head, bounds))
+        Console.log("Generator.do(cmd={}, head={}, bounds={})\n".format(cmd, head, bounds))
         nodes = {}
 
-        nodes[0] = Node(id=0, action="move", pos=Vector(50, 50, 0), neighbors=[1])
-        nodes[1] = Node(id=1, action="lower", pos=Vector(50, 50, 0), neighbors=[2])
-        nodes[2] = Node(id=2, action="move", pos=Vector(50, 100, 0), neighbors=[3])
-        nodes[3] = Node(id=3, action="raise", pos=Vector(50, 100, 0), neighbors=[])
+        id = head.id;
+
+        nodes[id+1] = Node(id=0, action="move", pos=Vector(20, 50, 0), neighbors=[id+2])
+        nodes[id+2] = Node(id=1, action="lower", pos=Vector(20, 50, 0), neighbors=[id+3])
+        nodes[id+3] = Node(id=2, action="move", pos=Vector(20, 100, 0), neighbors=[id+4])
+        nodes[id+4] = Node(id=3, action="raise", pos=Vector(20, 100, 0), neighbors=[id+5])
+        nodes[id+5] = Node(id=4, action="finish", pos=Vector(20, 100, 0), neighbors=[])
         
-        return nodes
+        return { "id": 0, "nodes": nodes }
 
 
+    def get_random(self, head, bounds):
+        Console.log("Generator.get_random(head={}, bounds={})\n".format(head, bounds))
+        nodes = {}
+        node = head;
 
+        amt = 100;
+        for i in range(0, amt):
+            id = node.id + 1
+            pos = node.pos
+
+            n = fmap(random.random(), 0, 1, 0, math.pi*2)
+            m = 1
+            nx = pos.x + m * math.cos(n) # x is technically the vertical component
+            ny = pos.y + m * math.sin(n) # y is techincally the horizontal component
+            action = "move"
+            if (node.action == "finish" or node.action == "none"):
+                action = "lower"
+            elif (i == amt-1):
+                action = "finish"
+
+            if (nx <= bounds["min"]["x"] or nx >= bounds["max"]["x"]):
+                nx = random.randrange(bounds["min"]["x"], bounds["max"]["x"])
+            if (ny <= bounds["min"]["y"] or ny >= bounds["max"]["y"]):
+                ny = random.randrange(bounds["min"]["y"], bounds["max"]["y"])
+
+            node = Node(id=id, pos=Vector(nx, ny, pos.z), action=action, neighbors=[id+1])
+            nodes[id] = node
+            
+        return { "id": head.id + 1, "nodes": nodes }
 
 
 

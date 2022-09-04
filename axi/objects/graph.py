@@ -23,27 +23,43 @@ class Node:
   # copy shallow copy of list
 
 class Graph:
-    def __init__(self, cli_args, head_id=0, nodes={}):
-        self.head_id = head_id
-        self.nodes = nodes
+    def __init__(self, cli_args):
+        origin_id = 0
+        origin = Node(origin_id, action="none", pos=cli_args.pos or Vector(0, 0, 0), neighbors=[])
+        self.head_id = origin_id
+        self.nodes = { origin_id: origin }
         self.history = []
 
+    def set_head(self, id):
+        self.head_id = id;
+
     def get_head(self) -> Node:
-        return self.nodes[self.head_id]
+        next_head = self.nodes[self.head_id]
+        print("next_head: ", next_head.action)
+        return next_head
 
     def add_nodes(self, nodes={}, new_graph=False):
+        print("1add_nodes, nodes={} new_nodes{}".format(len(self.nodes), len(nodes)))
         if (new_graph):
             tmp_nodes = nodes.copy()
             tmp_nodes.update(self.nodes)
             self.nodes = tmp_graph
         else:
             self.nodes.update(nodes)
+        print("2add_nodes, nodes={} new_nodes{}".format(len(self.nodes), len(nodes)))
 
+            
     # note(@joeysapp): for now, a node's neighbors will likely be a single node
     def move_head_to_next_node(self):
         head = self.nodes[self.head_id]
         if (len(head.neighbors)):
            self.head_id = head.neighbors[0]
+        elif head.action == 'origin':
+            # End of graph:
+            #   1. Go back to start of (graph item)
+            #   2. Remain, raised, here
+            #   3. Move back to origin
+            self.head_id = "origin"
 
     # note(@joeysapp): Should a "graph" have a history, or should we have an Action handler? 
     def extend_history(self):
