@@ -1,35 +1,35 @@
 #!/usr/bin/python3.8
 """
-
-axi module for interacting with Axidraw via serial
+tool for interacting with Axidraw
 $ python3.8 -m axi
 
 """
 VERSION = (0, 3, 0)
 
-import argparse, sys, textwrap, time, os
+import argparse, sys, textwrap, time
+
 from .objects import Plotter, Graph, Node, Generator
 from .util import Console
 
-# note(@joeysapp): Ctrl-c won't break the serial connection
-# - https://docs.python.org/3.8/library/threading.html
+
+
+# note(@joeysapp): this is so C-c won't kill python first before closing the plotter serial connection
 import signal
 from threading import Event
 exit_signal = Event()
 def handle_interrupt(signal, _frame):
     Console.error("\n", signal, _frame, "\n");
-    std_result = 0
+    std_result = 1
     exit_signal.set()
 for s in ('TERM', 'HUP', 'INT'):
     signal.signal(getattr(signal, 'SIG'+s), handle_interrupt);
 
 
+# - https://docs.python.org/3.8/library/threading.html
 
 
 
-
-# Main loop
-std_result = 1
+std_result = 0
 def axi() -> int:
     parser = argparse.ArgumentParser(
         prog="axi",
@@ -50,33 +50,24 @@ def axi() -> int:
 
 
 
-    # 11 x 17in -> 27.94 x 43.18cm -> mm
-    # "x" is the vertical axis for plotter
-    # "y" is the horiz axis for plotter
-    bounds = {
-        "min": { "x": 0, "y": 0 },
-        "max": { "x": 431.8, "y": 279.4 },
-    }
-
-    # Interrupt signal delay - fraction of a second
-    loop_delay = 1
-    standard_plotter_delay = 1
 
     scheduler = Scheduler(cli_args)
-    # plotter = Plotter(cli_args)
+    plotter = Plotter(cli_args)
 
+    # Main loop
     while not exit_signal.is_set():
         Console.log("[_]\n")
 
-        # A
+        # [A]
         if (scheduler.head == None):
-            Console.info("[A_] s.head == None.\n")
+            Console.info("[A_] scheduler.head == None.\n")
+
             # Are there any generators in the scheduler.stack?
             if (len(scheduler.stack) == 0):
                 Console.info("[AA] Nothing in scheduler stack to print.")
                 while True:
                     Console.print(".")
-                    time.sleep(1)
+                    Timer.wait(1)
             else:
                 Console.info("[AB] Scheduler stack contains item; next loop begin printing\n")
 
@@ -88,57 +79,83 @@ def axi() -> int:
 
                 # A senerator's id is the first node
                 scheduler.head = scheduler.nodes[next_generator.id]
-        # B
+        # [B]
         else:
-            Console.info("[B___] s.head exists,\n")
-            if (plotter.check_bounds(head.pos, bounds)):
-                Console.info("[BA__] p can go to s.head; handling s.head = {}    ->    s.head..next = {}\n".format(head.action, hext.next.action)))
+            Console.info("[B___] scheduler.head exists,\n")
 
-                # Handling our various pen states to prevent redundant serial calls to plotter
-                # All the plotters needs is: (action [position])
-                serial_command = scheduler.get_serial_command(head, head.next)
+            # Bounds checking outside of plotter now..
+            head_within_bounds = True
+            # Maybe should go within Scheduler, or perhaps within a Generator itself?
+            # I'm mostly wanting dynamic like, "I cannot print outside this tiny circle" kinda thing
 
+            # 11 x 17in -> 27.94 x 43.18cm -> mm
+            # "x" is the vertical axis for plotter
+            # "y" is the horiz axis for plotter
+            bounds = {
+                "min": { "x": 0, "y": 0 },
+                "max": { "x": 431.8, "y": 279.4 },
+            }
 
-                if (serial_command == None):
-                    Console.info("[BAB_] s.head.action = {} = no serial\n".format(s.head.action)))
-                    continue
-                else:
-                    Console.info("[BAA_] s.head.action = {} = requires serial command\n".format(s.head.action))
+            p = head.pos
+            if (p.x <= bounds["min"]["x"] or p.x >= bounds["max"]["x"]):
+                head_within_bounds = False
+            if (p.y <= bounds["min"]["y"] or p.y >= bounds["max"]["y"]):
+                head_within_bounds = False
 
-                    #plotter.do_command(serial_command)
-
-                    if (serial_command == "move"):
-                        # If we're moving, find out if we need to wait after sending the above command.
-                        Console.info("[BAAA] s.head to s.head.next is {} -> {}, ".format(head.pos, head.next.pos))
-                        travel_distance = Vector.dist(head.pos, head.next.pos)
-                        travel_wait = travel_distance * 10
-                        time.sleep(travel_wait)
-                        Console.info("distance is ={travel_distance} wait={travel_wait}\n".format(travel_distance, travel_wait))
-                    else:
-                        # The action did not require additional waiting [ up, down, raise, lower ]
-                        Console.info("[BAAB] standard wait time, wait={}\n".format(standard_plotter_delay))
-                        time.sleep(standard_plotter_delay)
-            else:
-                Console.info("[BB__] Plotter can not go to Scheduler.head.\n")
+            if not head_within_bounds:
+                Console.info("[BB__] plotter cannot go to scheduler.head.\n")
 
                 # No.. but are we raised? If we're lowered, should we raise?
                 # Prevent pen getting stuck in a down position, 
                 # maybe for now, USB_query the plotter (only once?) to check if it's up or down
 
                 break
+            elif head_within_bounds):
+                Console.info("[BA__] plotter can go to scheduler.head; scheduler.head={} -> scheduler.head.next={}\n".format(head.state, hext.next.state)))
+
+                # Handling our various pen states to prevent redundant serial calls to plotter
+                # All the plotters needs is: (action [position])
+                action, pos = scheduler.get_serial_action(head, head.next)
+
+
+                if (serial_action == None):
+                    Console.info("[BAB_] (action={action} pos={pos}) = no serial\n".format(action, pos)))
+                    continue
+                else:
+                    Console.info("[BAB_] (action={action} pos={pos}) = requires serial connection\n".format(action, pos)))
+
+
+                    # [ BAA -> Serial ]
+                    #plotter.do_command(serial_command)
+
+                    if (serial_action == "move"):
+
+                        # If we're moving, find out if we need to wait after sending the above command.
+                        Console.info("[BAAA] scheduler.head to scheduler.head.next is {} -> {}, ".format(head.pos, head.next.pos))
+                        travel_distance = Vector.dist(head.pos, head.next.pos)
+                        travel_wait = travel_distance * 10
+                        Timer.wait(travel_wait)
+
+                        Console.info("distance is ={travel_distance} wait={travel_wait}\n".format(travel_distance, travel_wait))
+                    else:
+                        # The action did not require additional waiting [ up, down, raise, lower ]
+                        Console.info("[BAAB] standard wait time, wait={}\n".format(Timer.default))
+                        Timer.wait()
+
         # H
         # Scheduler traverses its linked list
-        Console.info("[H] s.head = s.head.next\n")
-        Console.info("[H] {}\n".format(s.head))
-        s.head = s.nodes[s.head.next];
-        Console.info("[H] {}\n".format(s.head))
+        Console.info("[H] scheduler.head = scheduler.head.next\n")
+        Console.info("[H] {} -> ".format(scheduler.head))
+        scheduler.head = s.nodes[scheduler.head.next];
+        Console.info("{}\n".format(scheduler.head))
 
         # todo(@joeysapp on 2022-09-03):
         # - Another thread, listening for user input for cmd
         # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
 
 
-        exit_signal.wait(loop_delay)
+        exit_signal.wait(Timer.loop) # Interrupt signal delay - fraction of a second
+
 
 
 #        # Old logic
@@ -165,7 +182,7 @@ def axi() -> int:
 #        head = graph.get_head()
 
     Console.log("__main__.exit() at {:.2f} seconds\n".format(time.process_time()))
-    # plotter.disconnect()
+    plotter.disconnect()
     return std_result
 
 sys.exit(axi())

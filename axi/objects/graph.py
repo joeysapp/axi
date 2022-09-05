@@ -2,14 +2,14 @@ from axi.util import Console
 from axi.math import Vector
 
 class Node:
-    def __init__(self, id=-1, action="wait", pos=None, neighbors=[]):
+    def __init__(self, id=-1, state="wait", pos=None, neighbors=[]):
         self.id = id
-        self.action = action
+        self.state = state
         self.pos = pos
         self.neighbors = neighbors
 
     def __str__(self):
-        return "{},{},{},{}".format(self.id, self.action, self.pos, self.neighbors)
+        return "{},{},{},{}".format(self.id, self.state, self.pos, self.neighbors)
 
 
 
@@ -25,7 +25,7 @@ class Node:
 class Graph:
     def __init__(self, cli_args):
         origin_id = 0
-        origin = Node(origin_id, action="none", pos=cli_args.pos or Vector(0, 0, 0), neighbors=[])
+        origin = Node(origin_id, state="none", pos=cli_args.pos or Vector(0, 0, 0), neighbors=[])
         self.head_id = origin_id
         self.nodes = { origin_id: origin }
         self.history = []
@@ -35,7 +35,7 @@ class Graph:
 
     def get_head(self) -> Node:
         next_head = self.nodes[self.head_id]
-        print("next_head: ", next_head.action)
+        print("next_head: ", next_head.state)
         return next_head
 
     def add_nodes(self, nodes={}, new_graph=False):
@@ -54,14 +54,14 @@ class Graph:
         head = self.nodes[self.head_id]
         if (len(head.neighbors)):
            self.head_id = head.neighbors[0]
-        elif head.action == 'origin':
+        elif head.state == 'origin':
             # End of graph:
             #   1. Go back to start of (graph item)
             #   2. Remain, raised, here
             #   3. Move back to origin
             self.head_id = "origin"
 
-    # note(@joeysapp): Should a "graph" have a history, or should we have an Action handler? 
+    # note(@joeysapp): Should a "graph" have a history, or should we have an State handler? 
     def extend_history(self):
         self.history.append(self.nodes[self.head_id]);
         

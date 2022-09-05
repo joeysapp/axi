@@ -1,16 +1,13 @@
 from pyaxidraw import axidraw
-import asyncio
-import time
-import math
-import random
-import time
 
-from axi.util import Console
+from axi.util import Console, Timer
 from axi.math import Vector
 from axi.objects import Graph
 
 ## Underlying serial connection:
-## Users/____/Library/Python/3.8/lib/python/site-package/plotink/ebb_serial.py
+## - Users/____/Library/Python/3.8/lib/python/site-package/plotink/ebb_serial.py
+## Documentation:
+## - https://evil-mad.github.io/EggBot/ebb.html
 
 ## https://axidraw.com/doc/py_api/#functions-interactive
 ## interactive() 	Initialize Interactive context.
@@ -30,7 +27,6 @@ from axi.objects import Graph
 ## current_pen() 	Query if machine pen state is up.
 ## turtle_pen() 	Query if turtle pen state is up.
 
-## https://evil-mad.github.io/EggBot/ebb.html
 
 ## usb_command() 	Low-level serial command.
 ## usb_query() 	Low-level serial query.
@@ -38,47 +34,49 @@ from axi.objects import Graph
 ## print("Step pos: " + step_pos)
 ## ad.usb_command("HM,3200\r")     # Return home at 3200 steps/s
 
-# Time to wait before certain commands
-
 class Plotter:
     def __init__(self, args):
         Console.log("Plotter.__init__(args={})\n".format(args))
         self.axidraw = axidraw.AxiDraw()
-        self.init()
+        try:
+            self.axidraw.interactive()
+            self.axidraw.connect()
+            # Next calls to .update(), wait so connection is up
+            Timer.wait()
+            self.configure();
+
+            Console.log("Plotter.__init__() -> 0\n")
+            return 0
+        except Exception as err:
+            Console.error("Plotter.__init__() -> 1 -> {}\n".format(err))
+            return err
 
     # def pause(self):
     # def resume(self):
     # def pause_to_change_pen_position_lol(self):
 
-    def do_serial_command(self, command):
-        
+    # [ main BAA -> Serial ]
+    def do_serial_action(self, action, pos):    
+        # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
+        # Should only see 'raise' 'lower', and 'move'.
+        if (action == 'move' and pos):
+            plotter.goto(pos[0], pos[1])
+        elif (action == 'raise'):
+            plotter.penup()
+        elif (action == 'lower'):
+            plotter.pendown()
+        else:
+            Console.error("Plotter.do_serial_action(action={} pos={}) -> !! SHOULD NOT BE CALLED !!".format(action, pos))
 
-    def do(self, node):
-        Console.log("Plotter.do({})\n".format(node))
-        action = node.action
-        pos = node.pos
-        if (action == "raise"):
-            print("... raise... ")
-            self.axidraw.penup()
-            time.sleep(0.5)
-        elif (action == "lower"):
-            self.axidraw.pendown()
-            time.sleep(0.5)
-        elif (action == "move"):
-            # todo(joeysapp): determine how far we're moving and how long to wait
-            self.axidraw.goto(pos.x, pos.y);
-        elif (action == "wait"):
-            return None
-
-    def check_bounds(self, node, bounds) -> bool:
-        return True
 
     # 1 if up, 0 if down
     def get_pen_state(self) -> int:
         return int(self.axidraw.usb_query('QP\r'))
+
     
     def get_version(self) -> str:
         return self.axidraw.usb_query('V\r')
+
 
     def get_options(self) -> str:
         s = ""
@@ -87,33 +85,25 @@ class Plotter:
                 s += "{}: {}\n".format(k, getattr(self.axidraw.options, k))            
         return s
 
+
     def set_pen_position_range(self):
         self.axidraw.usb_command('SC,4,%i' % self.pen_pos_up)
         self.axidraw.usb_command('SC,5,%i' % self.pen_pos_down)
 
+
     def disable_motors(self):
         self.axidraw.usb_command('EM,0,0\r');
+
 
     def enable_motors(self):
         self.axidraw.usb_command('EM,1,1\r');
 
-    def init(self):
-        try:
-            self.axidraw.interactive()
-            self.axidraw.connect()
-            time.sleep(plotter_wait)
-            self.configure();
-            Console.log("Plotter.init() -> 0\n")
-            return 0
-        except Exception as err:
-            Console.error("Plotter.init() -> 1 -> {}\n".format(err))
-            return err
 
     def disconnect(self):
         try:
             self.axidraw.penup()
             self.axidraw.goto(0, 0);
-            time.sleep(plotter_wait);
+            Timer.wait()
             self.axidraw.disconnect()
             Console.log("Plotter.disconnect() -> 0\n")
             return 0
@@ -154,11 +144,8 @@ class Plotter:
             setattr(self.axidraw.params, k, self.params[k])
         for k in self.options:
             setattr(self.axidraw.options, k, self.options[k])
-        self.axidraw.update()
 
-        # note(@joeysapp): Might need to be longer than half a second
-        update_delay = 0.5
-        time.sleep(update_delay)
+        self.axidraw.update()
         Console.log("Plotter.configure() -> 0 -> {}\n".format(self.get_version()))            
         return 0
 
