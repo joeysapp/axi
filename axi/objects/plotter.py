@@ -39,7 +39,6 @@ from axi.objects import Graph
 ## ad.usb_command("HM,3200\r")     # Return home at 3200 steps/s
 
 # Time to wait before certain commands
-plotter_wait = 0.01
 
 class Plotter:
     def __init__(self, args):
@@ -50,6 +49,9 @@ class Plotter:
     # def pause(self):
     # def resume(self):
     # def pause_to_change_pen_position_lol(self):
+
+    def do_serial_command(self, command):
+        
 
     def do(self, node):
         Console.log("Plotter.do({})\n".format(node))

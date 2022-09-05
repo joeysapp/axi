@@ -64,63 +64,74 @@ def axi() -> int:
 
     scheduler = Scheduler(cli_args)
     # plotter = Plotter(cli_args)
-    cmd = None
-    head = None
+
     while not exit_signal.is_set():
         Console.log("[_]\n")
+
+        # A
         if (scheduler.head == None):
-            Console.info("[A] Scheduler head is None.\n")
-            # Are there any generators in the scheduler.queue?
-            if (len(scheduler.queue) == 0):
-                # No, we don't have anything to print
-                Console.info("[AA] Scheduler queue is empty.\n")
+            Console.info("[A_] s.head == None.\n")
+            # Are there any generators in the scheduler.stack?
+            if (len(scheduler.stack) == 0):
+                Console.info("[AA] Nothing in scheduler stack to print.")
                 while True:
                     Console.print(".")
                     time.sleep(1)
             else:
-                # Yes, last loop a senerator was added to the queue
-                Console.info("[AB] Scheduler queue has items.\n")
-                next_generator = scheduler.pop_queue()
+                Console.info("[AB] Scheduler stack contains item; next loop begin printing\n")
+
+                generator = scheduler.stack.pop()
+
+                # Add all the new nodes to the scheduler's nodes                
+                scheduler.nodes.update(generator.nodes)
+                scheduler.history.append(generator.id)
+
                 # A senerator's id is the first node
-                scheduler.head = next_generator.id
-                # Add all the new nodes to the scheduler's nodes
-                scheduler.nodes.update(next_generator.nodes)
+                scheduler.head = scheduler.nodes[next_generator.id]
+        # B
         else:
-            Console.info("[B] Scheduler.head exists.\n")
-
-            # Should we look at head.next? If None, next loop goes to A.
-            # So add uhhhhhh.. the start of the generator to the scheduler.history?        
-
-            # Can the plotter go to the head?
+            Console.info("[B___] s.head exists,\n")
             if (plotter.check_bounds(head.pos, bounds)):
-                Console.info("[BA] Plotter can go to Scheduler.head.\n")
-                # Yes, now determine if/what command should be sent to the plotter
-                serial_command = scheduler.finite_state_machine(head, head.next)
-                # If our FSM action was a transitory state, no serial command needs to send
+                Console.info("[BA__] p can go to s.head; handling s.head = {}    ->    s.head..next = {}\n".format(head.action, hext.next.action)))
+
+                # Handling our various pen states to prevent redundant serial calls to plotter
+                # All the plotters needs is: (action [position])
+                serial_command = scheduler.get_serial_command(head, head.next)
+
+
                 if (serial_command == None):
-                    Console.info("[BAA] Scheduler.head requires no serial.\n")
+                    Console.info("[BAB_] s.head.action = {} = no serial\n".format(s.head.action)))
                     continue
                 else:
-                    Console.info("[BAB] Scheduler.head requires serial.\n")
-                    plotter.do_command(serial_command)
+                    Console.info("[BAA_] s.head.action = {} = requires serial command\n".format(s.head.action))
+
+                    #plotter.do_command(serial_command)
+
                     if (serial_command == "move"):
                         # If we're moving, find out if we need to wait after sending the above command.
-                        Console.info("[BABA] Scheduler.head to Scheduler.head.next is {} -> {}, ".format(head.pos, head.next.pos))
+                        Console.info("[BAAA] s.head to s.head.next is {} -> {}, ".format(head.pos, head.next.pos))
                         travel_distance = Vector.dist(head.pos, head.next.pos)
                         travel_wait = travel_distance * 10
                         time.sleep(travel_wait)
-                        Console.info("dist={travel_distance} wait={travel_wait}\n".format(travel_distance, travel_wait))
+                        Console.info("distance is ={travel_distance} wait={travel_wait}\n".format(travel_distance, travel_wait))
                     else:
                         # The action did not require additional waiting [ up, down, raise, lower ]
-                        Console.info("[BABB] Scheduler.head is not moving, wait={}\n".format(standard_plotter_delay))
+                        Console.info("[BAAB] standard wait time, wait={}\n".format(standard_plotter_delay))
                         time.sleep(standard_plotter_delay)
             else:
-                Console.info("[BB] Plotter can not go to Scheduler.head.\n")
+                Console.info("[BB__] Plotter can not go to Scheduler.head.\n")
 
                 # No.. but are we raised? If we're lowered, should we raise?
-                # Prevent pen getting stuck in a down position
+                # Prevent pen getting stuck in a down position, 
+                # maybe for now, USB_query the plotter (only once?) to check if it's up or down
 
-                break        
+                break
+        # H
+        # Scheduler traverses its linked list
+        Console.info("[H] s.head = s.head.next\n")
+        Console.info("[H] {}\n".format(s.head))
+        s.head = s.nodes[s.head.next];
+        Console.info("[H] {}\n".format(s.head))
 
         # todo(@joeysapp on 2022-09-03):
         # - Another thread, listening for user input for cmd
