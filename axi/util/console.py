@@ -45,11 +45,11 @@ attribute_codes = {
 }
 
 class Console():
-    # def __init__(self, **kwargs):
-    #     print("util/Console.py init", kwargs);
+    timestamp = False
+
     @classmethod
     def ts(cls, t) -> str:
-        return "[{:.7f}]".format(t)
+        return "" if not cls.timestamp else "[{:.7f}]".format(t)
 
     @classmethod
     def ansi(cls, type, fg=True):

@@ -1,8 +1,6 @@
 from pyaxidraw import axidraw
 
 from axi.util import Console, Timer
-from axi.math import Vector
-from axi.objects import Graph
 
 ## Underlying serial connection:
 ## - Users/____/Library/Python/3.8/lib/python/site-package/plotink/ebb_serial.py
@@ -37,6 +35,7 @@ from axi.objects import Graph
 class Plotter:
     def __init__(self, args):
         Console.log("Plotter.__init__(args={})\n".format(args))
+        return None
         self.axidraw = axidraw.AxiDraw()
         try:
             self.axidraw.interactive()

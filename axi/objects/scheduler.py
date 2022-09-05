@@ -1,3 +1,4 @@
+from axi.util import Console
 
 class Scheduler:
     def __init__(self, args):

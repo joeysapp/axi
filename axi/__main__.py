@@ -8,8 +8,10 @@ VERSION = (0, 3, 0)
 
 import argparse, sys, textwrap, time
 
-from .objects import Plotter, Graph, Node, Generator
-from .util import Console
+from .objects import Plotter, Scheduler
+from .util import Console, Timer
+
+
 
 
 
@@ -56,18 +58,18 @@ def axi() -> int:
 
     # Main loop
     while not exit_signal.is_set():
-        Console.log("[_]\n")
+        Console.info("\n\n\n[_]\n")
 
         # [A]
         if (scheduler.head == None):
-            Console.info("[A_] scheduler.head == None.\n")
+            Console.info("[A] scheduler.head == None\n")
 
             # Are there any generators in the scheduler.stack?
             if (len(scheduler.stack) == 0):
-                Console.info("[AA] Nothing in scheduler stack to print.")
-                while True:
-                    Console.print(".")
-                    Timer.wait(1)
+                Console.info("[AA] Nothing in scheduler stack to print\n")
+                # while True:
+                #     Console.log(".")
+                #    Timer.wait(1)
             else:
                 Console.info("[AB] Scheduler stack contains item; next loop begin printing\n")
 
@@ -103,32 +105,31 @@ def axi() -> int:
                 head_within_bounds = False
 
             if not head_within_bounds:
-                Console.info("[BB__] plotter cannot go to scheduler.head.\n")
+                Console.info("[BB__] plotter cannot go to scheduler.head\n")
 
                 # No.. but are we raised? If we're lowered, should we raise?
                 # Prevent pen getting stuck in a down position, 
                 # maybe for now, USB_query the plotter (only once?) to check if it's up or down
 
                 break
-            elif head_within_bounds):
-                Console.info("[BA__] plotter can go to scheduler.head; scheduler.head={} -> scheduler.head.next={}\n".format(head.state, hext.next.state)))
+            elif head_within_bounds:
+                Console.info("[BA__] plotter can go to scheduler.head\n")
 
                 # Handling our various pen states to prevent redundant serial calls to plotter
                 # All the plotters needs is: (action [position])
                 action, pos = scheduler.get_serial_action(head, head.next)
 
-
-                if (serial_action == None):
-                    Console.info("[BAB_] (action={action} pos={pos}) = no serial\n".format(action, pos)))
+                if (action == None):
+                    Console.info("[BAB_] (action={action} pos={pos}) -> no serial\n".format(action, pos))
                     continue
                 else:
-                    Console.info("[BAB_] (action={action} pos={pos}) = requires serial connection\n".format(action, pos)))
+                    Console.info("[BAB_] (action={action} pos={pos}) -> requires serial connection\n".format(action, pos))
 
 
                     # [ BAA -> Serial ]
                     #plotter.do_command(serial_command)
 
-                    if (serial_action == "move"):
+                    if (action == "move"):
 
                         # If we're moving, find out if we need to wait after sending the above command.
                         Console.info("[BAAA] scheduler.head to scheduler.head.next is {} -> {}, ".format(head.pos, head.next.pos))
@@ -139,22 +140,28 @@ def axi() -> int:
                         Console.info("distance is ={travel_distance} wait={travel_wait}\n".format(travel_distance, travel_wait))
                     else:
                         # The action did not require additional waiting [ up, down, raise, lower ]
-                        Console.info("[BAAB] standard wait time, wait={}\n".format(Timer.default))
+                        Console.info("[BAAB] scheduler.head did not move\n")
                         Timer.wait()
 
         # H
         # Scheduler traverses its linked list
-        Console.info("[H] scheduler.head = scheduler.head.next\n")
-        Console.info("[H] {} -> ".format(scheduler.head))
-        scheduler.head = s.nodes[scheduler.head.next];
-        Console.info("{}\n".format(scheduler.head))
+        if (scheduler.head):
+            Console.info("[H] scheduler.head = scheduler.head.next\n")
+            Console.info("[H] {} -> ".format(scheduler.head))
+            
+            scheduler.head = s.nodes[scheduler.head.next]
+            
+            Console.info("{}\n".format(scheduler.head))
+        else:
+            Console.info("[H] scheduler.head is None\n")
+            
 
         # todo(@joeysapp on 2022-09-03):
         # - Another thread, listening for user input for cmd
         # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
 
-
-        exit_signal.wait(Timer.loop) # Interrupt signal delay - fraction of a second
+        
+        exit_signal.wait(Timer.loop_delta) # Interrupt signal delay - fraction of a second
 
 
 
