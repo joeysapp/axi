@@ -1,18 +1,3 @@
-from axi.util import Console
-from axi.math import Vector
-
-class Node:
-    def __init__(self, id=-1, state="wait", pos=None, neighbors=[]):
-        self.id = id
-        self.state = state
-        self.pos = pos
-        self.neighbors = neighbors
-
-    def __str__(self):
-        return "{},{},{},{}".format(self.id, self.state, self.pos, self.neighbors)
-
-
-
   # Python List methods
 
   # append, e=nd of list

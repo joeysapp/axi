@@ -58,7 +58,7 @@ def axi() -> int:
 
     # Main loop
     while not exit_signal.is_set():
-        Console.info("\n\n\n[_]\n")
+        Console.info("[_] begin\n")
 
         # [A]
         if (scheduler.head == None):
@@ -143,6 +143,9 @@ def axi() -> int:
                         Console.info("[BAAB] scheduler.head did not move\n")
                         Timer.wait()
 
+        Console.info("======================\n")
+        Console.info("[_] end\n")
+        Console.info("[_] scheduler now looks to traverse linked list\n")
         # H
         # Scheduler traverses its linked list
         if (scheduler.head):
@@ -154,7 +157,8 @@ def axi() -> int:
             Console.info("{}\n".format(scheduler.head))
         else:
             Console.info("[H] scheduler.head is None\n")
-            
+
+        Console.info("======================\n\n\n\n\n\n")
 
         # todo(@joeysapp on 2022-09-03):
         # - Another thread, listening for user input for cmd

@@ -17,6 +17,6 @@ class Scheduler:
     #   pendown     up A         lower A
     #   penup       down A       raise A
     def get_serial_command(self, node, next_node):
-        Console.log("Scheduler.get_serial_command({}, {})".format(node, next_node))
+        Console.log("!!!!!!! not implemented Scheduler.get_serial_command({}, {})".format(node, next_node))
         
-        return "move";
+        return None;

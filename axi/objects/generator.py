@@ -3,14 +3,25 @@ import opensimplex as osn
 
 from axi.util import Console, fmap
 from axi.math import Vector
-from .graph import Graph, Node
-# from .shapes import Square
+
+from .node import Node
+
+# Abstract Base Classes
+from abc import abstractmethod
 
 
 class Generator:
-    def __init__(self, args):
-        Console.log("Generator.__init__(args={})\n".format(args))
-        osn.seed(42)
+    size = 0 # idk
+    nodes = {}
+    head = None
+    
+    @abstractmethod
+    def foobar(self, thing):
+        pass
+        
+    # def __init__(self, args):
+    #    Console.log("Generator.__init__(args={})\n".format(args))
+    #    osn.seed(42)
 
     # Returns a dictionary of nodes generated?
     # but how 2 know where 2 start.

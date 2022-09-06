@@ -35,7 +35,7 @@ from axi.util import Console, Timer
 class Plotter:
     def __init__(self, args):
         Console.log("Plotter.__init__(args={})\n".format(args))
-        return None
+        # return None
         self.axidraw = axidraw.AxiDraw()
         try:
             self.axidraw.interactive()
@@ -45,10 +45,8 @@ class Plotter:
             self.configure();
 
             Console.log("Plotter.__init__() -> 0\n")
-            return 0
         except Exception as err:
             Console.error("Plotter.__init__() -> 1 -> {}\n".format(err))
-            return err
 
     # def pause(self):
     # def resume(self):
