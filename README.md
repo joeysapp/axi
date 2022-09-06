@@ -15,6 +15,7 @@ $ pwd
 $ python3.8 setup.py develop
 $ chmod +x /bin/axi
 $ axi
+
 ...
 $ axi-repl
 > (goto 20 20)
@@ -29,23 +30,20 @@ $ axi-repl
   - Axidraw will never attempt to go out of physical bounds. This depends on your model.
 
 # Roadmap
-The following is a list of content to implement, or is currently being worked on.
 ## App
-- [ ] **App lifecycle / loop definition**
-- [ ] **Save/load state (everything - e.g. history, object creation)**
+- [x] **Lifecycle and loop refinement**
 - [x] Handle serial interrupts and resets
+- [ ] **Save/load state (everything - e.g. history, object creation)**
 - [ ] Easy interrupt / resuming (e.g. to raise pen, change pen, lower pen)
-- [ ] Replacing `pyaxidraw`(*write own serial util -> ... -> move axi to C*)
 
 ## Plotting
 - [ ] **Basic shapes (e.g. rect, triangle, ngon)**
-- [ ] **"Stamps" (e.g. timestamp, "Now Playing", geolocation)**
-- [ ] Frames / borders
-- [ ] Text - py
+- [ ] **"Stamps" (e.g. timestamp, "Now Playing", geolocation, frames)**
+- [ ] Text
 - [ ] SVG
 
 ## Longterm
-- [ ] **Move to bare C / serial platform**
+- [ ] **Move to bare C and serial platform**
 - [ ] **[REPL](#repl) interface**
 - [ ] macOS/iOS obj-C frontend - "preview" plots through Quartz2D/CG
 - [ ] Network connectivity / control - web interface
