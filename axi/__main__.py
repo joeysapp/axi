@@ -8,9 +8,9 @@ VERSION = (0, 3, 0)
 
 import argparse, sys, textwrap, time
 
-from .objects import Plotter, Scheduler
+from .objects import Plotter, Scheduler, Generator
 from .util import Console, Timer
-
+from .math import Vector
 
 
 
@@ -52,9 +52,16 @@ def axi() -> int:
 
 
 
-
     scheduler = Scheduler(cli_args)
     plotter = Plotter(cli_args)
+
+
+    # If the user passed in an --object arg, generate it here and add it to scheduler.
+    # generator = Generator(cli_args)
+    sq = Generator(type="square", width=10, height=20, pos=Vector(5, 0, 0))
+    # new_nodes, new_head = sq.gen()
+    scheduler.push_generator_to_stack(sq)
+
 
     # Main loop
     while not exit_signal.is_set():
@@ -67,20 +74,25 @@ def axi() -> int:
             # Are there any generators in the scheduler.stack?
             if (len(scheduler.stack) == 0):
                 Console.info("[AA] Nothing in scheduler stack to print\n")
-                # while True:
-                #     Console.log(".")
-                #    Timer.wait(1)
+                Console.info("[AA] Asking scheduler to pick a generator internally..?\n")
+
+                exit()
+
             else:
                 Console.info("[AB] Scheduler stack contains item; next loop begin printing\n")
 
-                generator = scheduler.stack.pop()
+                scheduler.pop_generator_stack()
+
+                #next_gen = scheduler.stack.pop()
 
                 # Add all the new nodes to the scheduler's nodes                
-                scheduler.nodes.update(generator.nodes)
-                scheduler.history.append(generator.id)
+                #scheduler.nodes.update(next_gen.nodes)
+                #scheduler.history.append(nest_gen.id)
 
                 # A senerator's id is the first node
-                scheduler.head = scheduler.nodes[next_generator.id]
+                #scheduler.head = scheduler.nodes[next_gen.id]
+                Console.log("Scheduler is now: {}".format(scheduler))
+                exit()
         # [B]
         else:
             Console.info("[B___] scheduler.head exists,\n")

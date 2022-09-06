@@ -67,6 +67,16 @@ class Console():
         return s
 
     @classmethod
+    def init(cls, msg, *args, **kwargs):
+        s = cls.cat(msg, args)
+        style = cls.ansi("bold") + cls.ansi("red")
+        t = time.process_time()
+        indent = kwargs.get("level") or 0
+        output = "{}{}{}{}{} {}".format("\t"*indent,style, cls.ts(t), "[init]", cls.ansi("reset"), s)
+        sys.stdout.write(output)
+
+
+    @classmethod
     def log(cls, msg, *args):
         s = cls.cat(msg, args)
         style = cls.ansi("bold") + cls.ansi("gray")

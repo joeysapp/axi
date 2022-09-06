@@ -14,6 +14,9 @@ class Vector:
                    self.y == vector.y and \
                    self.z == vector.z
         return False
+
+    def __repr__(self) -> str:
+        return "{},{},{}".format(self.x, self.y, self.z);    
     
     def __str__(self) -> str:
         return "{},{},{}".format(self.x, self.y, self.z);
@@ -30,5 +33,13 @@ class Vector:
     def mult(self, f):
         return Vector(self.x * f, self.y * f, self.z * f)
 
-    def add(self, vec):
-        return Vector(self.x + vec.x, self.y + vec.y, self.z + vec.z)
+    @classmethod
+    def add(cls, v1, v2):
+        return cls(v1.x+v2.x, v1.y+v2.y, v1.z+v2.z)
+
+    @classmethod
+    def sub(cls, v1, v2):
+        return cls(v1.x-v2.x, v1.y-v2.y, v1.z-v2.z)
+
+#    def add(self, vec):
+#        return Vector(self.x + vec.x, self.y + vec.y, self.z + vec.z)

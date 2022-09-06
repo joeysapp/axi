@@ -33,9 +33,8 @@ from axi.util import Console, Timer
 ## ad.usb_command("HM,3200\r")     # Return home at 3200 steps/s
 
 class Plotter:
-    def __init__(self, args):
-        Console.log("Plotter.__init__(args={})\n".format(args))
-        # return None
+    def __init__(self, *args, **kwargs):
+        Console.init("Plotter.__init__({})\n".format(kwargs))
         self.axidraw = axidraw.AxiDraw()
         try:
             self.axidraw.interactive()
@@ -44,16 +43,20 @@ class Plotter:
             Timer.wait()
             self.configure();
 
-            Console.log("Plotter.__init__() -> 0\n")
+            Console.log("Plotter.__init__() \n")
         except Exception as err:
-            Console.error("Plotter.__init__() -> 1 -> {}\n".format(err))
+            Console.error("Plotter.__init__() -> Exception -> {}\n".format(err))
 
     # def pause(self):
     # def resume(self):
     # def pause_to_change_pen_position_lol(self):
 
     # [ main BAA -> Serial ]
-    def do_serial_action(self, action, pos):    
+    def do_serial_action(self, action, pos, disabled=False):    
+        if disabled:
+            Console.error("Plotter.do_serial_action(action={} pos={}) is currently disabled.".format(action, pos))
+            return None
+
         # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
         # Should only see 'raise' 'lower', and 'move'.
         if (action == 'move' and pos):

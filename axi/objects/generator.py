@@ -1,24 +1,99 @@
 import random, math, time
 import opensimplex as osn
 
-from axi.util import Console, fmap
+from axi.util import Console, fmap, Timer
 from axi.math import Vector
 
 from .node import Node
 
-# Abstract Base Classes
-from abc import abstractmethod
+from .generators.square import Square
 
 
-class Generator:
-    size = 0 # idk
-    nodes = {}
-    head = None
-    
-    @abstractmethod
-    def foobar(self, thing):
-        pass
+class Generator():
+    #nodes = {}
+    #head = None
+    #id = None
+
+    # Plot-related settings
+    # shape_position = corner # tbd
+    # return_home = False
+    # raise_at_end = True
+
+
+    # Shape-related settings
+    #type = None
+    #width = 0
+    #height = 0
+    #pos = Vector(0, 0, 0)
+
+    def __init__(self, *args, **kwargs):
+       Console.init("Generator.__init__({})\n".format(kwargs))
+       self.type = None
+       self.id = Timer.get_id()
+
+       self.nodes = {}
+       self.head = None
+
+       for key in kwargs:
+           self.__setattr__(key, kwargs[key])
+
+    def __repr__(self):
+        return "Generator.__repr__({})".format(self.__dict__)        
+
+
+    # Returns nodes, head
+    def gen(self):
+        # Very WIP
+        Console.log("Generator.gen(), self={}\n".format(self.__dict__))
+        if (self.type == "square"):
+            self.nodes, self.head = Square.get(height=20, width=20, id=self.id)
+
+#        elif (self.type == "line"):
+#            self.nodes, self.line = Line.get(self.start, self.end)
+#
+#        elif (self.type == "polygon"):                
+#            self.nodes, self.node = Circle.get(self.radius, self.sides)
+
+        self.offset_nodes_by_pos()
+        return self.nodes, self.head
+
+    def offset_nodes_by_pos(self):
+
+        # gotta get [rectangular bounds] of nodes, to do this:
+        # self.shape_position = center
+
+        Console.log("Generator.offset_nodes_by_pos({})\n".format(self.pos))
+
+        idx = 0
+        for key in self.nodes.keys():
+            p = self.nodes[key].pos
+            #Console.log("offset {} to ".format(p));
+            self.nodes[key].pos = Vector.add(p, self.pos)
+            #Console.log("{}\n".format(self.nodes[key].pos));
+            Console.log("[{}] {}\n".format(idx, self.nodes[key]))
+            idx += 1
+
+
+    def get(self):
+        return self.nodes, self.head
+
+    def set_type(self, type):
+        self.type = type
+
+    def set_pos(self, x, y, z=0):
+        self.pos = Vector(x, y, z)
+
+    def set_width(self, width):
+        self.width = width
+
+    def set_height(self, height):
+        self.height = height    
+
+
+
+
         
+
     # def __init__(self, args):
     #    Console.log("Generator.__init__(args={})\n".format(args))
     #    osn.seed(42)
