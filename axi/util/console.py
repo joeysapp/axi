@@ -66,6 +66,21 @@ class Console():
             s = "{}\n\t{}".format(s, obj)
         return s
 
+
+
+
+    @classmethod
+    def serial(cls, msg, *args, **kwargs):
+        s = cls.cat(msg, args)
+        style = cls.ansi("bold") + cls.ansi("cyan")
+        t = time.process_time()
+        indent = kwargs.get("level") or 0
+        output = "{}{}{}{}{}{}{} {}{}".format("\t"*indent,style, cls.ts(t), "[SERI]", cls.ansi("reset"), cls.ansi("italic"), cls.ansi("bg-gray"), s, cls.ansi("reset"))
+        sys.stdout.write(output)
+
+
+
+
     @classmethod
     def init(cls, msg, *args, **kwargs):
         s = cls.cat(msg, args)
@@ -73,6 +88,24 @@ class Console():
         t = time.process_time()
         indent = kwargs.get("level") or 0
         output = "{}{}{}{}{} {}".format("\t"*indent,style, cls.ts(t), "[init]", cls.ansi("reset"), s)
+        sys.stdout.write(output)
+
+    @classmethod
+    def debug(cls, msg, *args, **kwargs):
+        s = cls.cat(msg, args)
+        style = cls.ansi("bold") + cls.ansi("yellow")
+        t = time.process_time()
+        indent = kwargs.get("level") or 0
+        output = "{}{}{}{}{} {}".format("\t"*indent,style, cls.ts(t), "[dbug]", cls.ansi("reset"), s)
+        sys.stdout.write(output)
+
+    @classmethod
+    def method(cls, msg, *args, **kwargs):
+        s = cls.cat(msg, args)
+        style = cls.ansi("bold") + cls.ansi("yellow")
+        t = time.process_time()
+        indent = kwargs.get("level") or 0
+        output = "{}{}{}{}{} {}".format("\t"*indent,style, cls.ts(t), "[mthd]", cls.ansi("reset"), s)
         sys.stdout.write(output)
 
     @classmethod

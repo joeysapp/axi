@@ -17,7 +17,7 @@ from axi.util import Console, Timer
 ## lineto()        	Absolute pen-down move to (x,y) location.
 ## go()         	Relative move of distance (Δx,Δy).
 ## move()         	Relative pen-up move of (Δx,Δy).
-## line()       	Relative pen-down move of (Δx,Δy).
+## line()       	Relative pen-down move of (ΔxΔy).
 ## penup()      	Raise the pen.
 ## pendown()     	Lower the pen.
 ## current_pos() 	Query machine XY position.
@@ -52,21 +52,24 @@ class Plotter:
     # def pause_to_change_pen_position_lol(self):
 
     # [ main BAA -> Serial ]
-    def do_serial_command(self, action, pos, disabled=False):    
+    def do_serial_command(self, command, pos, disabled=False):    
         if disabled:
-            Console.error("Plotter.do_serial_command(action={} pos={}) is currently disabled.".format(action, pos))
+            Console.error("Plotter.do_serial_command({} {}) is currently disabled.".format(command, pos))
             return None
 
         # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
         # Should only see 'raise' 'lower', and 'move'.
-        if (action == 'move' and pos):
-            plotter.goto(pos[0], pos[1])
-        elif (action == 'raise'):
-            plotter.penup()
-        elif (action == 'lower'):
-            plotter.pendown()
+        if (command == 'goto' and pos):
+            # plotter.goto(pos[0], pos[1])
+            Console.serial("GOTO {}\n".format(pos))
+        elif (command == 'raise'):
+            Console.serial("PENUP\n")
+            #plotter.penup()
+        elif (command == 'lower'):
+            Console.serial("PENDOWN\n")
+            #plotter.pendown()
         else:
-            Console.error("Plotter.do_serial_command(action={} pos={}) has no meaning\n".format(action, pos))
+            Console.error("Plotter.do_serial_command({} ({})) has no meaning\n".format(command, pos))
 
 
     # 1 if up, 0 if down

@@ -65,7 +65,7 @@ def axi() -> int:
 
     # Main loop
     while not exit_signal.is_set():
-        Console.info("[    ] begin\n")
+        Console.info("[====] begin\n")
         # [A]
         if (scheduler.head == None):
             Console.info("[A   ] Scheduler head does not exist\n")
@@ -78,7 +78,7 @@ def axi() -> int:
                 Console.info("[AB  ] Scheduler stack is populated, we pop the Generator and call .gen()\n")
                 scheduler.pop_generator_stack()
                 Console.log("[AB  ] Scheduler is now: {}\n".format(scheduler))
-                # break
+                continue;
         # [B]
         elif (scheduler.head != None):
             Console.info("[B   ] Scheduler head exists and is not null\n")
@@ -115,12 +115,13 @@ def axi() -> int:
                     Console.info("[BAB ] Serial communication necessary\n".format(command, pos))
                     plotter.do_serial_command(command, pos)
                     Console.info("[BAB ] Asking Scheduler if the Plotter is moving\n".format(command, pos))
-                    if (command == "move"):
+                    if (command == "move" or command == "goto"):
 
                         # If we're moving, find out if we need to wait
                         travel_distance = scheduler.get_travel_distance()
-                        travel_wait = travel_distance * 0
-                        Console.info("[BAAA] It is moving {travel_distance} and now wait for {travel_wait}\n".format(travel_distance, travel_wait))
+                        # 1ms every second
+                        travel_wait = travel_distance / 10.0
+                        Console.info("[BAAA] It is moving {} and now wait for {}\n".format(travel_distance, travel_wait))
                         Timer.wait(travel_wait)
 
                     else:
@@ -128,17 +129,17 @@ def axi() -> int:
                         Console.info("[BAAB] Plotter is not moving\n")
                         Timer.wait()
 
-        Console.info("\n")
-        Console.info("[    ] end\n")
-
+        Console.info("[====]\n")
         # H
-        Console.info("[H   ] Scheduler now attempts go to head.next\n")
+        # Only traverse if we've set head elsewhere
         if (scheduler.head):
-            Console.info("[H   ] {}\n".format(scheduler.head))            
+            Console.info("[H   ] Scheduler now attempts go to head.next\n")
+            Console.info("[Hold] {}\n".format(scheduler.head))            
             scheduler.traverse_linked_list();        
-            Console.info("[H   ] {}\n\n\n\n\n\n\n".format(scheduler.head))
+            Console.info("[Hnew] {}\n".format(scheduler.head))
         else:
-            Console.info("[H   ] scheduler.head is None\n")
+            Console.info("[H   ] scheduler.head is not set\n")
+        Console.info("[====] end\n\n\n\n\n\n")
 
         # todo(@joeysapp on 2022-09-03):
         # - Another thread, listening for user input for cmd
