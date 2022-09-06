@@ -5,7 +5,7 @@ from axi.math import Vector
 class Square():
     @classmethod
     def get_id(cls, base, id):
-        return "{}-{}".format(base, id)
+        return None if id < 0 else "{}-{}".format(base, id)
     
     @classmethod
     def get(cls, *args, **kwargs):
@@ -13,6 +13,8 @@ class Square():
 #           self.__setattr__(key, kwargs[key])
 
         base_id = kwargs.get('id')
+        next_id = None
+        prev_id = None
 
         head = "{}-{}".format(base_id, 0)
         nodes = {}
@@ -28,57 +30,75 @@ class Square():
         if (width and height):
 
             state = "move"
-            id = cls.get_id(base_id, node_count)    
-            nodes[id] = Node(id=id, state=state, pos=pos, next=1, prev=None, neighbors=[])
+            id = cls.get_id(base_id, node_count)
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=next_id, prev=prev_id, neighbors=[])
             node_count += 1
 
             state = "move"
             pos = Vector.add(pos, Vector(width, height, 0))
             id = cls.get_id(base_id, node_count)
-            nodes[id] = Node(id=id, state=state, pos=pos, next=2, prev=0, neighbors=[])
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=next_id, prev=prev_id, neighbors=[])
             node_count += 1
 
             state = "up"
             id = cls.get_id(base_id, node_count)
-            nodes[id] = Node(id=id, state=state, pos=pos, next=3, prev=1, neighbors=[])
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=next_id, prev=prev_id, neighbors=[])
             node_count += 1
 
             state = "lower"
             id = cls.get_id(base_id, node_count)
-            nodes[id] = Node(id=id, state=state, pos=pos, next=4, prev=2, neighbors=[])
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=next_id, prev=prev_id, neighbors=[])
             node_count += 1
 
             state = "down"
             id = cls.get_id(base_id, node_count)
-            nodes[id] = Node(id=id, state=state, pos=pos, next=5, prev=3, neighbors=[])
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=next_id, prev=prev_id, neighbors=[])
             node_count += 1
 
             state = "raise"
             id = cls.get_id(base_id, node_count)
-            nodes[id] = Node(id=id, state=state, pos=pos, next=6, prev=4, neighbors=[])
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=next_id, prev=prev_id, neighbors=[])
             node_count += 1
 
             state = "up"
             id = cls.get_id(base_id, node_count)
-            nodes[id] = Node(id=id, state=state, pos=pos, next=7, prev=5, neighbors=[])
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=next_id, prev=prev_id, neighbors=[])
             node_count += 1
 
             state = "move"
             id = cls.get_id(base_id, node_count)
-            nodes[id] = Node(id=id, state=state, pos=pos, next=8, prev=6, neighbors=[])
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=next_id, prev=prev_id, neighbors=[])
             node_count += 1
 
             state = "move"
             pos = Vector.sub(pos, Vector(width, height, 0))
             id = cls.get_id(base_id, node_count)
-            nodes[id] = Node(id=id, state=state, pos=pos, next=9, prev=7, neighbors=[])
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=next_id, prev=prev_id, neighbors=[])
             node_count += 1
 
             state = "up"
             id = cls.get_id(base_id, node_count)
-            nodes[id] = Node(id=id, state=state, pos=pos, next=None, prev=8, neighbors=[])
+            next_id = cls.get_id(base_id, node_count + 1)
+            prev_id = cls.get_id(base_id, node_count - 1)
+            nodes[id] = Node(id=id, state=state, pos=pos, next=None, prev=prev_id, neighbors=[])
             node_count += 1
-
-
 
         return nodes, head

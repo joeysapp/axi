@@ -52,9 +52,9 @@ class Plotter:
     # def pause_to_change_pen_position_lol(self):
 
     # [ main BAA -> Serial ]
-    def do_serial_action(self, action, pos, disabled=False):    
+    def do_serial_command(self, action, pos, disabled=False):    
         if disabled:
-            Console.error("Plotter.do_serial_action(action={} pos={}) is currently disabled.".format(action, pos))
+            Console.error("Plotter.do_serial_command(action={} pos={}) is currently disabled.".format(action, pos))
             return None
 
         # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
@@ -66,7 +66,7 @@ class Plotter:
         elif (action == 'lower'):
             plotter.pendown()
         else:
-            Console.error("Plotter.do_serial_action(action={} pos={}) -> !! SHOULD NOT BE CALLED !!".format(action, pos))
+            Console.error("Plotter.do_serial_command(action={} pos={}) has no meaning\n".format(action, pos))
 
 
     # 1 if up, 0 if down

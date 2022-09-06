@@ -65,42 +65,23 @@ def axi() -> int:
 
     # Main loop
     while not exit_signal.is_set():
-        Console.info("[_] begin\n")
-
+        Console.info("[    ] begin\n")
         # [A]
         if (scheduler.head == None):
-            Console.info("[A] scheduler.head == None\n")
-
+            Console.info("[A   ] Scheduler head does not exist\n")
             # Are there any generators in the scheduler.stack?
             if (len(scheduler.stack) == 0):
-                Console.info("[AA] Nothing in scheduler stack to print\n")
-                Console.info("[AA] Asking scheduler to pick a generator internally..?\n")
-
-                exit()
-
+                Console.info("[AA  ] There is nothing in the Scheduler stack\n")
+                Console.error("[AA  ] Exiting for now\n")
+                break;
             else:
-                Console.info("[AB] Scheduler stack contains item; next loop begin printing\n")
-
+                Console.info("[AB  ] Scheduler stack is populated, we pop the Generator and call .gen()\n")
                 scheduler.pop_generator_stack()
-
-                #next_gen = scheduler.stack.pop()
-
-                # Add all the new nodes to the scheduler's nodes                
-                #scheduler.nodes.update(next_gen.nodes)
-                #scheduler.history.append(nest_gen.id)
-
-                # A senerator's id is the first node
-                #scheduler.head = scheduler.nodes[next_gen.id]
-                Console.log("Scheduler is now: {}".format(scheduler))
-                exit()
+                Console.log("[AB  ] Scheduler is now: {}\n".format(scheduler))
+                # break
         # [B]
-        else:
-            Console.info("[B___] scheduler.head exists,\n")
-
-            # Bounds checking outside of plotter now..
-            head_within_bounds = True
-            # Maybe should go within Scheduler, or perhaps within a Generator itself?
-            # I'm mostly wanting dynamic like, "I cannot print outside this tiny circle" kinda thing
+        elif (scheduler.head != None):
+            Console.info("[B   ] Scheduler head exists and is not null\n")
 
             # 11 x 17in -> 27.94 x 43.18cm -> mm
             # "x" is the vertical axis for plotter
@@ -110,67 +91,54 @@ def axi() -> int:
                 "max": { "x": 431.8, "y": 279.4 },
             }
 
-            p = head.pos
-            if (p.x <= bounds["min"]["x"] or p.x >= bounds["max"]["x"]):
-                head_within_bounds = False
-            if (p.y <= bounds["min"]["y"] or p.y >= bounds["max"]["y"]):
-                head_within_bounds = False
-
+            # I'm mostly wanting dynamic change this, like, "I cannot print outside this tiny circle" kinda thing
+            head_within_bounds = scheduler.is_head_within_bounds(bounds)
             if not head_within_bounds:
-                Console.info("[BB__] plotter cannot go to scheduler.head\n")
-
+                Console.info("[BB  ] Scheduler head is out of bounds: {}\n".format(bounds))
+                Console.err("[BB  ] Break loop for now\n");
                 # No.. but are we raised? If we're lowered, should we raise?
                 # Prevent pen getting stuck in a down position, 
                 # maybe for now, USB_query the plotter (only once?) to check if it's up or down
 
                 break
             elif head_within_bounds:
-                Console.info("[BA__] plotter can go to scheduler.head\n")
+                Console.info("[BA  ] Scheduler head is within bounds: {}\n".format(bounds))
 
                 # Handling our various pen states to prevent redundant serial calls to plotter
                 # All the plotters needs is: (action [position])
-                action, pos = scheduler.get_serial_action(head, head.next)
+                command, pos = scheduler.get_serial_command_for_plotter()
+                Console.info("[BA  ] Ask the scheduler what, if anything, should be sent over serial\n")
 
-                if (action == None):
-                    Console.info("[BAB_] (action={action} pos={pos}) -> no serial\n".format(action, pos))
-                    continue
+                if (command == None):
+                    Console.info("[BAB ] No serial commnication necessary\n".format(command, pos))
                 else:
-                    Console.info("[BAB_] (action={action} pos={pos}) -> requires serial connection\n".format(action, pos))
+                    Console.info("[BAB ] Serial communication necessary\n".format(command, pos))
+                    plotter.do_serial_command(command, pos)
+                    Console.info("[BAB ] Asking Scheduler if the Plotter is moving\n".format(command, pos))
+                    if (command == "move"):
 
-
-                    # [ BAA -> Serial ]
-                    #plotter.do_command(serial_command)
-
-                    if (action == "move"):
-
-                        # If we're moving, find out if we need to wait after sending the above command.
-                        Console.info("[BAAA] scheduler.head to scheduler.head.next is {} -> {}, ".format(head.pos, head.next.pos))
-                        travel_distance = Vector.dist(head.pos, head.next.pos)
-                        travel_wait = travel_distance * 10
+                        # If we're moving, find out if we need to wait
+                        travel_distance = scheduler.get_travel_distance()
+                        travel_wait = travel_distance * 0
+                        Console.info("[BAAA] It is moving {travel_distance} and now wait for {travel_wait}\n".format(travel_distance, travel_wait))
                         Timer.wait(travel_wait)
 
-                        Console.info("distance is ={travel_distance} wait={travel_wait}\n".format(travel_distance, travel_wait))
                     else:
-                        # The action did not require additional waiting [ up, down, raise, lower ]
-                        Console.info("[BAAB] scheduler.head did not move\n")
+                        # The command did not require additional waiting [ up, down, raise, lower ]
+                        Console.info("[BAAB] Plotter is not moving\n")
                         Timer.wait()
 
-        Console.info("======================\n")
-        Console.info("[_] end\n")
-        Console.info("[_] scheduler now looks to traverse linked list\n")
-        # H
-        # Scheduler traverses its linked list
-        if (scheduler.head):
-            Console.info("[H] scheduler.head = scheduler.head.next\n")
-            Console.info("[H] {} -> ".format(scheduler.head))
-            
-            scheduler.head = s.nodes[scheduler.head.next]
-            
-            Console.info("{}\n".format(scheduler.head))
-        else:
-            Console.info("[H] scheduler.head is None\n")
+        Console.info("\n")
+        Console.info("[    ] end\n")
 
-        Console.info("======================\n\n\n\n\n\n")
+        # H
+        Console.info("[H   ] Scheduler now attempts go to head.next\n")
+        if (scheduler.head):
+            Console.info("[H   ] {}\n".format(scheduler.head))            
+            scheduler.traverse_linked_list();        
+            Console.info("[H   ] {}\n\n\n\n\n\n\n".format(scheduler.head))
+        else:
+            Console.info("[H   ] scheduler.head is None\n")
 
         # todo(@joeysapp on 2022-09-03):
         # - Another thread, listening for user input for cmd
@@ -178,31 +146,6 @@ def axi() -> int:
 
         
         exit_signal.wait(Timer.loop_delta) # Interrupt signal delay - fraction of a second
-
-
-
-#        # Old logic
-#        # Plotter
-#        if (head != None and plotter.check_bounds(head, bounds)):
-#            plotter.do(head)
-#            graph.extend_history()
-#            graph.move_head_to_next_node()
-#        # Decide where the plotter is going next
-#        if (cmd != None):
-#            # User/loaded-in commands
-#            gen = generator.do(cmd, head, bounds)
-#            graph.add_nodes(gen["nodes"])
-#            graph.set_head(gen["id"])
-#            cmd = None
-#        elif (head.action == 'finish' or head.action == "none"):
-#            # do things with previous graph entries: ....
-#            # Random:
-#            gen = generator.get_random(head, bounds)
-#            graph.add_nodes(gen["nodes"])
-#            print("WAT", head.action)
-#            print("OK!", gen["id"])
-#            graph.set_head(gen["id"])
-#        head = graph.get_head()
 
     Console.log("__main__.exit() at {:.2f} seconds\n".format(time.process_time()))
     plotter.disconnect()

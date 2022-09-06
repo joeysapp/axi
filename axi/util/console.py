@@ -75,13 +75,22 @@ class Console():
         output = "{}{}{}{}{} {}".format("\t"*indent,style, cls.ts(t), "[init]", cls.ansi("reset"), s)
         sys.stdout.write(output)
 
+    @classmethod
+    def time(cls, msg, *args, **kwargs):
+        s = cls.cat(msg, args)
+        style = cls.ansi("bold") + cls.ansi("yellow")
+        t = time.process_time()
+        indent = kwargs.get("level") or 0
+        output = "{}{}{}{}{} {}".format("\t"*indent,style, cls.ts(t), "[time]", cls.ansi("reset"), s)
+        sys.stdout.write(output)
+
 
     @classmethod
     def log(cls, msg, *args):
         s = cls.cat(msg, args)
         style = cls.ansi("bold") + cls.ansi("gray")
         t = time.process_time()    
-        output = "{}{}{}{} {}".format(style, cls.ts(t), "[log]", cls.ansi("reset"), s)
+        output = "{}{}{}{} {}".format(style, cls.ts(t), "[log ]", cls.ansi("reset"), s)
         sys.stdout.write(output)
 
     @classmethod
@@ -95,5 +104,5 @@ class Console():
     def error(cls, msg, *args):
         s = cls.cat(msg, args)
         style = cls.ansi("bold") + cls.ansi("red")
-        output = "{}{}{} {}".format(style, "[err]", cls.ansi("reset"), s)
+        output = "{}{}{} {}".format(style, "[err ]", cls.ansi("reset"), s)
         sys.stdout.write(output)
