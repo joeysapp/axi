@@ -60,14 +60,17 @@ class Plotter:
         # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
         # Should only see 'raise' 'lower', and 'move'.
         if (command == 'goto' and pos):
-            # plotter.goto(pos[0], pos[1])
             Console.serial("GOTO {}\n".format(pos))
+            self.axidraw.goto(pos.x, pos.y)
+
         elif (command == 'raise'):
             Console.serial("PENUP\n")
-            #plotter.penup()
+            self.axidraw.penup()
+
         elif (command == 'lower'):
             Console.serial("PENDOWN\n")
-            #plotter.pendown()
+            self.axidraw.pendown()
+
         else:
             Console.error("Plotter.do_serial_command({} ({})) has no meaning\n".format(command, pos))
 

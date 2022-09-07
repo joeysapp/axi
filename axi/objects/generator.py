@@ -38,7 +38,7 @@ class Generator():
            self.__setattr__(key, kwargs[key])
 
     def __repr__(self):
-        return "Generator.__repr__({})".format(self.__dict__)        
+        return "Generator.__repr__({})".format(self.__dict__)
 
 
     # Returns nodes, head
