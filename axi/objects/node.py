@@ -2,7 +2,7 @@ from axi.util import Console
 
 class Node:
     def __init__(self, *args, **kwargs):
-        Console.init("Node({})\n".format(kwargs))
+        # Console.init("Node({})\n".format(kwargs))
 
         self.id = kwargs.get("id") or None
         self.state = kwargs.get("state") or None
@@ -10,12 +10,13 @@ class Node:
         self.next = kwargs.get("next") or None
         self.prev = kwargs.get("prev") or None
         self.neighbors = kwargs.get("neighbors") or None
-
         for key in kwargs:
             self.__setattr__(key, kwargs[key])
+        Console.init("{}\n".format(self))
 
     def __repr__(self):
-        return "Node({})".format(self.__dict__)
+        return "Node(id={} prev={} next={} state={} pos={})".format(self.id[-5:], self.prev[-5:] if self.prev else "None", self.next[-5:] if self.next else "None", self.state, self.pos)
+        # return "Node({})".format(self.__dict__)
 
     def set_id(self, id):
         self.id = id

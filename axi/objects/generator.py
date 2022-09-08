@@ -26,39 +26,50 @@ class Shape():
     # Returns a brand new Shape with new id and new vertices
     @classmethod
     def transform(cls, shape, type, x=0, y=0, z=0, degrees=0):
-        Console.method("Shape.transform({} {} {} {} {} {})\n".format(shape.id, type, x, y, z, degree))
+        new_shape_id = "{}-{}-{}-{}-{}-{}".format(shape.id, type, x, y, z, degrees)
+        Console.cls("Shape.transform({} {} x={} y={} z={} degrees={})\n".format(shape.id, type, x, y, z, degrees))
         new_vertices = []
-        for v in self.vertices:
-            new_vertex = Vertex(v.x, v.y, v.z)
+        for v in shape.vertices:
+            # lol, shapes not returning Vectors
+            # Console.cls("Shape.vertices[...] : {}\n".format(v))
+            if isinstance(v, list):
+                vx = v[0]
+                vy = v[1]
+                vz = 0 if len(v) < 3 else 0
+            else:
+                vx = v.x
+                vy = v.y
+                vz = v.z
+            # Console.error("vx, vy, vz: {} {} {} \n".format(vx, vy, vz))
+            new_vertex = Vector(x=vx, y=vy, z=vz)
             if type == 'offset':
-                new_vertex = Vertex(v.x+x, v.y+y, v.z+z)
+                new_vertex = Vector(x=(vx+x), y=(vy+y), z=(vz+z))
             elif type == 'scale':
-                new_vertex = Vertex(v.x*x, v.y*y, v.z*z)
+                new_vertex = Vector(x=(vx*x), y=(vy*y), z=(vz*z))
            # elif type == 'rotate':
            #     new_vertex = Vertex()
            # elif type == 'warp':
            #     new_vertex = Vertex()
            # elif type == 'skew':
            #     new_vertex = Vertex()        
-            new_vertices.append(new_vertices)
-        new_shape_id = "{}-{}-{}-{}-{}-{}".format(shape.id, type, x, y, z, degrees)
-        return cls(id=new_shape_id, vertices=new_vertices)
+            new_vertices.append(new_vertex)
+        return cls(id=new_shape_id, type=shape.type, vertices=new_vertices)
 
 
     def __init__(self, id, type, vertices=[], params={}):
-       Console.init("{} = Shape(id={}, type={}, vertices={}, params={})\n".format(id, id, type, vertices, params));
+       Console.init("new Shape(id={}, type={}, vertices={}, params={})\n".format(id, type, vertices, params));
        self.id = id
        self.type = type
        self.vertices = vertices
        self.params = params
+       self.vertices = vertices if len(vertices) else shape_types[self.type].get()
 
     def __repr__(self):
         return "Shape(id={} type={} vertices={} params={})".format(self.id, self.type, self.vertices, self.params)
 
     def gen(self):
         Console.method("shape.gen(id={} type={} vertices={} params={})\n".format(self.id, self.type, self.vertices, self.params))
-        self.vertices = shape_types[self.type].get()
-
+        return self
 
 
 """
@@ -96,9 +107,10 @@ class Plot():
 
         new_shape_id = "{}-{}-{}".format(self.id, self.get_shape_count(), type)
         new_shape = Shape(id=new_shape_id, type=type, params=params)
-        new_shape.gen()
 
-        self.shapes.append(new_shape)
+        new_shape_1 = Shape.transform(new_shape, type="scale", x=10, y=10)
+        Console.error("plot.add_shape({})\n".format(new_shape_1))
+        self.shapes.append(new_shape_1)
 
     def get_shape_count(self):
         return len(self.shapes)
@@ -179,7 +191,10 @@ class Translator():
             # ....
             for v in shape.vertices:
                 node_id = "{}-{}".format(shape.id, idx);
-                pos = Vector(v)
+                if isinstance(v, Vector):
+                    pos = v
+                else:
+                    pos = Vector(list=v)
                 next = None if (idx+1 == len(shape.vertices)) else "{}-{}".format(shape.id, idx+1);
                 prev = None if (idx == 0) else "{}-{}".format(shape.id, idx-1);
                 n = Node(

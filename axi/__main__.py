@@ -65,17 +65,18 @@ def axi() -> int:
         "height": 15,
     }
 
-    sketch_001 = generator.create_plot(id="sketch_001")
+    sketch_001 = generator.create_plot(id="sq")
     sketch_001.add_shape(type="square", params=square_params)
     # sketch_001_translated = sketch_001.transform("offset", x=15, y=15) # returns a new instance
 
-    new_nodes, new_head = generator.get_plot_for_scheduler(id="sketch_001")
+    new_nodes, new_head = generator.get_plot_for_scheduler(id="sq")
     scheduler.add_nodes(new_nodes)
     scheduler.append_waiting_head(new_head)
 
     # Main loop
     while not exit_signal.is_set():
-        Console.info("[====] begin\n")
+        print("\n\n\n")
+        Console.info("[====] process loop begin\n")
         # [A]
         if (scheduler.head == None):
             Console.info("[A   ] Scheduler head does not exist\n")
@@ -148,7 +149,7 @@ def axi() -> int:
             Console.info("[Hnew] {}\n".format(scheduler.head))
         else:
             Console.info("[H   ] scheduler.head is not set\n")
-        Console.info("[====] end\n\n\n\n\n\n")
+        Console.info("[====] process loop end\n")
 
         # todo(@joeysapp on 2022-09-03):
         # - Another thread, listening for user input for cmd

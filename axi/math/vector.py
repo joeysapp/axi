@@ -3,15 +3,15 @@
 # - settar(Vector, 'x', value) vs. my_vector.setX(value);
 
 class Vector:
-    def __init__(self, x, y, z):
-        self.x = x;
-        self.y = y;
-        self.z = z;
-
-    def __init__(self, list):
-        self.x = list[0]
-        self.y = list[1]
-        self.z = 0 if len(list) < 3 else list[2]
+    def __init__(self, x=None, y=None, z=None, list=[]):
+        if (len(list) >= 2):
+            self.x = list[0]
+            self.y = list[1]
+            self.z = 0 if len(list) < 3 else list[2]
+        else:
+            self.x = x
+            self.y = y
+            self.z = z
 
     def __eq__(self, vector):
         if isinstance(vector, Vector):
