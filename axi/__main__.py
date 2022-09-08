@@ -50,25 +50,28 @@ def axi() -> int:
     parser.add_argument('-d', '--debug', help='display debug info', action='count', default=0)
     cli_args = parser.parse_args()
 
-
-
     scheduler = Scheduler(cli_args)
     plotter = Plotter(cli_args)
     generator = Generator(cli_args)
 
-    # generator.set_shape(id="my-csv", type="csv", name="clojure/line.csv")
+    # sketch_002 = generator.create_plot(id="sketch_002", plots=[sketch_001])
+    # sketch_003.load_csv()
 
     square_params = {
-        "x_offset": 10, "y_offset": 20, "width": 10, "height": 15,
+        "x_offset": 10,
+        "y_offset": 20,
+
+        "width": 10,
+        "height": 15,
     }
 
-    generator.set_plot(id="my-sq")
-    my_sq = generator.get_plot()
-    my_sq.add_shape(type="square", params=square_params)
+    sketch_001 = generator.create_plot(id="sketch_001")
+    sketch_001.add_shape(type="square", params=square_params)
+    # sketch_001_translated = sketch_001.transform("offset", x=15, y=15) # returns a new instance
 
-
-    new_nodes, new_head = generator.get_plot(id="my-square")
-    scheduler.push_plot(new_nodes, new_head)
+    new_nodes, new_head = generator.get_plot_for_scheduler(id="sketch_001")
+    scheduler.add_nodes(new_nodes)
+    scheduler.append_waiting_head(new_head)
 
     # Main loop
     while not exit_signal.is_set():
@@ -77,13 +80,13 @@ def axi() -> int:
         if (scheduler.head == None):
             Console.info("[A   ] Scheduler head does not exist\n")
             # Are there any generators in the scheduler.stack?
-            if (len(scheduler.stack) == 0):
-                Console.info("[AA  ] There is nothing in the Scheduler stack\n")
+            if (len(scheduler.waiting_heads) == 0):
+                Console.info("[AA  ] There is nothing in Scheduler waiting_heads\n")
                 Console.error("[AA  ] Exiting for now\n")
                 break;
             else:
-                Console.info("[AB  ] Scheduler stack is populated, we pop the Generator and call .gen()\n")
-                scheduler.pop_generator_stack()
+                Console.info("[AB  ] Scheduler waiting_heads is populated, will pop)\n")
+                scheduler.pop_waiting_head()
                 Console.log("[AB  ] Scheduler is now: {}\n".format(scheduler))
                 continue;
         # [B]

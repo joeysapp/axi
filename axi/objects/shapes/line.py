@@ -1,5 +1,9 @@
 class line():
-    self.shape = []
-    self.params = {}
+    def __init__(self):
+        Console.init("line({})\n")
+        self.shape = []
+        self.params = {}
+
+
 
     

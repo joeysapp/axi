@@ -34,7 +34,8 @@ from axi.util import Console, Timer
 
 class Plotter:
     def __init__(self, *args, **kwargs):
-        Console.init("Plotter({})\n".format(kwargs))
+        Console.init("plotter = Plotter({})\n".format(kwargs))
+        return None
         self.axidraw = axidraw.AxiDraw()
         try:
             self.axidraw.interactive()
@@ -42,10 +43,8 @@ class Plotter:
             # Next calls to .update(), wait so connection is up
             Timer.wait()
             self.configure();
-
-            Console.log("Plotter() \n")
         except Exception as err:
-            Console.error("Plotter() -> Exception -> {}\n".format(err))
+            Console.error("plotter = Plotter() -> Exception -> {}\n".format(err))
 
     # def pause(self):
     # def resume(self):
@@ -54,7 +53,7 @@ class Plotter:
     # [ main BAA -> Serial ]
     def do_serial_command(self, command, pos, disabled=False):    
         if disabled or True:
-            Console.error("Plotter.do_serial_command({} {}) is currently disabled.".format(command, pos))
+            Console.error("plotter.do_serial_command({} {}) is currently disabled.".format(command, pos))
             return None
 
         # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
@@ -72,7 +71,7 @@ class Plotter:
             self.axidraw.pendown()
 
         else:
-            Console.error("Plotter.do_serial_command({} ({})) has no meaning\n".format(command, pos))
+            Console.error("plotter.do_serial_command({} ({})) has no meaning\n".format(command, pos))
 
 
     # 1 if up, 0 if down
@@ -111,10 +110,10 @@ class Plotter:
             self.axidraw.goto(0, 0);
             Timer.wait()
             self.axidraw.disconnect()
-            Console.log("Plotter.disconnect() -> 0\n")
+            Console.log("plotter.disconnect() -> 0\n")
             return 0
         except Exception as err:
-            Console.log("Plotter.disconnect() -> 1 -> {}\n".format(err))
+            Console.log("plotter.disconnect() -> 1 -> {}\n".format(err))
             return err
 
     def configure(self):
@@ -152,7 +151,7 @@ class Plotter:
             setattr(self.axidraw.options, k, self.options[k])
 
         self.axidraw.update()
-        Console.log("Plotter.configure() -> 0 -> {}\n".format(self.get_version()))            
+        Console.log("plotter.configure() -> 0 -> {}\n".format(self.get_version()))            
         return 0
 
 # params = <module 'axidrawinternal.axidraw_conf' from '/Users/zooey/Library/Python/3.8/lib/python/site-packages/axidrawinternal/axidraw_conf.py'>

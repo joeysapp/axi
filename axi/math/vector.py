@@ -8,6 +8,11 @@ class Vector:
         self.y = y;
         self.z = z;
 
+    def __init__(self, list):
+        self.x = list[0]
+        self.y = list[1]
+        self.z = 0 if len(list) < 3 else list[2]
+
     def __eq__(self, vector):
         if isinstance(vector, Vector):
             return self.x == vector.x and \

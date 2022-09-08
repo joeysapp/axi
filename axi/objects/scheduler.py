@@ -2,15 +2,14 @@ from axi.util import Console
 
 class Scheduler:
     def __init__(self, *args, **kwargs):
-        Console.init("Scheduler({})\n".format(kwargs))
+        Console.init("scheduler = Scheduler({})\n".format(kwargs))
         self.head = None    # Node
         self.nodes = {}     # map of all Nodes, { id: node }
-        self.stack = []     # stack of Generators to print in future
+        self.waiting_heads = []     # stack of heads to print in the future
         self.history = []   # list of ids of (head) Nodes that have been printed
 
     def __repr__(self) -> str:
         return "Scheduler({})".format(self.__dict__)
-
 
     # Conditions the plotter needs to send a serial command:
     #   head        next        cmd
@@ -20,7 +19,7 @@ class Scheduler:
     #   pendown     up A         lower A
     #   penup       down A       raise A
     def get_serial_command_for_plotter(self):
-        Console.method("Scheduler.get_serial_command_for_plotter()\n")
+        Console.method("scheduler.get_serial_command_for_plotter()\n")
 
         head = self.nodes[self.head]
         next = self.nodes[head.next] if head.next in self.nodes else None
@@ -68,10 +67,9 @@ class Scheduler:
         p2 = self.nodes[p1.next]
 
         distance = p1.pos.dist(p2.pos)
-        Console.method("Scheduler.get_travel_distance() -> {}\n".format(distance))
+        Console.method("scheduler.get_travel_distance() -> {}\n".format(distance))
         return distance
 
-    
     def is_head_within_bounds(self, bounds) -> bool:
         is_within_bounds = True
         pos = self.nodes[self.head].pos
@@ -79,51 +77,28 @@ class Scheduler:
             is_within_bounds = False
         if (pos.y < bounds["min"]["y"] or pos.y > bounds["max"]["y"]):
             is_wthin_bounds = False
-        Console.method("Scheduler.is_head_within_bounds({}) -> {}\n".format(bounds, "True" if is_within_bounds else "False")
+        Console.method("scheduler.is_head_within_bounds({}) -> {}\n".format(bounds, "True" if is_within_bounds else "False"))
         return is_within_bounds
-        
+
+    def add_nodes(self, nodes) -> None:
+        Console.method("scheduler.add_nodes({})\n".format(nodes))
+        self.nodes.update(nodes)
 
     def traverse_linked_list(self) -> None:
-        Console.method("Scheduler.traverse_linked_list()\n"
-        if (self.head):            
+        Console.method("scheduler.traverse_linked_list()\n")
+        if not self.head == None:
             self.head = self.nodes[self.head].next
 
-    def set_head(self, head) -> None:
-        Console.method("Scheduler.set_head({})\n".format(head))
-        self.head = head
+    def append_waiting_head(self, head) -> None:
+        Console.method("scheduler.append_waiting_head({})\n".format(head))
+        self.waiting_heads.append(head)
+        # self.stack.insert(0, generator)
 
-    def add_nodes(self, plot) -> None:
-        Console.method("Scheduler.push_plot_nodes({})\n".format(plot))
-        self.stack.insert(0, generator)
+    def pop_waiting_head(self) -> None:
+        Console.method("scheduler.pop_waiting_head()\n")
 
-    def pop_generator_stack(self) -> None:
-        Console.method("Scheduler.pop_plot_stack()\n")
+        next_head = self.waiting_heads.pop()
+        if (self.head != None and self.head.next == None):
+            self.head.next = next_head
 
-        # not sure if I like generation happening on the pop
-        # Also, we need to deal with generator-to-generator creation
-
-        # As in, are we always returning home?
-        # I think just returning to where the Generator started probably is ideal?
-
-
-        # If we don't pass a Generator a pos variable, do we assume it'll always be relative?
-
-        next_nodes, next_head = next_generator.gen()
-
-        self.nodes.update(next_nodes)
-        self.history.append(next_head)
         self.head = next_head
-
-        # taken from old main:
-        #next_gen = scheduler.stack.pop()
-
-        # Add all the new nodes to the scheduler's nodes                
-        #scheduler.nodes.update(next_gen.nodes)
-        #scheduler.history.append(nest_gen.id)
-
-        # A senerator's id is the first node
-        #scheduler.head = scheduler.nodes[next_gen.id]
-
-
-
-        
