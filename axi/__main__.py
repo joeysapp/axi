@@ -88,6 +88,7 @@ def axi() -> int:
         # perf_counter () time and if there is any interruption but process_counter
         # only calculates system and CPU time, during process it does not include timeout. 
 
+        Console.info("="*70+"\n")
         Console.info("[    ] loop[{}] begin at {} seconds\n".format(loop_count, "{:.3f}".format(s)))
         loop_count += 1
 
@@ -102,6 +103,7 @@ def axi() -> int:
             else:
                 Console.info("[AB  ] Scheduler's queue is populated - will now pop new head from queue and set\n")
                 scheduler.pop_queue_to_head()
+                exit()
         # [B]
         elif (scheduler.head != None):
             Console.info("[B   ] scheduler.head = "+
@@ -155,6 +157,7 @@ def axi() -> int:
         
         Console.state("{}\n".format(scheduler))
         Console.info("[    ] loop[{}] end, exit_signal.wait(dt={})\n".format(loop_count, Timer.dt))
+        Console.info("="*70+"\n")
         exit_signal.wait(Timer.dt) # Interrupt signal delay - fraction of a second
 
 

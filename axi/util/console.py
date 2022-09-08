@@ -138,7 +138,7 @@ class Console():
     @classmethod
     def state(cls, msg, *args, **kwargs):
         label = "[stte]" if not kwargs.get("label") else kwargs.get(label)
-        style = cls.ansi("bold") + cls.ansi("lightblue")
+        style = cls.ansi("bold") + cls.ansi("blue")
 
         s = cls.cat(msg, args)
         t = time.process_time()

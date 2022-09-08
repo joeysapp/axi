@@ -57,7 +57,7 @@ class Shape():
 
 
     def __init__(self, id, type, vertices=[], params={}):
-       Console.init("new Shape(id={}, type={}, vertices={}, params={})\n".format(id, type, vertices, params));
+       Console.init("Shape(id={}, type={}, vertices={}, params={})\n".format(id, type, vertices, params));
        self.id = id
        self.type = type
        self.vertices = vertices
@@ -65,10 +65,10 @@ class Shape():
        self.vertices = vertices if len(vertices) else shape_types[self.type].get()
 
     def __repr__(self):
-        return "Shape(id={} type={} vertices={} params={})".format(self.id, self.type, self.vertices, self.params)
+        return "Shape.{}.(id t={} v={} p={})".format(self.id, self.type, self.vertices, self.params)
 
     def gen(self):
-        Console.method("shape.gen(id={} type={} vertices={} params={})\n".format(self.id, self.type, self.vertices, self.params))
+        Console.method("shape.{}.gen(id t={} v={} p={})\n".format(self.id, self.type, self.vertices, self.params))
         return self
 
 
@@ -95,7 +95,7 @@ class Plot():
 
 
     def __init__(self, id, shapes=[]):
-       Console.init("{} = Plot(id={} shapes={})\n".format(id, id, shapes))
+       Console.init("Plot(id={} shapes={})\n".format(id, id, shapes))
        self.id = id
        self.shapes = shapes
 
@@ -103,7 +103,7 @@ class Plot():
         return "Plot(id={} shapes={})".format(self.id, self.shapes)
 
     def add_shape(self, type, params={}):
-        Console.method("plot.add_shape(type={} params={})\n".format(type, params))
+        Console.method("plot.{}.add_shape(type={} params={})\n".format(self.id, type, params))
 
         new_shape_id = "{}-{}-{}".format(self.id, self.get_shape_count(), type)
         new_shape = Shape(id=new_shape_id, type=type, params=params)
@@ -115,14 +115,12 @@ class Plot():
 
     def get_shape_count(self):
         return len(self.shapes)
-           
-
 
 
 
 class Generator():
-    def __init__(self, plots, **kwargs):
-        Console.init("generator = Generator(plots={})\n".format(plots))
+    def __init__(self, plots=[], **kwargs):
+        Console.init("Generator(plots={})\n".format(plots))
 
         # Generator itself does not care about which Plot was first,
         # We keep track of that in Scheduler. We store Plots here
@@ -131,18 +129,18 @@ class Generator():
 
     def __repr__(self):
         return "Generator({})".format(self.__dict__)
-
-    def create_plot(self, id, **kwargs) -> Plot:
+    
+    def create_plot(self, id, plots=[]) -> Plot:
+        """ Returns a plot for easy Plot creation in main """
         if id in self.plots:
             Console.error("generator.create_plot(id={}) -> {} in self.plots\n".format(id, id))
-
-        if kwargs.get('plots'):
+        if len(plots) > 0:
             Console.method("generator.create_plot(id={} plots={})\n".format(id, plots))
             Console.error("generator.create_plot(id={} plots={}) -> not implemented\n".format(id, plots))
         else:
             Console.method("generator.create_plot(id={})\n".format(id))
             self.plots[id] = Plot(id)
-            return self.plots[id]        
+            return self.plots[id]
 
     def get_plot_for_scheduler(self, id):
         if not (id in self.plots):
@@ -164,33 +162,36 @@ class Generator():
       * Node.state is set (up/down/raise/lower/move/ ... wait/start/end)
 
     Removes the overhead of generating Node state elsewhere, and allows for //DYNAMIC CONTENT//
+
+    It needs to do the following with a list of Shapes:
+    * Start and end the Plot properly (up/down)
+    * Handle shape "closing"
+    * Handle shapes being connected - both the Node.next/prev, and if the pen needs to raise.
+
+
 """
 class Translator():
     @classmethod
     def get_shapes_as_nodes(cls, id, shapes):
-        Console.cls("Translator.get_shapes_as_nodes(id={} shapes={})\n".format(id, shapes))
-        nodes = {}
+        Console.cls("Translator.get_shapes_as_nodes(id={} shapes=...{})\n".format(id, len(shapes)))
 
+        nodes = {}
         next = None
         prev = None
         state = 'up' # all plots start "up"
         # [ square, spiral, line, ...]
+        shape_idx = 0
         for shape in shapes:
             # [ [x y], [x y], ...]   # NOT CLOSED!
 
-            idx = 0
+            vertex_idx = 0
             # e.g.
             # foo-0-square-0
             # foo-0-square-1
-            # foo-0-square-2
-            # foo-0-square-3
-            # foo-1-circle-0
-            # foo-1-circle-1
-            # foo-1-circle-2
-            # foo-1-circle-3
-            # foo-1-circle-4
-            # ....
+            Console.cls("{} shape={}\n".format(shape_idx, shape))
+
             for v in shape.vertices:
+                Console.cls("{} vertex={}\n".format(vertex_idx, v))
                 node_id = "{}-{}".format(shape.id, idx);
 
                 #  _______ _______ _______ _______ _______
@@ -242,8 +243,10 @@ class Translator():
                 nodes[node_id] = n
                 idx += 1
                 
+                vertex_idx += 1
                 # Insert all the up/down/raising/moving/lowering/waiting/going/fowarding
                 # logic here
                 # rip me
+            shape_idx += 1
         Console.cls("Translator.get_shapes_as_nodes(...) -> {}\n".format(Console.list(nodes)))
         return nodes

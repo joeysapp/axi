@@ -24,13 +24,13 @@ class Scheduler:
         next = None if (not head or not head.next) else self.nodes[head.next]
 
         # return "\t<- prev = {}\n\thead =    {}\n\t-> next = {}".format(prev, head, next)
-        return "\t{}{}\n\n\t{}{}\n\t{}{}".format(
+        return "\t{}{}\n\t{}{}\n\t{}{}".format(
             Console.format("head = ", "orange"), Console.format(head, "orange"),
             Console.format("prev = ", "gray-0"), Console.format(prev, "gray-0"),
             Console.format("next = ", "gray-0"), Console.format(next, "gray-0"))
 
     def __repr__(self) -> str:
-        return "Scheduler state:\n\t{}\n\n{}".format(self.get_size(), self.get_state())
+        return "scheduler state:\n\t{}\n\n{}".format(self.get_size(), self.get_state())
 
     # Conditions the plotter needs to send a serial command:
     #   head        next        cmd
@@ -79,7 +79,7 @@ class Scheduler:
 
 
         
-        color = "green" if command else "gray-1"
+        color = "green" if command else "gray-0"
         cmd_str = "\"" + str(command) + "\"" if command else "None"
         Console.puts("\n\t-> {}, {}\n".format(
             Console.format(cmd_str, [color, "bold" if command else "italic"]),
@@ -118,7 +118,7 @@ class Scheduler:
         Console.method("scheduler.add_nodes({})\n".format(Console.list(nodes)))
         l = len(self.nodes.keys())
         Console.puts("\t   {}".format(
-            Console.format("(scheduler.nodes "+str(len(self.nodes.keys()))+")", ["gray-1" if l == 0 else "green", "italic"])))
+            Console.format("(scheduler.nodes "+str(len(self.nodes.keys()))+")", ["gray-0" if l == 0 else "green", "italic"])))
         self.nodes.update(nodes)
         Console.puts("\n\t-> {}".format(
             Console.format("(scheduler.nodes "+str(len(self.nodes.keys()))+")\n", ["green", "bold"])))
@@ -130,14 +130,14 @@ class Scheduler:
         self.history.append(self.head)
 
         Console.puts("\t   {}".format(
-            Console.format("head = "+str(self.head)+"\n", ["gray-1", "italic"])))
+            Console.format("head = "+str(self.head)+"\n", ["gray-0", "italic"])))
 
         # if not self.head == None:
 
         self.head = self.nodes[self.head].next
 
         Console.puts("\t-> {}".format(
-            Console.format("head = "+str(self.head)+"\n", ["green" if self.head else "gray-1", "bold" if self.head else "italic"])))
+            Console.format("head = "+str(self.head)+"\n", ["green" if self.head else "gray-0", "bold" if self.head else "italic"])))
 
 
 
@@ -145,10 +145,10 @@ class Scheduler:
         Console.method("scheduler.append_to_queue(id={})".format(head))
         self.queue.append(head)
         Console.puts("\n\t   {}, {}\n\t-> {}, {}\n".format(
-            Console.format("(scheduler.queue "+str(len(self.queue)-1)+")", ["gray-1", "italic"]),
-            Console.format("head = {}".format(self.head if self.head else "None"), ["gray-1", "italic"]),
+            Console.format("(scheduler.queue "+str(len(self.queue)-1)+")", ["gray-0", "italic"]),
+            Console.format("head = {}".format(self.head if self.head else "None"), ["gray-0", "italic"]),
             Console.format("(scheduler.queue "+str(len(self.queue))+")", ["green", "bold"]),
-            Console.format("head = {}".format(self.head if self.head else "None"), ["gray-1", "italic"])))
+            Console.format("head = {}".format(self.head if self.head else "None"), ["gray-0", "italic"])))
 
         # Console.instance_state("then -> {}\n".format(self))
 
@@ -159,8 +159,8 @@ class Scheduler:
             self.head.next = next_head
 
         Console.puts("\n\t   {}, {}".format(
-            Console.format("(scheduler.queue "+str(len(self.queue))+")", ["gray-1", "italic"]),
-            Console.format("head = {}".format(self.head if self.head else "None"), ["gray-1", "italic"])))
+            Console.format("(scheduler.queue "+str(len(self.queue))+")", ["gray-0", "italic"]),
+            Console.format("head = {}".format(self.head if self.head else "None"), ["gray-0", "italic"])))
 
         self.head = self.queue.pop()
 
