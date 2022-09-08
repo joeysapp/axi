@@ -54,14 +54,21 @@ def axi() -> int:
 
     scheduler = Scheduler(cli_args)
     plotter = Plotter(cli_args)
+    generator = Generator(cli_args)
+
+    # generator.set_shape(id="my-csv", type="csv", name="clojure/line.csv")
+
+    square_params = {
+        "x_offset": 10, "y_offset": 20, "width": 10, "height": 15,
+    }
+
+    generator.set_plot(id="my-sq")
+    my_sq = generator.get_plot()
+    my_sq.add_shape(type="square", params=square_params)
 
 
-    # If the user passed in an --object arg, generate it here and add it to scheduler.
-    # generator = Generator(cli_args)
-    sq = Generator(type="square", width=10, height=20, pos=Vector(5, 0, 0))
-    # new_nodes, new_head = sq.gen()
-    scheduler.push_generator_to_stack(sq)
-
+    new_nodes, new_head = generator.get_plot(id="my-square")
+    scheduler.push_plot(new_nodes, new_head)
 
     # Main loop
     while not exit_signal.is_set():
@@ -95,11 +102,10 @@ def axi() -> int:
             head_within_bounds = scheduler.is_head_within_bounds(bounds)
             if not head_within_bounds:
                 Console.info("[BB  ] Scheduler head is out of bounds: {}\n".format(bounds))
-                Console.err("[BB  ] Break loop for now\n");
+                Console.error("[BB  ] Break loop for now\n");
                 # No.. but are we raised? If we're lowered, should we raise?
                 # Prevent pen getting stuck in a down position, 
                 # maybe for now, USB_query the plotter (only once?) to check if it's up or down
-
                 break
             elif head_within_bounds:
                 Console.info("[BA  ] Scheduler head is within bounds: {}\n".format(bounds))
@@ -120,7 +126,7 @@ def axi() -> int:
                         # If we're moving, find out if we need to wait
                         travel_distance = scheduler.get_travel_distance()
                         # 1ms every second
-                        travel_wait = travel_distance / 10.0
+                        travel_wait = travel_distance / 50.0
                         Console.info("[BAAA] It is moving {} and now wait for {}\n".format(travel_distance, travel_wait))
                         Timer.wait(travel_wait)
 

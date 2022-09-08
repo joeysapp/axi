@@ -4,7 +4,7 @@ from .console import Console
 
 class Timer():
     # Class variables
-    default = 1
+    default = 0.1
     loop_delta = 0.25 # fraction of a second
     
     @classmethod

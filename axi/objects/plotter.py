@@ -34,7 +34,7 @@ from axi.util import Console, Timer
 
 class Plotter:
     def __init__(self, *args, **kwargs):
-        Console.init("Plotter.__init__({})\n".format(kwargs))
+        Console.init("Plotter({})\n".format(kwargs))
         self.axidraw = axidraw.AxiDraw()
         try:
             self.axidraw.interactive()
@@ -43,9 +43,9 @@ class Plotter:
             Timer.wait()
             self.configure();
 
-            Console.log("Plotter.__init__() \n")
+            Console.log("Plotter() \n")
         except Exception as err:
-            Console.error("Plotter.__init__() -> Exception -> {}\n".format(err))
+            Console.error("Plotter() -> Exception -> {}\n".format(err))
 
     # def pause(self):
     # def resume(self):
@@ -53,7 +53,7 @@ class Plotter:
 
     # [ main BAA -> Serial ]
     def do_serial_command(self, command, pos, disabled=False):    
-        if disabled:
+        if disabled or True:
             Console.error("Plotter.do_serial_command({} {}) is currently disabled.".format(command, pos))
             return None
 

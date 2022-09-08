@@ -2,14 +2,14 @@ from axi.util import Console
 
 class Scheduler:
     def __init__(self, *args, **kwargs):
-        Console.log("Scheduler.__init__({})\n".format(kwargs))
+        Console.init("Scheduler({})\n".format(kwargs))
         self.head = None    # Node
         self.nodes = {}     # map of all Nodes, { id: node }
         self.stack = []     # stack of Generators to print in future
         self.history = []   # list of ids of (head) Nodes that have been printed
 
     def __repr__(self) -> str:
-        return "Scheduler.__repr__({})".format(self.__dict__)
+        return "Scheduler({})".format(self.__dict__)
 
 
     # Conditions the plotter needs to send a serial command:
@@ -28,8 +28,8 @@ class Scheduler:
         command = None
         pos = None
 
-        Console.debug("\t\thead={}\n".format(head))
-        Console.debug("\t\tnext={}\n".format(next))
+        Console.method("\t\thead={}\n".format(head))
+        Console.method("\t\tnext={}\n".format(next))
         if (head and next):
             head_s = head.state
             next_s = next.state
@@ -68,32 +68,36 @@ class Scheduler:
         p2 = self.nodes[p1.next]
 
         distance = p1.pos.dist(p2.pos)
-        Console.debug("get_travel_distance.Distance is : {}\n".format(distance))
+        Console.method("Scheduler.get_travel_distance() -> {}\n".format(distance))
         return distance
 
     
     def is_head_within_bounds(self, bounds) -> bool:
         is_within_bounds = True
         pos = self.nodes[self.head].pos
-        if (pos.x <= bounds["min"]["x"] or pos.x >= bounds["max"]["x"]):
+        if (pos.x < bounds["min"]["x"] or pos.x > bounds["max"]["x"]):
             is_within_bounds = False
-        if (pos.y <= bounds["min"]["y"] or pos.y >= bounds["max"]["y"]):
+        if (pos.y < bounds["min"]["y"] or pos.y > bounds["max"]["y"]):
             is_wthin_bounds = False
+        Console.method("Scheduler.is_head_within_bounds({}) -> {}\n".format(bounds, "True" if is_within_bounds else "False")
         return is_within_bounds
         
 
     def traverse_linked_list(self) -> None:
+        Console.method("Scheduler.traverse_linked_list()\n"
         if (self.head):            
             self.head = self.nodes[self.head].next
 
+    def set_head(self, head) -> None:
+        Console.method("Scheduler.set_head({})\n".format(head))
+        self.head = head
 
-    def push_generator_to_stack(self, generator) -> None:
-        Console.log("Scheduler.push_generator_to_stack({})\n".format(generator))
+    def add_nodes(self, plot) -> None:
+        Console.method("Scheduler.push_plot_nodes({})\n".format(plot))
         self.stack.insert(0, generator)
 
     def pop_generator_stack(self) -> None:
-        Console.log("Scheduler.pop_generator_stack\n")
-        next_generator = self.stack.pop()
+        Console.method("Scheduler.pop_plot_stack()\n")
 
         # not sure if I like generation happening on the pop
         # Also, we need to deal with generator-to-generator creation

@@ -6,204 +6,154 @@ from axi.math import Vector
 
 from .node import Node
 
-from .generators.square import Square
+from .shapes.line import line
+# from .shapes.square import square
+
+
+shape_types = [
+    "line": eval("line"),
+#     "square": eval("square"),
+]
+
+
+""""
+    A Shape object is a single primitive shape (that is _not_ closed)
+    - id,
+    - type,
+    - vertices,
+    - params,
+"""
+class Shape():
+    # Returns a brand new Shape with new id and new vertices
+    @classmethod
+    def transform(cls, shape, type, x=0, y=0, z=0, degrees=0):
+        Console.method("Shape.transform({} {} {} {} {} {})\n".format(shape.id, type, x, y, z, degree))
+        new_vertices = []
+        for v in self.vertices:
+            new_vertex = Vertex(v.x, v.y, v.z)
+            if type == 'offset':
+                new_vertex = Vertex(v.x+x, v.y+y, v.z+z)
+            elif type == 'scale':
+                new_vertex = Vertex(v.x*x, v.y*y, v.z*z)
+           # elif type == 'rotate':
+           #     new_vertex = Vertex()
+           # elif type == 'warp':
+           #     new_vertex = Vertex()
+           # elif type == 'skew':
+           #     new_vertex = Vertex()        
+            new_vertices.append(new_vertices)
+        new_shape_id = "{}-{}-{}-{}-{}-{}".format(shape.id, type, x, y, z, degrees)
+        return cls(id=new_shape_id, vertices=new_vertices)
+
+
+    def __init__(self, id, type, vertices=[], params={}):
+       Console.init("Shape(id={}, type={}, vertices={}, params={})\n".format(id, type, vertices, params));
+       self.id = id
+       self.type = type
+       self.vertices = vertices
+       self.params = params
+
+    def gen(self):
+        Console.method("Shape.gen(id={} type={} vertices={} params={})\n".format(self.id, self.type, self.vertices, self.params))
+        self.vertices = shape_types[self.type](self.params)
+
+
+
+"""
+
+   A Plot object contains a list of Shapes (a Shape is itself a list of vertices)
+   They themselves can be used to create other Plots.
+   - id,
+   - shapes = [], // ordered list
+
+"""
+class Plot():
+    # Returns a brand new Plot with new id and new shapes
+    @classmethod
+    def transform(cls, plot, type, x=0, y=0, z=0, degrees=0):
+        Console.method("Plot.transform({} {} {} {} {})\n".format(plot.id, type, x, y, z, degree))
+        new_shapes = []
+        for shape in plot.shapes:
+            new_shape = Shape.transform(shape, x, y, z, degrees)
+            #new_shape = Shape.offset(shape, x, y)
+            new_shapes.append(new_shape)
+        new_id = "{}-{}-{}-{}-{}-{}".format(plot.id, transform_type, x, y, z, degrees)
+        return cls(id=new_id, shapes=new_shapes)
+
+
+    def __init__(self, id, shapes=[]):
+       Console.init("Plot(id={} shapes={})\n".format(id, shapes)
+       self.id = id
+       self.shapes = shapes
+
+    def __repr__(self):
+        return "Plot(id={} shapes={})".format(self.id, self.shapes)
+
+    def add_shape(self, type, params={}):
+        Console.method("Plot.add_shape(type={} params={})\n".format(type, params))
+
+        new_shape_id = "{}-{}-{}".format(self.id, self.get_shape_count(), type)
+        new_shape = Shape(id={new_shape_id}, type=type, params=params)
+
+        self.shapes.append(new_shape)
+
+    def gen(self):
+        Console.method("Plot.gen()\n"
+        for shape in self.shapes:
+            shape.gen()
+
+    def get_shape_count(self):
+        return len(self.shapes)
+           
+
+
 
 
 class Generator():
-    #nodes = {}
-    #head = None
-    #id = None
+    def __init__(self, plots={}):
+        Console.init("Generator(plots={})\n".format(plots))
 
-    # Plot-related settings
-    # shape_position = corner # tbd
-    # return_home = False
-    # raise_at_end = True
-
-
-    # Shape-related settings
-    #type = None
-    #width = 0
-    #height = 0
-    #pos = Vector(0, 0, 0)
-
-    def __init__(self, *args, **kwargs):
-       Console.init("Generator.__init__({})\n".format(kwargs))
-       self.type = None
-       self.id = Timer.get_id()
-
-       self.nodes = {}
-       self.head = None
-
-       for key in kwargs:
-           self.__setattr__(key, kwargs[key])
+        # Generator itself does not care about which Plot was first,
+        # We keep track of that in Scheduler. We store Plots here
+        # for any future modification/plotting of NEW Plots.
+        self.plots = {}
 
     def __repr__(self):
-        return "Generator.__repr__({})".format(self.__dict__)
+        return "Generator({})".format(self.__dict__)
+
+    def create_plot(self, id):
+        if id in self.plots:
+            Console.error("Generator.create_plot(id={}) -> {} in self.plots\n".format(id, id))
+        elif (id and type):
+            Console.method("Generator.create_plot(id={})\n".format(id))
+            self.plots[id] = Plot(id);
+
+    def get_plot_nodes(self, id):
+        if not (id in self.plots):
+            Console.error("Generator.get_plot_nodes(id={)) -> {} not in self.plots\n".format(id))
+        else:
+            Console.method("Generator.get_plot_nodes(id={))\n".format(id))
+            shapes = self.plts[id].shapes
+            nodes = Translate.get_shapes_as_nodes(shapes)
+            return nodes
 
 
-    # Returns nodes, head
-    def gen(self):
-        # Very WIP
-        Console.log("Generator.gen(), self={}\n".format(self.__dict__))
-        if (self.type == "square"):
-            self.nodes, self.head = Square.get(height=20, width=20, id=self.id)
+"""
+   Translates a plot's Shapes into Nodes
+      * Node.pos is unchanged
+      * Node.id is unchanged
+      * Node.state is set (up/down/raise/lower/move/ ... wait/start/end)
 
-#        elif (self.type == "line"):
-#            self.nodes, self.line = Line.get(self.start, self.end)
-#
-#        elif (self.type == "polygon"):                
-#            self.nodes, self.node = Circle.get(self.radius, self.sides)
-
-        self.offset_nodes_by_pos()
-        return self.nodes, self.head
-
-    def offset_nodes_by_pos(self):
-
-        # gotta get [rectangular bounds] of nodes, to do this:
-        # self.shape_position = center
-
-        Console.log("Generator.offset_nodes_by_pos({})\n".format(self.pos))
-
+    Removes the overhead of generating Node state elsewhere, and allows for //DYNAMIC CONTENT//
+"""
+class Translator():
+    @classmethod()
+    def get_shapes_as_nodes(cls, id, shapes):
+        Console.class("Translator.get_shapes_as_nodes(id={} shapes={})".format(id, shapes))
+        nodes = {}
         idx = 0
-        for key in self.nodes.keys():
-            p = self.nodes[key].pos
-            #Console.log("offset {} to ".format(p));
-            self.nodes[key].pos = Vector.add(p, self.pos)
-            #Console.log("{}\n".format(self.nodes[key].pos));
-            Console.log("[{}] {}\n".format(idx, self.nodes[key]))
-            idx += 1
-
-
-    def get(self):
-        return self.nodes, self.head
-
-    def set_type(self, type):
-        self.type = type
-
-    def set_pos(self, x, y, z=0):
-        self.pos = Vector(x, y, z)
-
-    def set_width(self, width):
-        self.width = width
-
-    def set_height(self, height):
-        self.height = height    
-
-
-
-
-        
-
-    # def __init__(self, args):
-    #    Console.log("Generator.__init__(args={})\n".format(args))
-    #    osn.seed(42)
-
-    # Returns a dictionary of nodes generated?
-    # but how 2 know where 2 start.
-    def do(self, cmd, head, bounds):
-        Console.log("Generator.do(cmd={}, head={}, bounds={})\n".format(cmd, head, bounds))
-        nodes = {}
-
-        id = head.id;
-
-        nodes[id+1] = Node(id=0, action="move", pos=Vector(20, 50, 0), neighbors=[id+2])
-        nodes[id+2] = Node(id=1, action="lower", pos=Vector(20, 50, 0), neighbors=[id+3])
-        nodes[id+3] = Node(id=2, action="move", pos=Vector(20, 100, 0), neighbors=[id+4])
-        nodes[id+4] = Node(id=3, action="raise", pos=Vector(20, 100, 0), neighbors=[id+5])
-        nodes[id+5] = Node(id=4, action="finish", pos=Vector(20, 100, 0), neighbors=[])
-        
-        return { "id": 0, "nodes": nodes }
-
-
-    def get_random(self, head, bounds):
-        Console.log("Generator.get_random(head={}, bounds={})\n".format(head, bounds))
-        nodes = {}
-        node = head;
-
-        amt = 100;
-        for i in range(0, amt):
-            id = node.id + 1
-            pos = node.pos
-
-            n = fmap(random.random(), 0, 1, 0, math.pi*2)
-
-            t = i/10.0
-            t = math.sin(t);
-            print("t = {}".format(t))
-            m = 0.9 + t
-
-            nx = pos.x + m * math.cos(n) # x is technically the vertical component
-            ny = pos.y + m * math.sin(n) # y is techincally the horizontal component
-            action = "move"
-            if (node.action == "finish" or node.action == "none" or action == "raise"):
-                action = "lower"
-            elif (i == amt-1):
-                action = "finish"
-
-            if (nx <= bounds["min"]["x"] or nx >= bounds["max"]["x"]):
-                node = Node(id=id, pos=Vector(pos.x, pos.y, pos.z), action='raise', neighbors=[id+1])
-                nodes[id] = node
-                id = id + 1
-                nx = random.randrange(bounds["min"]["x"], bounds["max"]["x"])
-            if (ny <= bounds["min"]["y"] or ny >= bounds["max"]["y"]):
-                node = Node(id=id, pos=Vector(pos.x, pos.y, pos.z), action='raise', neighbors=[id+1])
-                nodes[id] = node
-                id = id + 1
-                ny = random.randrange(bounds["min"]["y"], bounds["max"]["y"])
-
-            node = Node(id=id, pos=Vector(nx, ny, pos.z), action=action, neighbors=[id+1])
-            nodes[id] = node
-
+        for shape in shapes:
             
-        return { "id": head.id + 1, "nodes": nodes }
-
-
-
-
-#    def get_shape_path(self, type, pos, options) -> Path:
-#        path = None
-#        if (type == 'square'):
-#            path = Square(pos, options)
-#        elif (type == 'circle'):
-#            path = Circle(pos, options)
-#        elif (type == 'spiral'):
-#            path = Spiral(pos, options)
-#    
-#    def _next_simplex_fun(self, path_entry) -> PathEntry:
-#        # self._generator....
-#        print('objects/generator/next')
-#        ## creative part 
-#        x = path_entry.pos.x;
-#        y = path_entry.pos.y;
-#        z = path_entry.pos.z;
-#        ndiv = 16.
-#        t = path_entry.time / 1000000.;
-#        n = osn.noise3(x/ndiv, y/ndiv, 0)
-#        print('\t 001 n =', n, end='\n')
-#        n = map(n, -1, 1, 0, math.pi * 2)
-#
-#        path_entry.vel.mult(0.95)
-#
-#        path_entry.acc = Vector(math.cos(n), math.sin(n), 0.0)
-#        path_entry.acc.limit(1);
-#        path_entry.vel.limit(1)
-#
-#        ## end creative part
-#        next_vel = path_entry.vel.add(path_entry.acc)
-#        next_pos = path_entry.pos.add(path_entry.vel)
-#
-#        if (next_pos.x > 66 or next_pos.x < 33):
-#            next_pos.x = 33 + random.random()*33.
-#            next_pos.y = random.random()*225
-#
-#            next_vel = Vector(0, 0, 0)
-#        if (next_pos.y > 225 or next_pos.y < 0):
-#            next_pos.x = 33 + random.random()*33.0
-#            next_pos.y = random.random()*225
-#            next_vel = Vector(0, 0, 0)
-#
-#        time = path_entry.time + 1
-#        # pen_pos = path_entry.pen_pos
-#        next_path_entry = PathEntry(pos=next_pos, vel=next_vel, acc=Vector(0, 0, 0), time=time)
-#        return next_path_entry;
-#
+            # nodes[Node] = Node()
+            idx += 1
+        return nodes
