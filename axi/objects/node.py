@@ -15,7 +15,16 @@ class Node:
         Console.init("{}\n".format(self))
 
     def __repr__(self):
-        return "Node(id={} prev={} next={} state={} pos={})".format(self.id[-5:], self.prev[-5:] if self.prev else "None", self.next[-5:] if self.next else "None", self.state, self.pos)
+        #return "Node(id={} prev={} next={} state={} pos={})".format(self.id[-5:], self.prev[-5:] if self.prev else "None", self.next[-5:] if self.next else "None", self.state, self.pos)
+        id_len = 12
+        return "Node(pos={} state={} {} {} {})".format(
+            self.pos,
+            self.state,
+#            Console.format("id=..{}".format(self.id[-id_len:]), [""]),
+            "id=..{}".format(self.id[-id_len:]),
+            Console.format("prev=..{}".format(self.prev[-id_len:]) if self.prev else "None", "gray-0"),
+            Console.format("next=..{}".format(self.next[-id_len:]) if self.next else "None", "gray-0"))
+
         # return "Node({})".format(self.__dict__)
 
     def set_id(self, id):

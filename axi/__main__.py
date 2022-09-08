@@ -71,96 +71,93 @@ def axi() -> int:
 
     new_nodes, new_head = generator.get_plot_for_scheduler(id="neato-plot")
     scheduler.add_nodes(new_nodes)
-    scheduler.append_waiting_heads(new_head)
+    scheduler.append_to_queue(new_head)
+
+
+    # todo(@joeysapp on 2022-09-03):
+    # - Another thread, listening for user input for cmd
+    # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished   
 
     # Main loop
     loop_count = 0
     while not exit_signal.is_set():
+        print("\n\n\n\n")
+        s = time.perf_counter() * 1
+        # Note: process_time () is very different from pref_counter ()
+        # because perf_counter ( ) calculates program time with
+        # perf_counter () time and if there is any interruption but process_counter
+        # only calculates system and CPU time, during process it does not include timeout. 
 
-        print("\n\n\n")
-        Console.info("[====] process loop begin\n")
+        Console.info("[    ] loop[{}] begin at {} seconds\n".format(loop_count, "{:.3f}".format(s)))
+        loop_count += 1
+
         # [A]
         if (scheduler.head == None):
             Console.info("[A   ] Scheduler head does not exist\n")
             # Are there any generators in the scheduler.stack?
-            if (len(scheduler.waiting_heads) == 0):
-                Console.info("[AA  ] There is nothing in Scheduler waiting_heads\n")
+            if (len(scheduler.queue) == 0):
+                Console.info("[AA  ] There is nothing in Scheduler's queue\n")
                 Console.error("[AA  ] Exiting for now\n")
                 break;
             else:
-                Console.info("[AB  ] Scheduler waiting_heads is populated, will pop)\n")
-                scheduler.pop_waiting_heads()
-                # continue;
+                Console.info("[AB  ] Scheduler's queue is populated - will now pop new head from queue and set\n")
+                scheduler.pop_queue_to_head()
         # [B]
         elif (scheduler.head != None):
-            Console.info("[B   ] Scheduler head exists and is not null\n")
+            Console.info("[B   ] scheduler.head = "+
+                         Console.format(str(scheduler.head)+"\n", ["white"]))
 
-            # 11 x 17in -> 27.94 x 43.18cm -> mm
-            # "x" is the vertical axis for plotter
-            # "y" is the horiz axis for plotter
+            # SE/A3 sizes: 11 x 17in -> 27.94 x 43.18cm -> mm
+            # "x is the vertical axis for plotter
+            # "y is the horiz axis for plotter
             bounds = {
                 "min": { "x": 0, "y": 0 },
                 "max": { "x": 431.8, "y": 279.4 },
             }
-
-            # I'm mostly wanting dynamic change this, like, "I cannot print outside this tiny circle" kinda thing
+            Console.info("[B   ] Scheduler checks if head is within bounds object\n")
+#                         Console.format("Bounds", ["orange", "bold"])+" object\n")
             head_within_bounds = scheduler.is_head_within_bounds(bounds)
             if not head_within_bounds:
                 Console.info("[BB  ] Scheduler head is out of bounds: {}\n".format(bounds))
-                Console.error("[BB  ] Break loop for now\n");
+                Console.error("[BB  ] Break loop for now, todo: think about this logic\n");
                 # No.. but are we raised? If we're lowered, should we raise?
                 # Prevent pen getting stuck in a down position, 
                 # maybe for now, USB_query the plotter (only once?) to check if it's up or down
                 break
             elif head_within_bounds:
-                Console.info("[BA  ] Scheduler head is within bounds: {}\n".format(bounds))
-
                 # Handling our various pen states to prevent redundant serial calls to plotter
                 # All the plotters needs is: (action [position])
+                Console.info("[BA  ] Ask the Scheduler if Plotter needs to send a serial command\n")
+#                             Console.format("serial command", ["cyan", "bold"])+"\n")
                 command, pos = scheduler.get_serial_command_for_plotter()
-                Console.info("[BA  ] Ask the scheduler what, if anything, should be sent over serial\n")
 
-                if (command == None):
-                    Console.info("[BAB ] No serial commnication necessary\n".format(command, pos))
-                else:
-                    Console.info("[BAB ] Serial communication necessary\n".format(command, pos))
+                # if (command == None):
+                #    Console.info("[BAB ] No serial commnication necessary\n".format(command, pos))
+                if not command == None:
+                    Console.info("[BAA ] Serial communication necessary\n".format(command, pos))
                     plotter.do_serial_command(command, pos)
-                    Console.info("[BAB ] Asking Scheduler if the Plotter is moving\n".format(command, pos))
-                    if (command == "move" or command == "goto"):
+                    Console.info("[BAA ] Asking Scheduler if the Plotter is moving\n".format(command, pos))
 
+                    if (command == "move" or command == "goto"):
                         # If we're moving, find out if we need to wait
                         travel_distance = scheduler.get_travel_distance()
-                        # 1ms every second
-                        travel_wait = travel_distance / 50.0
-                        Console.info("[BAAA] It is moving {} and now wait for {}\n".format(travel_distance, travel_wait))
+                        # above is in mm units, so distance = 25mm = 1 inch? wait 1 second.
+                        travel_wait = travel_distance / 25.0
+                        Console.info("[BAAA] plotter is moving {}mm and now wait for {} seconds\n".format(travel_distance, travel_wait))
                         Timer.wait(travel_wait)
-
                     else:
                         # The command did not require additional waiting [ up, down, raise, lower ]
-                        Console.info("[BAAB] Plotter is not moving\n")
+                        Console.info("[BAAB] Plotter is not moving, wait for standard instruction wait\n")
                         Timer.wait()
-
-        # todo(@joeysapp on 2022-09-03):
-        # - Another thread, listening for user input for cmd
-        # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
-
+                # H
+                Console.info("[B   ] Scheduler now attempts go to head.next\n")
+                scheduler.goto_next_node();        
         
+        Console.state("{}\n".format(scheduler))
+        Console.info("[    ] loop[{}] end, exit_signal.wait(dt={})\n".format(loop_count, Timer.dt))
+        exit_signal.wait(Timer.dt) # Interrupt signal delay - fraction of a second
 
-        
-        Console.info("[====]\n")
-        # H
-        # Only traverse if we've set head elsewhere, AND it isn't the first loop
-        if (scheduler.head and loop_count > 0):
-            Console.info("[H   ] Scheduler now attempts go to head.next\n")
-            Console.info("[Hold] {}\n".format(scheduler.head))            
-            scheduler.traverse_linked_list();        
-            Console.info("[Hnew] {}\n".format(scheduler.head))
-        else:
-            Console.info("[H   ] scheduler.head is not set\n")
-        Console.info("[====] process loop end\n")
 
-        loop_count += 1
-        exit_signal.wait(Timer.loop_delta) # Interrupt signal delay - fraction of a second
 
     Console.log("__main__.exit() at {:.2f} seconds\n".format(time.process_time()))
     plotter.disconnect()

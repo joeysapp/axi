@@ -1,5 +1,5 @@
 import random, math, time
-import opensimplex as osn
+# import opensimplex as osn
 
 from axi.util import Console, fmap, Timer
 from axi.math import Vector
@@ -192,13 +192,44 @@ class Translator():
             # ....
             for v in shape.vertices:
                 node_id = "{}-{}".format(shape.id, idx);
-                # Console.cls(" - vertices[{}]: {}\n".format(idx, node_id))
+
+                #  _______ _______ _______ _______ _______
+                # |     __|_     _|   _   |_     _|    ___|
+                # |__     | |   | |       | |   | |    ___|
+                # |_______| |___| |___|___| |___| |_______|
+                # Look at:
+                # head.state/next.state,
+                # head.pos/next.pos
+                # To know what state this node needs to be in
+                
+                # * Initial goto,
+                # * Transitions between up - lower - down - raising - up
+                
+                
+
+                #  ______               __ __   __
+                # |   __ \.-----.-----.|__|  |_|__|.-----.-----.
+                # |    __/|  _  |__ --||  |   _|  ||  _  |     |
+                # |___|   |_____|_____||__|____|__||_____|__|__|
                 if isinstance(v, Vector):
                     pos = v
                 else:
                     pos = Vector(list=v)
+
+
+
+                #  _______         __         __     __
+                # |    |  |.-----.|__|.-----.|  |--.|  |--.-----.----.-----.
+                # |       ||  -__||  ||  _  ||     ||  _  |  _  |   _|__ --|
+                # |__|____||_____||__||___  ||__|__||_____|_____|__| |_____|
+                #                     |_____|
                 next = None if (idx+1 == len(shape.vertices)) else "{}-{}".format(shape.id, idx+1);
                 prev = None if (idx == 0) else "{}-{}".format(shape.id, idx-1);
+                neighbors = []
+                if (next): neighbors.append(next)
+                if (prev): neighbors.append(prev)
+
+
 
                 n = Node(
                     id = node_id,
@@ -206,7 +237,7 @@ class Translator():
                     pos = pos,
                     next=next,
                     prev=prev,
-                    neighbors=[next, prev]
+                    neighbors=neighbors
                 )
                 nodes[node_id] = n
                 idx += 1

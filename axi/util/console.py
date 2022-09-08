@@ -3,6 +3,18 @@ import sys, time
 attribute_code_escape_sequence = "\033["
 attribute_code_return_sequence = "m"
 attribute_codes = {
+    "orange": "38;5;202",
+    "lightblue": "38;5;81",
+    "purple": "38;5;93",
+    "bg-lightblue": "48;5;81",
+
+    "gray-0": "38;5;241",
+    "gray-1": "38;5;246",
+    "gray-2": "38;5;251",
+    "bg-gray-0": "48;5;241",
+    "bg-gray-1": "48;5;246",
+    "bg-gray-2": "48;5;251",
+
     "gray": "90",
     "red": "91",
     "green": "92",
@@ -60,9 +72,19 @@ class Console():
     def ts(cls, t) -> str:
         return "" if not cls.timestamp else "[{:.7f}]".format(t)
 
+    @classmethod
+    def format(cls, s, types=[]) -> str:
+        t_str = ""
+        if type(types) == list:
+            for t in types:
+                t_str += cls.ansi(t)
+        else:
+            t_str = cls.ansi(types)
+        return "{}{}{}".format(t_str, s, cls.ansi("reset"))
+    
     # colors
     @classmethod
-    def ansi(cls, type, fg=True):
+    def ansi(cls, type):
         a = attribute_code_escape_sequence
         b = attribute_codes[type] if type in attribute_codes else "0"
         c = attribute_code_return_sequence
@@ -114,9 +136,28 @@ class Console():
         sys.stdout.write(output)
 
     @classmethod
+    def state(cls, msg, *args, **kwargs):
+        label = "[stte]" if not kwargs.get("label") else kwargs.get(label)
+        style = cls.ansi("bold") + cls.ansi("lightblue")
+
+        s = cls.cat(msg, args)
+        t = time.process_time()
+        indent = kwargs.get("level") or 0
+        output = "{}{}{}{}{} {}".format("\t"*indent,style, cls.ts(t), "{}".format(label), cls.ansi("reset"), s)
+        sys.stdout.write(output)
+
+    @classmethod
+    def puts(cls, msg, *args, **kwargs):
+        s = cls.cat(msg, args)
+        # style = cls.ansi("bold") + cls.ansi("yellow")
+        # t = time.process_time()
+        # indent = kwargs.get("level") or 0
+        sys.stdout.write(s)
+
+    @classmethod
     def method(cls, msg, *args, **kwargs):
         s = cls.cat(msg, args)
-        style = cls.ansi("bold") + cls.ansi("yellow")
+        style = cls.ansi("bold") + cls.ansi("orange")
         t = time.process_time()
         indent = kwargs.get("level") or 0
         output = "{}{}{}{}{} {}".format("\t"*indent,style, cls.ts(t), "[mthd]", cls.ansi("reset"), s)
@@ -135,7 +176,7 @@ class Console():
     @classmethod
     def log(cls, msg, *args):
         s = cls.cat(msg, args)
-        style = cls.ansi("bold") + cls.ansi("gray")
+        style = cls.ansi("bold") + cls.ansi("white")
         t = time.process_time()    
         output = "{}{}{}{} {}".format(style, cls.ts(t), "[logg]", cls.ansi("reset"), s)
         sys.stdout.write(output)
@@ -143,7 +184,7 @@ class Console():
     @classmethod
     def info(cls, msg, *args):
         s = cls.cat(msg, args)
-        style = cls.ansi("bold") + cls.ansi("green")
+        style = cls.ansi("bold") + cls.ansi("gray-0")
         output = "{}{}{} {}".format(style, "[info]", cls.ansi("reset"), s)
         sys.stdout.write(output)
 

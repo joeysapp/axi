@@ -35,7 +35,6 @@ from axi.util import Console, Timer
 class Plotter:
     def __init__(self, *args, **kwargs):
         Console.init("plotter = Plotter({})\n".format(kwargs))
-        return None
         self.axidraw = axidraw.AxiDraw()
         try:
             self.axidraw.interactive()
@@ -52,7 +51,7 @@ class Plotter:
 
     # [ main BAA -> Serial ]
     def do_serial_command(self, command, pos, disabled=False):    
-        if disabled or True:
+        if disabled:
             Console.error("plotter.do_serial_command({} {}) is currently disabled.".format(command, pos))
             return None
 
@@ -71,7 +70,7 @@ class Plotter:
             self.axidraw.pendown()
 
         else:
-            Console.error("plotter.do_serial_command({} ({})) has no meaning\n".format(command, pos))
+            Console.error("plotter.do_serial_command({} {}) has no meaning\n".format(command, pos))
 
 
     # 1 if up, 0 if down
