@@ -81,24 +81,21 @@ class Scheduler:
         return is_within_bounds
 
     def add_nodes(self, nodes) -> None:
-        Console.method("scheduler.add_nodes({})\n".format(nodes))
+        Console.method("scheduler.add_nodes({})\n".format(Console.list(nodes)))
         self.nodes.update(nodes)
 
     def traverse_linked_list(self) -> None:
-        Console.method("scheduler.traverse_linked_list()\n")
+        Console.method("scheduler.traverse_linked_list(head={}))\n".format(self.head))
         if not self.head == None:
             self.head = self.nodes[self.head].next
 
-    def append_waiting_head(self, head) -> None:
-        Console.method("scheduler.append_waiting_head({})\n".format(head))
+    def append_waiting_heads(self, head) -> None:
+        Console.method("scheduler.append_waiting_heads(id={})\n".format(head))
         self.waiting_heads.append(head)
-        # self.stack.insert(0, generator)
 
-    def pop_waiting_head(self) -> None:
-        Console.method("scheduler.pop_waiting_head()\n")
-
-        next_head = self.waiting_heads.pop()
+    def pop_waiting_heads(self) -> None:
+        Console.method("scheduler.pop_waiting_heads(): head: {} -> ... \n".format(self.head))
         if (self.head != None and self.head.next == None):
             self.head.next = next_head
-
-        self.head = next_head
+        self.head = self.waiting_heads.pop()
+        Console.method("scheduler.pop_waiting_heads(): head: {}\n".format(self.head))

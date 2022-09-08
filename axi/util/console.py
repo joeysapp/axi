@@ -47,10 +47,20 @@ attribute_codes = {
 class Console():
     timestamp = False
 
+    # list formatting
+    @classmethod
+    def list(cls, list) -> str:
+        s = ""
+        for obj in list:
+            s = "{}\n\t{}".format(s, obj)
+        return s
+    
+    # timestamp
     @classmethod
     def ts(cls, t) -> str:
         return "" if not cls.timestamp else "[{:.7f}]".format(t)
 
+    # colors
     @classmethod
     def ansi(cls, type, fg=True):
         a = attribute_code_escape_sequence
@@ -85,13 +95,10 @@ class Console():
         output = "{}{}{}{}{}{}{} {}{}".format("\t"*indent,style, cls.ts(t), "[SERI]", cls.ansi("reset"), cls.ansi("italic"), cls.ansi("bg-gray"), s, cls.ansi("reset"))
         sys.stdout.write(output)
 
-
-
-
     @classmethod
     def init(cls, msg, *args, **kwargs):
         s = cls.cat(msg, args)
-        style = cls.ansi("bold") + cls.ansi("red")
+        style = cls.ansi("bold") + cls.ansi("cyan")
         t = time.process_time()
         indent = kwargs.get("level") or 0
         output = "{}{}{}{}{} {}".format("\t"*indent,style, cls.ts(t), "[init]", cls.ansi("reset"), s)

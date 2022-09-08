@@ -65,16 +65,18 @@ def axi() -> int:
         "height": 15,
     }
 
-    sketch_001 = generator.create_plot(id="sq")
+    sketch_001 = generator.create_plot(id="neato-plot")
     sketch_001.add_shape(type="square", params=square_params)
     # sketch_001_translated = sketch_001.transform("offset", x=15, y=15) # returns a new instance
 
-    new_nodes, new_head = generator.get_plot_for_scheduler(id="sq")
+    new_nodes, new_head = generator.get_plot_for_scheduler(id="neato-plot")
     scheduler.add_nodes(new_nodes)
-    scheduler.append_waiting_head(new_head)
+    scheduler.append_waiting_heads(new_head)
 
     # Main loop
+    loop_count = 0
     while not exit_signal.is_set():
+
         print("\n\n\n")
         Console.info("[====] process loop begin\n")
         # [A]
@@ -87,9 +89,8 @@ def axi() -> int:
                 break;
             else:
                 Console.info("[AB  ] Scheduler waiting_heads is populated, will pop)\n")
-                scheduler.pop_waiting_head()
-                Console.log("[AB  ] Scheduler is now: {}\n".format(scheduler))
-                continue;
+                scheduler.pop_waiting_heads()
+                # continue;
         # [B]
         elif (scheduler.head != None):
             Console.info("[B   ] Scheduler head exists and is not null\n")
@@ -139,10 +140,17 @@ def axi() -> int:
                         Console.info("[BAAB] Plotter is not moving\n")
                         Timer.wait()
 
+        # todo(@joeysapp on 2022-09-03):
+        # - Another thread, listening for user input for cmd
+        # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
+
+        
+
+        
         Console.info("[====]\n")
         # H
-        # Only traverse if we've set head elsewhere
-        if (scheduler.head):
+        # Only traverse if we've set head elsewhere, AND it isn't the first loop
+        if (scheduler.head and loop_count > 0):
             Console.info("[H   ] Scheduler now attempts go to head.next\n")
             Console.info("[Hold] {}\n".format(scheduler.head))            
             scheduler.traverse_linked_list();        
@@ -151,11 +159,7 @@ def axi() -> int:
             Console.info("[H   ] scheduler.head is not set\n")
         Console.info("[====] process loop end\n")
 
-        # todo(@joeysapp on 2022-09-03):
-        # - Another thread, listening for user input for cmd
-        # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished
-
-        
+        loop_count += 1
         exit_signal.wait(Timer.loop_delta) # Interrupt signal delay - fraction of a second
 
     Console.log("__main__.exit() at {:.2f} seconds\n".format(time.process_time()))

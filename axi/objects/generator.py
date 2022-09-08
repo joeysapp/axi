@@ -26,7 +26,7 @@ class Shape():
     # Returns a brand new Shape with new id and new vertices
     @classmethod
     def transform(cls, shape, type, x=0, y=0, z=0, degrees=0):
-        new_shape_id = "{}-{}-{}-{}-{}-{}".format(shape.id, type, x, y, z, degrees)
+        new_shape_id = "{}-t={}-x={}-y={}-z={}-d={}".format(shape.id, type, x, y, z, degrees)
         Console.cls("Shape.transform({} {} x={} y={} z={} degrees={})\n".format(shape.id, type, x, y, z, degrees))
         new_vertices = []
         for v in shape.vertices:
@@ -108,9 +108,10 @@ class Plot():
         new_shape_id = "{}-{}-{}".format(self.id, self.get_shape_count(), type)
         new_shape = Shape(id=new_shape_id, type=type, params=params)
 
-        new_shape_1 = Shape.transform(new_shape, type="scale", x=10, y=10)
-        Console.error("plot.add_shape({})\n".format(new_shape_1))
-        self.shapes.append(new_shape_1)
+        #new_shape_1 = Shape.transform(new_shape, type="scale", x=10, y=10)
+        #Console.method("plot.add_shape result is -> {}\n".format(new_shape_1))
+        #self.shapes.append(new_shape_1)
+        self.shapes.append(new_shape)
 
     def get_shape_count(self):
         return len(self.shapes)
@@ -150,7 +151,7 @@ class Generator():
             Console.method("generator.get_plot_for_scheduler(id={})\n".format(id))
 
             shapes = self.plots[id].shapes
-            head = shapes[0].id # dae ordered list
+            head = "{}-{}".format(shapes[0].id, 0) # dae ordered list
             nodes = Translator.get_shapes_as_nodes(id, shapes)
 
             return nodes, head
@@ -191,12 +192,14 @@ class Translator():
             # ....
             for v in shape.vertices:
                 node_id = "{}-{}".format(shape.id, idx);
+                # Console.cls(" - vertices[{}]: {}\n".format(idx, node_id))
                 if isinstance(v, Vector):
                     pos = v
                 else:
                     pos = Vector(list=v)
                 next = None if (idx+1 == len(shape.vertices)) else "{}-{}".format(shape.id, idx+1);
                 prev = None if (idx == 0) else "{}-{}".format(shape.id, idx-1);
+
                 n = Node(
                     id = node_id,
                     state = state,
@@ -205,11 +208,11 @@ class Translator():
                     prev=prev,
                     neighbors=[next, prev]
                 )
-                nodes[shape.id] = n
+                nodes[node_id] = n
                 idx += 1
                 
                 # Insert all the up/down/raising/moving/lowering/waiting/going/fowarding
                 # logic here
                 # rip me
-
+        Console.cls("Translator.get_shapes_as_nodes(...) -> {}\n".format(Console.list(nodes)))
         return nodes
