@@ -115,7 +115,8 @@ class Scheduler:
         return is_within_bounds
 
     def add_nodes(self, nodes) -> None:
-        Console.method("scheduler.add_nodes({})\n".format(Console.list(nodes)))
+        # Console.method("scheduler.add_nodes({})\n".format(Console.list(nodes)))
+        Console.method("scheduler.add_nodes(hashmap of {} Nodes)\n".format(len(nodes.keys())))
         l = len(self.nodes.keys())
         Console.puts("\t   {}".format(
             Console.format("(scheduler.nodes "+str(len(self.nodes.keys()))+")", ["gray-0" if l == 0 else "green", "italic"])))

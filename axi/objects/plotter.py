@@ -34,8 +34,8 @@ from axi.util import Console, Timer
 
 class Plotter:
     def __init__(self, *args, **kwargs):
-        return None
         Console.init("plotter = Plotter({})\n".format(kwargs))
+        return None
         self.axidraw = axidraw.AxiDraw()
         try:
             self.axidraw.interactive()

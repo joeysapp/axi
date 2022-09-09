@@ -21,7 +21,7 @@ class Vector:
         return False
 
     def __repr__(self) -> str:
-        return "{},{},{}".format(self.x, self.y, self.z);    
+        return "({:.4f} {:.4f} {:.4f}}".format(self.x, self.y, self.z);    
     
     def __str__(self) -> str:
         return "{},{},{}".format(self.x, self.y, self.z);

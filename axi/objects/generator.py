@@ -57,7 +57,7 @@ class Shape():
 
 
     def __init__(self, id, type, vertices=[], params={}):
-       Console.init("Shape(id={}, type={}, vertices={}, params={})\n".format(id, type, vertices, params));
+       # Console.init("{} = Shape(id={}, type={}, vertices={}, params={})\n".format(id, id, type, vertices, params));
        self.id = id
        self.type = type
        self.vertices = vertices
@@ -95,7 +95,7 @@ class Plot():
 
 
     def __init__(self, id, shapes=[]):
-       Console.init("Plot(id={} shapes={})\n".format(id, id, shapes))
+       Console.init("{} = Plot(id={} shapes={})\n".format(id, id, shapes))
        self.id = id
        self.shapes = shapes
 
@@ -103,7 +103,7 @@ class Plot():
         return "Plot(id={} shapes={})".format(self.id, self.shapes)
 
     def add_shape(self, type, params={}):
-        Console.method("plot.{}.add_shape(type={} params={})\n".format(self.id, type, params))
+        Console.method("{}.add_shape(type={} params={})\n".format(self.id, type, params))
 
         new_shape_id = "{}-{}-{}".format(self.id, self.get_shape_count(), type)
         new_shape = Shape(id=new_shape_id, type=type, params=params)
@@ -119,8 +119,8 @@ class Plot():
 
 
 class Generator():
-    def __init__(self, plots=[], **kwargs):
-        Console.init("Generator(plots={})\n".format(plots))
+    def __init__(self, plots=[], *args, **kwargs):
+        Console.init("generator = Generator({})\n".format(kwargs))
 
         # Generator itself does not care about which Plot was first,
         # We keep track of that in Scheduler. We store Plots here
@@ -149,12 +149,15 @@ class Generator():
             Console.method("generator.get_plot_for_scheduler(plot_id={})\n".format(plot_id))
 
             shapes = self.plots[plot_id].shapes
-            nodes = self.translate_shapes_to_nodes(plot_id, shapes)
+            nodes, head = self.translate_shapes_to_nodes(plot_id, shapes)
+            Console.method("generator.get_plot_for_scheduler(plot_id={})".format(plot_id))
+            Console.puts("\n\t-> {}\n".format(
+                Console.format("(temporary.nodes {})".format(len(nodes.keys())), ["bold", "green"])))
 
             return nodes, head
 
     def translate_shapes_to_nodes(self, plot_id, shapes, scheduler_head=None):
-        Console.method("generator.translate_shapes_to_nodes(plot_id={}, shapes=[{}], scheduler_head={})\n"
+        Console.method("generator.translate_shapes_to_nodes(plot_id={}, shapes=[2 shapes], scheduler_head={})\n"
                        .format(plot_id,
                                len(shapes),
                                "None"))
@@ -168,6 +171,9 @@ class Generator():
         next_node = None
         prev_node = None
         nodes = {}
+
+        debug = False
+
 
         # lol idk how references work
         # espcially in python
@@ -190,32 +196,39 @@ class Generator():
                 else:
                     # head already exists -  so we need to create a new Node,
                     # set that head.next as the new Node we create, then set the head as that new node
-
-                    # ^ are we overwriting anything here in python...                    
-                    # tmp_prev_node = head_node.prev # is this a reference
                     
                     tmp_next_node = Node(pos=node_pos, state=node_state, id=node_id)
-                    print('0', tmp_next_node, head_node)
-                    head_node.next = tmp_next_node.id
-                    print('1', tmp_next_node, head_node)
-                    tmp_next_node.prev = head_node.id
-                    print('2', tmp_next_node, head_node)
-                    head_node = tmp_next_node
-                    print('3', tmp_next_node, head_node)
+                    if debug: print('\n0', tmp_next_node, "\t", head_node)
 
-                    # tmp_prev_node.next = head_node                
+                    head_node.next = tmp_next_node.id
+                    if debug: print('1', tmp_next_node, "\t", head_node)
+
+                    tmp_next_node.prev = head_node.id
+                    if debug: print('2', tmp_next_node, "\t", head_node)
+
+                    head_node = tmp_next_node
+                    if debug: print('3', tmp_next_node, "\t", head_node)
                     
 
                 vertex_idx += 1
-                print("wat", head_node)
+                if (debug): print("head is now:", head_node)
                 # Console.puts("Adding this head node: {}\n".format(head_node))
                 nodes[node_id] = head_node
             shape_idx += 1
 
-        Console.puts("\n\t-> nodes, first_node_id");
-        Console.puts("\n\t-> {}, {}\n".format(len(nodes.keys()), first_node_id))
+#        Console.method("generator.translate_shapes_to_nodes(plot_id={}, shapes=[2 shapes], scheduler_head={})\n"
+#                       .format(plot_id,
+#                               len(shapes),
+#                               "None"))
+#        Console.puts("="*80+"\n");
+        Console.puts("\t-> A linked list of {} was created\n".format(
+            Console.format(str(len(nodes.keys()))+" Nodes", ["bold", "green"])))
+
+        Console.puts("\t-> The head of this linked list is: {}\n".format(
+            Console.format(first_node_id, ["bold", "green"])))
         for k in nodes.keys():
-            Console.puts("nodes[{}] = {}\n".format(k, nodes[k]))
+            Console.puts("\t{}\n".format(nodes[k]))
+
         return nodes, first_node_id
             # Finishing looping through Shape's vertices.
             # Do we need to raise, or do we leave that for the next iteration?

@@ -64,20 +64,26 @@ def axi() -> int:
         "width": 10,
         "height": 15,
     }
+    Console.info("Initial setup of Plotter, Generator and Scheduler complete\n");
+    Console.info("="*70+"\n")
 
-    sketch_001 = generator.create_plot(id="neato-plot")
-    sketch_001.add_shape(type="square", params=square_params)
+    Console.info("\n")
+    Console.info("random shapes - this will be what we do on file load or command\n")
+    sketch_001 = generator.create_plot(id="foo")
+    sketch_001.add_shape(type="square", params={ "width": 5, "height": 10 })
+    sketch_001.add_shape(type="square", params={ "width": 10, "height": 25 })
     # sketch_001_translated = sketch_001.transform("offset", x=15, y=15) # returns a new instance
-
-    new_nodes, new_head = generator.get_plot_for_scheduler("neato-plot")
+    Console.info("\n")
+    Console.info("="*70+"\n")
+    new_nodes, new_head = generator.get_plot_for_scheduler("foo")
     scheduler.add_nodes(new_nodes)
     scheduler.append_to_queue(new_head)
-
+    Console.info("="*70+"\n")
 
     # todo(@joeysapp on 2022-09-03):
     # - Another thread, listening for user input for cmd
     # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished   
-
+    
     # Main loop
     loop_count = 0
     while not exit_signal.is_set():
@@ -103,6 +109,7 @@ def axi() -> int:
             else:
                 Console.info("[AB  ] Scheduler's queue is populated - will now pop new head from queue and set\n")
                 scheduler.pop_queue_to_head()
+                Console.info("[AB  ] exit now because the plotter is turned off and I'm nervous\n")
                 exit()
         # [B]
         elif (scheduler.head != None):

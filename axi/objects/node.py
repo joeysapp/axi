@@ -12,18 +12,32 @@ class Node:
         self.neighbors = kwargs.get("neighbors") or None
         for key in kwargs:
             self.__setattr__(key, kwargs[key])
-        Console.init("{}\n".format(self))
+        # Console.init("{}\n".format(self))
 
     def __repr__(self):
         #return "Node(id={} prev={} next={} state={} pos={})".format(self.id[-5:], self.prev[-5:] if self.prev else "None", self.next[-5:] if self.next else "None", self.state, self.pos)
-        id_len = 12
-        return "Node(pos={} state={} {} {} {})".format(
+        id_len = 10
+        state_style = ["italic"]
+        if self.state == "up":
+            state_style.append("green") 
+        elif self.state == "down":
+            state_style.append("red") 
+        elif self.state == "raise":
+            state_style.append("red") 
+            state_style.append("bold") 
+        elif self.state == "lower":
+            state_style.append("red")
+            state_style.append("bold")              
+        elif self.state == "move":
+            state_style.append("yellow")
+        id_style = ["bold"]
+        return "Node({}\t{}\t{}{}{})".format(
             self.pos,
-            self.state,
+            Console.format(self.state, state_style),
 #            Console.format("id=..{}".format(self.id[-id_len:]), [""]),
-            "id=..{}".format(self.id[-id_len:]),
-            Console.format("None" if self.prev == None else "prev=..{}".format(self.prev[-id_len:]), "gray-0"),
-            Console.format("None" if self.next == None else "next=..{}".format(self.next[-id_len:]), "gray-0"))
+            Console.format("\tid=..{}".format(self.id[-id_len:]), id_style),
+            Console.format("\tprev=\t\t" if self.prev == None else "\tprev=..{}".format(self.prev[-id_len:]), "gray-0"),
+            Console.format("\tnext=\t\t" if self.next == None else "\tnext=..{}".format(self.next[-id_len:]), "gray-0"))
 
 #            Console.format("prev=..{}".format(self.prev[-id_len:]) if self.prev else "None", "gray-0"),
 #            Console.format("next=..{}".format(self.next[-id_len:]) if self.next else "None", "gray-0"))
