@@ -142,17 +142,84 @@ class Generator():
             self.plots[id] = Plot(id)
             return self.plots[id]
 
-    def get_plot_for_scheduler(self, id):
-        if not (id in self.plots):
-            Console.error("generator.get_plot_for_scheduler(id={}) -> {} not in self.plots\n".format(id, id))
+    def get_plot_for_scheduler(self, plot_id):
+        if not (plot_id in self.plots):
+            Console.error("generator.get_plot_for_scheduler(plot_id={}) -> {} not in self.plots\n".format(plot_id, plot_id))
         else:
-            Console.method("generator.get_plot_for_scheduler(id={})\n".format(id))
+            Console.method("generator.get_plot_for_scheduler(plot_id={})\n".format(plot_id))
 
-            shapes = self.plots[id].shapes
-            head = "{}-{}".format(shapes[0].id, 0) # dae ordered list
-            nodes = Translator.get_shapes_as_nodes(id, shapes)
+            shapes = self.plots[plot_id].shapes
+            nodes = self.translate_shapes_to_nodes(plot_id, shapes)
 
             return nodes, head
+
+    def translate_shapes_to_nodes(self, plot_id, shapes, scheduler_head=None):
+        Console.method("generator.translate_shapes_to_nodes(plot_id={}, shapes=[{}], scheduler_head={})\n"
+                       .format(plot_id,
+                               len(shapes),
+                               "None"))
+
+        # For now, assume all plots return to origin??
+        # Otherwise, we need to know where the Scheduler's head is.......
+        # ....
+
+        scheduler_head = None
+        head_node = None
+        next_node = None
+        prev_node = None
+        nodes = {}
+
+        # lol idk how references work
+        # espcially in python
+
+        shape_idx = 0
+        for shape in shapes:
+            shape_type = shape.type
+            vertex_idx = 0
+            for vertex in shape.vertices:
+
+                # (plot-id)-(shape-idx)-(shape-type)-(vertex-idx)
+                node_id = "{}-{}-{}-{}".format(plot_id, shape_idx, shape_type, vertex_idx)
+                node_pos = Vector(0, 0, 0)
+                node_state = "up"
+
+                if (head_node == None):
+                    # Beginning of Nodes
+                    head_node = Node(pos=node_pos, state=node_state, id=node_id)
+                    first_node_id = node_id
+                else:
+                    # head already exists -  so we need to create a new Node,
+                    # set that head.next as the new Node we create, then set the head as that new node
+
+                    # ^ are we overwriting anything here in python...                    
+                    # tmp_prev_node = head_node.prev # is this a reference
+                    
+                    tmp_next_node = Node(pos=node_pos, state=node_state, id=node_id)
+                    print('0', tmp_next_node, head_node)
+                    head_node.next = tmp_next_node.id
+                    print('1', tmp_next_node, head_node)
+                    tmp_next_node.prev = head_node.id
+                    print('2', tmp_next_node, head_node)
+                    head_node = tmp_next_node
+                    print('3', tmp_next_node, head_node)
+
+                    # tmp_prev_node.next = head_node                
+                    
+
+                vertex_idx += 1
+                print("wat", head_node)
+                # Console.puts("Adding this head node: {}\n".format(head_node))
+                nodes[node_id] = head_node
+            shape_idx += 1
+
+        Console.puts("\n\t-> nodes, first_node_id");
+        Console.puts("\n\t-> {}, {}\n".format(len(nodes.keys()), first_node_id))
+        for k in nodes.keys():
+            Console.puts("nodes[{}] = {}\n".format(k, nodes[k]))
+        return nodes, first_node_id
+            # Finishing looping through Shape's vertices.
+            # Do we need to raise, or do we leave that for the next iteration?
+            
 
 
 """
@@ -170,83 +237,3 @@ class Generator():
 
 
 """
-class Translator():
-    @classmethod
-    def get_shapes_as_nodes(cls, id, shapes):
-        Console.cls("Translator.get_shapes_as_nodes(id={} shapes=...{})\n".format(id, len(shapes)))
-
-        nodes = {}
-        next = None
-        prev = None
-        state = 'up' # all plots start "up"
-        # [ square, spiral, line, ...]
-        shape_idx = 0
-        for shape in shapes:
-            # [ [x y], [x y], ...]   # NOT CLOSED!
-
-            vertex_idx = 0
-            # e.g.
-            # foo-0-square-0
-            # foo-0-square-1
-            Console.cls("{} shape={}\n".format(shape_idx, shape))
-
-            for v in shape.vertices:
-                Console.cls("{} vertex={}\n".format(vertex_idx, v))
-                node_id = "{}-{}".format(shape.id, idx);
-
-                #  _______ _______ _______ _______ _______
-                # |     __|_     _|   _   |_     _|    ___|
-                # |__     | |   | |       | |   | |    ___|
-                # |_______| |___| |___|___| |___| |_______|
-                # Look at:
-                # head.state/next.state,
-                # head.pos/next.pos
-                # To know what state this node needs to be in
-                
-                # * Initial goto,
-                # * Transitions between up - lower - down - raising - up
-                
-                
-
-                #  ______               __ __   __
-                # |   __ \.-----.-----.|__|  |_|__|.-----.-----.
-                # |    __/|  _  |__ --||  |   _|  ||  _  |     |
-                # |___|   |_____|_____||__|____|__||_____|__|__|
-                if isinstance(v, Vector):
-                    pos = v
-                else:
-                    pos = Vector(list=v)
-
-
-
-                #  _______         __         __     __
-                # |    |  |.-----.|__|.-----.|  |--.|  |--.-----.----.-----.
-                # |       ||  -__||  ||  _  ||     ||  _  |  _  |   _|__ --|
-                # |__|____||_____||__||___  ||__|__||_____|_____|__| |_____|
-                #                     |_____|
-                next = None if (idx+1 == len(shape.vertices)) else "{}-{}".format(shape.id, idx+1);
-                prev = None if (idx == 0) else "{}-{}".format(shape.id, idx-1);
-                neighbors = []
-                if (next): neighbors.append(next)
-                if (prev): neighbors.append(prev)
-
-
-
-                n = Node(
-                    id = node_id,
-                    state = state,
-                    pos = pos,
-                    next=next,
-                    prev=prev,
-                    neighbors=neighbors
-                )
-                nodes[node_id] = n
-                idx += 1
-                
-                vertex_idx += 1
-                # Insert all the up/down/raising/moving/lowering/waiting/going/fowarding
-                # logic here
-                # rip me
-            shape_idx += 1
-        Console.cls("Translator.get_shapes_as_nodes(...) -> {}\n".format(Console.list(nodes)))
-        return nodes

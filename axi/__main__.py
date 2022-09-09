@@ -69,7 +69,7 @@ def axi() -> int:
     sketch_001.add_shape(type="square", params=square_params)
     # sketch_001_translated = sketch_001.transform("offset", x=15, y=15) # returns a new instance
 
-    new_nodes, new_head = generator.get_plot_for_scheduler(id="neato-plot")
+    new_nodes, new_head = generator.get_plot_for_scheduler("neato-plot")
     scheduler.add_nodes(new_nodes)
     scheduler.append_to_queue(new_head)
 
@@ -136,22 +136,22 @@ def axi() -> int:
                 # if (command == None):
                 #    Console.info("[BAB ] No serial commnication necessary\n".format(command, pos))
                 if not command == None:
-                    Console.info("[BAA ] Serial communication necessary\n".format(command, pos))
+                    Console.info("[BAA ] Serial communication necessary\n")
                     plotter.do_serial_command(command, pos)
-                    Console.info("[BAA ] Asking Scheduler if the Plotter is moving\n".format(command, pos))
 
+                    Console.info("[BAA ] Asking Scheduler if the Plotter is moving\n")
                     if (command == "move" or command == "goto"):
                         # If we're moving, find out if we need to wait
                         travel_distance = scheduler.get_travel_distance()
                         # above is in mm units, so distance = 25mm = 1 inch? wait 1 second.
                         travel_wait = travel_distance / 25.0
-                        Console.info("[BAAA] plotter is moving {}mm and now wait for {} seconds\n".format(travel_distance, travel_wait))
+                        Console.info("[BAAA] plotter is moving {}mm -> wait for {}s\n".format(travel_distance, travel_wait))
                         Timer.wait(travel_wait)
                     else:
                         # The command did not require additional waiting [ up, down, raise, lower ]
                         Console.info("[BAAB] Plotter is not moving, wait for standard instruction wait\n")
                         Timer.wait()
-                # H
+                # H, 
                 Console.info("[B   ] Scheduler now attempts go to head.next\n")
                 scheduler.goto_next_node();        
         

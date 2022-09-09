@@ -4,7 +4,7 @@ from .console import Console
 
 class Timer():
     # Class variables
-    default = 1
+    default = 0.0001 # used in axi pausing...
     dt = 1 # fraction of a second
     
     @classmethod

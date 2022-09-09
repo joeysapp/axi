@@ -22,8 +22,11 @@ class Node:
             self.state,
 #            Console.format("id=..{}".format(self.id[-id_len:]), [""]),
             "id=..{}".format(self.id[-id_len:]),
-            Console.format("prev=..{}".format(self.prev[-id_len:]) if self.prev else "None", "gray-0"),
-            Console.format("next=..{}".format(self.next[-id_len:]) if self.next else "None", "gray-0"))
+            Console.format("None" if self.prev == None else "prev=..{}".format(self.prev[-id_len:]), "gray-0"),
+            Console.format("None" if self.next == None else "next=..{}".format(self.next[-id_len:]), "gray-0"))
+
+#            Console.format("prev=..{}".format(self.prev[-id_len:]) if self.prev else "None", "gray-0"),
+#            Console.format("next=..{}".format(self.next[-id_len:]) if self.next else "None", "gray-0"))
 
         # return "Node({})".format(self.__dict__)
 
