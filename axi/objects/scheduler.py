@@ -116,7 +116,7 @@ class Scheduler:
 
     def add_nodes(self, nodes) -> None:
         # Console.method("scheduler.add_nodes({})\n".format(Console.list(nodes)))
-        Console.method("scheduler.add_nodes(hashmap of {} Nodes)\n".format(len(nodes.keys())))
+        Console.method("scheduler.add_nodes(({} nodes))\n".format(len(nodes.keys())))
         l = len(self.nodes.keys())
         Console.puts("\t   {}".format(
             Console.format("(scheduler.nodes "+str(len(self.nodes.keys()))+")", ["gray-0" if l == 0 else "green", "italic"])))
@@ -143,13 +143,11 @@ class Scheduler:
 
 
     def append_to_queue(self, head) -> None:
-        Console.method("scheduler.append_to_queue(id={})".format(head))
+        Console.method("scheduler.append_to_queue(head={})".format(head))
         self.queue.append(head)
-        Console.puts("\n\t   {}, {}\n\t-> {}, {}\n".format(
+        Console.puts("\n\t   {}\n\t-> {}\n".format(
             Console.format("(scheduler.queue "+str(len(self.queue)-1)+")", ["gray-0", "italic"]),
-            Console.format("head = {}".format(self.head if self.head else "None"), ["gray-0", "italic"]),
-            Console.format("(scheduler.queue "+str(len(self.queue))+")", ["green", "bold"]),
-            Console.format("head = {}".format(self.head if self.head else "None"), ["gray-0", "italic"])))
+            Console.format("(scheduler.queue "+str(len(self.queue))+")", ["green", "bold"])))
 
         # Console.instance_state("then -> {}\n".format(self))
 
@@ -166,5 +164,5 @@ class Scheduler:
         self.head = self.queue.pop()
 
         Console.puts("\n\t-> {}, {}\n".format(
-            Console.format("(scheduler.queue "+str(len(self.queue))+")", ["green", "bold"]),
+            Console.format("(scheduler.queue "+str(len(self.queue))+")", ["gray-0", "italic"]),
             Console.format("head = {}".format(self.head if self.head else "None"), ["green", "bold"])))

@@ -65,7 +65,8 @@ def axi() -> int:
         "height": 15,
     }
     Console.info("Initial setup of Plotter, Generator and Scheduler complete\n");
-    Console.info("="*70+"\n")
+
+    Console.info(Console.format("="*80+"\n", ["gray-0"]))
 
     Console.info("\n")
     Console.info("random shapes - this will be what we do on file load or command\n")
@@ -74,11 +75,13 @@ def axi() -> int:
     sketch_001.add_shape(type="square", params={ "width": 10, "height": 25 })
     # sketch_001_translated = sketch_001.transform("offset", x=15, y=15) # returns a new instance
     Console.info("\n")
-    Console.info("="*70+"\n")
-    new_nodes, new_head = generator.get_plot_for_scheduler("foo")
+
+    Console.info(Console.format("="*80+"\n", ["gray-0"]))
+
+    new_nodes, new_head = generator.get_nodes_for_scheduler("foo")
     scheduler.add_nodes(new_nodes)
     scheduler.append_to_queue(new_head)
-    Console.info("="*70+"\n")
+    # Console.info("="*70+"\n")
 
     # todo(@joeysapp on 2022-09-03):
     # - Another thread, listening for user input for cmd
@@ -87,14 +90,13 @@ def axi() -> int:
     # Main loop
     loop_count = 0
     while not exit_signal.is_set():
-        print("\n\n\n\n")
         s = time.perf_counter() * 1
         # Note: process_time () is very different from pref_counter ()
         # because perf_counter ( ) calculates program time with
         # perf_counter () time and if there is any interruption but process_counter
         # only calculates system and CPU time, during process it does not include timeout. 
 
-        Console.info("="*70+"\n")
+        Console.info(Console.format("="*80+"\n", ["gray-0"]))
         Console.info("[    ] loop[{}] begin at {} seconds\n".format(loop_count, "{:.3f}".format(s)))
         loop_count += 1
 
@@ -109,8 +111,8 @@ def axi() -> int:
             else:
                 Console.info("[AB  ] Scheduler's queue is populated - will now pop new head from queue and set\n")
                 scheduler.pop_queue_to_head()
-                Console.info("[AB  ] exit now because the plotter is turned off and I'm nervous\n")
-                exit()
+                # Console.info("[AB  ] exit now because the plotter is turned off and I'm nervous\n")
+                # exit()
         # [B]
         elif (scheduler.head != None):
             Console.info("[B   ] scheduler.head = "+
@@ -164,7 +166,6 @@ def axi() -> int:
         
         Console.state("{}\n".format(scheduler))
         Console.info("[    ] loop[{}] end, exit_signal.wait(dt={})\n".format(loop_count, Timer.dt))
-        Console.info("="*70+"\n")
         exit_signal.wait(Timer.dt) # Interrupt signal delay - fraction of a second
 
 

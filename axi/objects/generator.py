@@ -142,22 +142,22 @@ class Generator():
             self.plots[id] = Plot(id)
             return self.plots[id]
 
-    def get_plot_for_scheduler(self, plot_id):
-        if not (plot_id in self.plots):
-            Console.error("generator.get_plot_for_scheduler(plot_id={}) -> {} not in self.plots\n".format(plot_id, plot_id))
+    def get_nodes_for_scheduler(self, id):
+        if not (id in self.plots):
+            Console.error("generator.get_nodes_for_scheduler(id={}) -> {} not in self.plots\n".format(id, id))
         else:
-            Console.method("generator.get_plot_for_scheduler(plot_id={})\n".format(plot_id))
+            Console.method("generator.get_nodes_for_scheduler(id={})\n".format(id))
 
-            shapes = self.plots[plot_id].shapes
-            nodes, head = self.translate_shapes_to_nodes(plot_id, shapes)
-            Console.method("generator.get_plot_for_scheduler(plot_id={})".format(plot_id))
+            shapes = self.plots[id].shapes
+            nodes, head = self.translate_shapes_to_nodes(plot_id=id, shapes=shapes)
+            Console.method("generator.get_nodes_for_scheduler(id={})".format(id))
             Console.puts("\n\t-> {}\n".format(
                 Console.format("(temporary.nodes {})".format(len(nodes.keys())), ["bold", "green"])))
 
             return nodes, head
 
     def translate_shapes_to_nodes(self, plot_id, shapes, scheduler_head=None):
-        Console.method("generator.translate_shapes_to_nodes(plot_id={}, shapes=[2 shapes], scheduler_head={})\n"
+        Console.method("generator.translate_shapes_to_nodes(id={}, shapes=[{} shapes], scheduler_head={})\n"
                        .format(plot_id,
                                len(shapes),
                                "None"))
