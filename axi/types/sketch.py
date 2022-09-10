@@ -11,6 +11,7 @@
 """
 from .shape import Shape
 from .bounds import Bounds
+from axi.util import Console
 
 class Sketch():
     def __init__(self, id, *args, **kwargs):
@@ -19,7 +20,7 @@ class Sketch():
        self.shapes = []
        self.total_line_length = 0
 
-       self.bounds = kwargs.get("bounds") else Bounds()
+       self.bounds = kwargs.get("bounds") or Bounds()
        if (kwargs.get("sketches")):
            for s in kwargs.get("sketches"):
                self.shapes.extend(s.shapes)

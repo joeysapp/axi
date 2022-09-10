@@ -39,8 +39,8 @@ class Vector:
 
     def __eq__(self, v2):
         if isinstance(v2, Vector):
-            return self.x == v2.x and
-                   self.y == v2.y and
+            return self.x == v2.x and \
+                   self.y == v2.y and \
                    self.z == v2.z
         return False
 

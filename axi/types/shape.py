@@ -12,17 +12,20 @@
 from .shapes import line, square
 from .enums import ShapeType
 
+from axi.util import Console
+
 class Shape(list):
-    def __init__(self, id, type, **kwargs):
+    def __init__(self, id, type: ShapeType, **kwargs):
         Console.init("Shape(id={} type={}{})\n".format(id, type, kwargs))
         self.id = id
         self.type = type
         self.vectors = kwargs.get("vectors") or []
         self.params = kwargs.get("params") or None
+        self.line_length = 0
 
         # idk if this werk
-        if Shapes.type:
-            Shapes.type()
+        # if Shapes.type:
+        #     Shapes.type()
 
     def __repr__(self):
         vector_string = Console.list(self.vectors)

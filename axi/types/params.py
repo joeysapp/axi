@@ -1,6 +1,8 @@
 """
    Params objects are used to pass unique information from Generator to Sketch to Shape
 """
+from axi.util import Console
+
 class Params():
     def __init__(self, **kwargs):
         Console.init("Params({})\n".format(kwargs))

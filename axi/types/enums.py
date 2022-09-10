@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-class Shapes(Enum):
+class ShapeType(Enum):
     line = auto()
     square = auto()
 
@@ -12,8 +12,8 @@ class Shapes(Enum):
 
 class NodeState(Enum):
     up = auto()
-    raise = auto()
-    lower = auto()
+    ascend = auto()
+    descend = auto()
     down = auto()
     move = auto()
 

@@ -2,9 +2,7 @@ import random, math, time
 # import opensimplex as osn
 
 from axi.util import Console, fmap, Timer
-from axi.math import Vector
-
-from .node import Node
+from axi.types import Vector, Node, Sketch
  
 class Generator():
     def __init__(self, *args, **kwargs):
@@ -14,18 +12,18 @@ class Generator():
     def __repr__(self):
         return "Generator({})".format(self.__dict__)
     
-    def create_sketch(self, id, *args, **kwargs) -> Plot:
+    def create_sketch(self, id, *args, **kwargs) -> Sketch:
         Console.method("generator.create_sketch(id={}{})\n".format(id, kwargs if kwargs else ""))
         self.sketches[id] = Sketch(id, sketches=kwargs.get("sketches"))
         return self.sketches[id]
 
     def get_nodes_for_scheduler(self, id):
-        if not (id in self.plots):
-            Console.error("generator.get_nodes_for_scheduler(id={}) -> {} not in self.plots\n".format(id, id))
+        if not (id in self.sketches):
+            Console.error("generator.get_nodes_for_scheduler(id={}) -> {} not in self.sketches\n".format(id, id))
         else:
             Console.method("generator.get_nodes_for_scheduler(id={})\n".format(id))
 
-            shapes = self.plots[id].shapes
+            shapes = self.sketches[id].shapes
             nodes, head = self.translate_shapes_to_nodes(plot_id=id, shapes=shapes)
             Console.method("generator.get_nodes_for_scheduler(id={})".format(id))
             Console.puts("\n\t-> {}\n".format(
@@ -57,10 +55,8 @@ class Generator():
                                len(shapes),
                                "None"))
 
-        # For now, assume all plots return to origin??
-        # Otherwise, we need to know where the Scheduler's head is.......
-        # ....
-
+        # For now, assume all sketches return to origin??
+        # Otherwise, we need to know where the Scheduler's head is..
         scheduler_head = None
         head_node = None
         next_node = None
@@ -69,15 +65,11 @@ class Generator():
 
         debug = False
 
-
-        # lol idk how references work
-        # espcially in python
-
         shape_idx = 0
         for shape in shapes:
             shape_type = shape.type
             vertex_idx = 0
-            for vertex in shape.vertices:
+            for v in shape.vectors:
 
                 # (plot-id)-(shape-idx)-(shape-type)-(vertex-idx)
                 node_id = "{}-{}-{}-{}".format(plot_id, shape_idx, shape_type, vertex_idx)
@@ -91,8 +83,6 @@ class Generator():
                 else:
                     # head already exists -  so we need to create a new Node,
                     # set that head.next as the new Node we create, then set the head as that new node
-                    
-
                     tmp_next_node = Node(pos=node_pos, state=node_state, id=node_id)                    
                     
                     # if debug: print('\n0', tmp_next_node, "\t", head_node)
@@ -105,12 +95,11 @@ class Generator():
 
                     # if debug: print('2', tmp_next_node, "\t", head_node)
 
+                    # Do our Node creation / insertion here
+                    
                     head_node = tmp_next_node
-                    # set head_node.state based
-                    
-
-                    # if debug: print('3', tmp_next_node, "\t", head_node)
-                    
+                    # set head_node.state based                
+                    # if debug: print('3', tmp_next_node, "\t", head_node)                    
 
                 vertex_idx += 1
                 if (debug): print("head is now:", head_node)

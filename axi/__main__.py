@@ -8,9 +8,14 @@ VERSION = (0, 4, 0)
 
 import argparse, sys, textwrap, time
 
-from . import Serial, Scheduler, Generator, Modifier
+#from . import Serial, Scheduler, Generator, Modifier
+from .serial import Serial
+from .scheduler import Scheduler
+from .generator import Generator
+from .modifier import Modifier
+
 from .util import Console, Timer
-from .math import Vector
+from .types import Vector, Params
 
 
 # note(@joeysapp): this is so C-c won't kill python first before closing the plotter serial connection
@@ -63,10 +68,9 @@ def axi() -> int:
     thing = generator.create_sketch(id="thing")
     thing.add_shape(type="line", params=Params(x=0, y=0, w=10, h=10))
 
-    nodes, head = generator.get_nodes_for_scheduler(id="thing")
-
-    scheduler.add_nodes(new_nodes)
-    scheduler.append_to_queue(new_head)
+    # nodes, head = generator.get_nodes_for_scheduler(id="thing")
+    # scheduler.add_nodes(new_nodes)
+    # scheduler.append_to_queue(new_head)
 
 
 

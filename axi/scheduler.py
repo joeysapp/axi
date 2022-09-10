@@ -1,10 +1,11 @@
 from axi.util import Console
 from axi.types import Bounds
 
-class Scheduler(dict):
+#class Scheduler(dict):
+class Scheduler():
     def __init__(self, *args, **kwargs):
         # Making our Scheduler a dictionary type?
-        super(Scheduler, self).__init__(*arg, **kwargs)
+        # super(Scheduler, self).__init__(*args, **kwargs)
 
         Console.init("scheduler = Scheduler({})\n".format(kwargs))
         self.head = None      # id

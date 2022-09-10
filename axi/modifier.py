@@ -2,9 +2,7 @@ import random, math, time
 # import opensimplex as osn
 
 from axi.util import Console, fmap, Timer
-from axi.math import Vector
-
-from .node import Node
+from axi.types import Vector, Node, Sketch
  
 class Modifier():
     def __init__(self, **kwargs):

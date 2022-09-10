@@ -11,7 +11,7 @@ from .vector import Vector
 from .bounds import Bounds
 from .params import Params
 
-from .enums import ShapeTypes, NodeState
+from .enums import ShapeType, NodeState
 
 __all__ = [
     # "Plotter",
@@ -24,7 +24,7 @@ __all__ = [
     "Bounding",
     "Params",
 
-    "ShapeTypes",
+    "ShapeType",
     "NodeState",
 
     # "Generator"

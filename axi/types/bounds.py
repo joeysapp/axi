@@ -22,9 +22,9 @@ class Bounds():
     # plotter_physical_max = Vector(431.8, 279.4 },
     # plotter_physical_min = Vector(0, 0)
 
-    def __init__(self, bmin, bmax):
-        self.bmin = bmin if bmin else Vector(0, 0)
-        self.bmax = bmax if bmax else Vector(431.8, 279.4)
+    def __init__(self, **kwargs):        
+        self.min = kwargs.get("min") if kwargs.get("min") else Vector(0, 0)
+        self.max = kwargs.get("max") if kwargs.get("max") else Vector(431.8, 279.4)
 
     def check(self, v):
         return v.x > self.min.x and \
