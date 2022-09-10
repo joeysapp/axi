@@ -4,13 +4,10 @@ class Shapes(Enum):
     line = auto()
     square = auto()
 
+    # Usable like:
+    #        vectors = Shapes["line"]()
     def __call__(self, *args, **kwargs):
         return eval(self.name)(args[0] if args else None)
-
-    @property
-    def do_generation_thing(self):
-        return self()
-
 
 
 class NodeState(Enum):
@@ -18,14 +15,14 @@ class NodeState(Enum):
     raise = auto()
     lower = auto()
     down = auto()
-    move = auot()
+    move = auto()
 
     # Handle all of the state transitions here?
     def __call__(self, **kwargs):
         return eval(self.name)(kwargs)
 
     # do we want 
-    # current_state = NodeState
+    # state = head.state # a NodeState
     # next_state = current_state.get_next(uh, states/position?)
 
     # cause if all Nodes have a NodeState... these could just be classmethods?

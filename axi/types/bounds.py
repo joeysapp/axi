@@ -1,11 +1,21 @@
 """
-   BoundingBox objects are referenced in the Scheduler and Sketches.
+   Bounds objects are referenced in the Scheduler and Sketches.
    .... for now
+
+
+          Make it somehow be a Shape/Sketch itself?
+          e.g. Bounds extends the Sketch object and implements several special methods
+        
+          Could be cool, like having "Bounds" be a series of Shapes that could move around
+
+
+          Would this be implementing "Mask" functionality, too?
+
 """
 
 from .vector import Vector
 
-class BoundingBox():
+class Bounds():
     # SE/A3 sizes: 11 x 17in -> 27.94 x 43.18cm -> mm
     # "x is the vertical axis for plotter
     # "y is the horiz axis for plotter

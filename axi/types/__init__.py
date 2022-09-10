@@ -8,7 +8,7 @@ from .node import Node
 from .sketch import Sketch
 from .vector import Vector
 
-from .boundingbox import BoundingBox
+from .bounds import Bounds
 from .params import Params
 
 from .enums import ShapeTypes, NodeState
@@ -21,7 +21,7 @@ __all__ = [
     "Sketch",
     "Vector",
 
-    "BoundingBox",
+    "Bounding",
     "Params",
 
     "ShapeTypes",

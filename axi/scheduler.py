@@ -17,7 +17,7 @@ class Scheduler(dict):
 
 
     # Conditions the plotter needs to send a serial command:
-    #   head        next        cmd
+    #   head        next   g     cmd
     #   ======================================
     #   up A        move A       goto(A) <--- this is starting condition.. matters with rel/abs decision
     #   move A      move C       goto(C)  <--- we never move on down? move? because down always goes to move first

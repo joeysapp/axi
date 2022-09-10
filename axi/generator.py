@@ -86,23 +86,30 @@ class Generator():
 
                 if (head_node == None):
                     # Beginning of Nodes
-                    head_node = Node(pos=node_pos, state=node_state, id=node_id)
+                    head_node = Node(pos=node_pos, id=node_id)
                     first_node_id = node_id
                 else:
                     # head already exists -  so we need to create a new Node,
                     # set that head.next as the new Node we create, then set the head as that new node
                     
-                    tmp_next_node = Node(pos=node_pos, state=node_state, id=node_id)
-                    if debug: print('\n0', tmp_next_node, "\t", head_node)
+
+                    tmp_next_node = Node(pos=node_pos, state=node_state, id=node_id)                    
+                    
+                    # if debug: print('\n0', tmp_next_node, "\t", head_node)
 
                     head_node.next = tmp_next_node.id
-                    if debug: print('1', tmp_next_node, "\t", head_node)
+
+                    # if debug: print('1', tmp_next_node, "\t", head_node)
 
                     tmp_next_node.prev = head_node.id
-                    if debug: print('2', tmp_next_node, "\t", head_node)
+
+                    # if debug: print('2', tmp_next_node, "\t", head_node)
 
                     head_node = tmp_next_node
-                    if debug: print('3', tmp_next_node, "\t", head_node)
+                    # set head_node.state based
+                    
+
+                    # if debug: print('3', tmp_next_node, "\t", head_node)
                     
 
                 vertex_idx += 1
