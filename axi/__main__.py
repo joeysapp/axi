@@ -4,15 +4,13 @@ tool for interacting with Axidraw
 $ python3.8 -m axi
 
 """
-VERSION = (0, 3, 0)
+VERSION = (0, 4, 0)
 
 import argparse, sys, textwrap, time
 
-from .objects import Plotter, Scheduler, Generator
+from . import Serial, Scheduler, Generator, Modifier
 from .util import Console, Timer
 from .math import Vector
-
-
 
 
 # note(@joeysapp): this is so C-c won't kill python first before closing the plotter serial connection
@@ -50,39 +48,29 @@ def axi() -> int:
     parser.add_argument('-d', '--debug', help='display debug info', action='count', default=0)
     cli_args = parser.parse_args()
 
+
     scheduler = Scheduler(cli_args)
-    plotter = Plotter(cli_args)
+    serial = Serial(cli_args)
     generator = Generator(cli_args)
+    # modifier = Modifier(cli_args)
+    # selector = Selector(cli_args)
 
-    # sketch_002 = generator.create_plot(id="sketch_002", plots=[sketch_001])
-    # sketch_003.load_csv()
 
-    square_params = {
-        "x_offset": 10,
-        "y_offset": 20,
+    # Console.info("Initial setup of Serial, Generator and Scheduler complete\n");
+    # Console.info(Console.format("="*80+"\n", ["gray-0"]))
+    # Console.info("\n")
 
-        "width": 10,
-        "height": 15,
-    }
-    Console.info("Initial setup of Plotter, Generator and Scheduler complete\n");
+    thing = generator.create_sketch(id="thing")
+    thing.add_shape(type="line", params=Params(x=0, y=0, w=10, h=10))
 
-    Console.info(Console.format("="*80+"\n", ["gray-0"]))
+    nodes, head = generator.get_nodes_for_scheduler(id="thing")
 
-    Console.info("\n")
-    Console.info("random shapes - this will be what we do on file load or command\n")
-    sketch_001 = generator.create_plot(id="foo")
-    sketch_001.add_shape(type="square", params={ "width": 5, "height": 10 })
-    sketch_001.add_shape(type="square", params={ "width": 10, "height": 25 })
-    # sketch_001_translated = sketch_001.transform("offset", x=15, y=15) # returns a new instance
-    Console.info("\n")
-
-    Console.info(Console.format("="*80+"\n", ["gray-0"]))
-
-    new_nodes, new_head = generator.get_nodes_for_scheduler("foo")
     scheduler.add_nodes(new_nodes)
     scheduler.append_to_queue(new_head)
-    # Console.info("="*70+"\n")
 
+
+
+    # Console.info("="*70+"\n")
     # todo(@joeysapp on 2022-09-03):
     # - Another thread, listening for user input for cmd
     # # https://stackoverflow.com/questions/4995419/in-python-how-do-i-know-when-a-process-is-finished   
@@ -111,23 +99,17 @@ def axi() -> int:
             else:
                 Console.info("[AB  ] Scheduler's queue is populated - will now pop new head from queue and set\n")
                 scheduler.pop_queue_to_head()
-                # Console.info("[AB  ] exit now because the plotter is turned off and I'm nervous\n")
+                # Console.info("[AB  ] exit now because the serial is turned off and I'm nervous\n")
                 # exit()
         # [B]
         elif (scheduler.head != None):
             Console.info("[B   ] scheduler.head = "+
                          Console.format(str(scheduler.head)+"\n", ["white"]))
+            Console.info("[B   ] Scheduler checks bounds.. (move this to Generator?)\n")
 
-            # SE/A3 sizes: 11 x 17in -> 27.94 x 43.18cm -> mm
-            # "x is the vertical axis for plotter
-            # "y is the horiz axis for plotter
-            bounds = {
-                "min": { "x": 0, "y": 0 },
-                "max": { "x": 431.8, "y": 279.4 },
-            }
-            Console.info("[B   ] Scheduler checks if head is within bounds object\n")
-#                         Console.format("Bounds", ["orange", "bold"])+" object\n")
-            head_within_bounds = scheduler.is_head_within_bounds(bounds)
+            # I think ideally we shouldn't have to do this check in the Scheduler..
+            # Shouldn't the Generator handle that?
+            head_within_bounds = scheduler.is_head_within_bounds()
             if not head_within_bounds:
                 Console.info("[BB  ] Scheduler head is out of bounds: {}\n".format(bounds))
                 Console.error("[BB  ] Break loop for now, todo: think about this logic\n");
@@ -139,14 +121,13 @@ def axi() -> int:
                 # Handling our various pen states to prevent redundant serial calls to plotter
                 # All the plotters needs is: (action [position])
                 Console.info("[BA  ] Ask the Scheduler if Plotter needs to send a serial command\n")
-#                             Console.format("serial command", ["cyan", "bold"])+"\n")
-                command, pos = scheduler.get_serial_command_for_plotter()
+                command, pos = scheduler.get_serial_command()
 
                 # if (command == None):
                 #    Console.info("[BAB ] No serial commnication necessary\n".format(command, pos))
                 if not command == None:
                     Console.info("[BAA ] Serial communication necessary\n")
-                    plotter.do_serial_command(command, pos)
+                    serial.do_serial_command(command, pos)
 
                     Console.info("[BAA ] Asking Scheduler if the Plotter is moving\n")
                     if (command == "move" or command == "goto"):
@@ -160,18 +141,22 @@ def axi() -> int:
                         # The command did not require additional waiting [ up, down, raise, lower ]
                         Console.info("[BAAB] Plotter is not moving, wait for standard instruction wait\n")
                         Timer.wait()
-                # H, 
+                else:
+                    Console.info("[BAB ] No serial communication\n")
+
+                # H
                 Console.info("[B   ] Scheduler now attempts go to head.next\n")
-                scheduler.goto_next_node();        
-        
+                scheduler.goto_next_node();
+
+        # End of loop
         Console.state("{}\n".format(scheduler))
         Console.info("[    ] loop[{}] end, exit_signal.wait(dt={})\n".format(loop_count, Timer.dt))
-        exit_signal.wait(Timer.dt) # Interrupt signal delay - fraction of a second
+        exit_signal.wait(Timer.dt)
 
 
-
+    # Exit via exit() or ctrl-c
     Console.log("__main__.exit() at {:.2f} seconds\n".format(time.process_time()))
-    plotter.disconnect()
+    serial.disconnect()
     return std_result
 
 sys.exit(axi())

@@ -3,9 +3,10 @@ import time
 from .console import Console
 
 class Timer():
+
     # Class variables
-    default = 0.0001 # used in axi pausing...
-    dt = 1 # fraction of a second
+    default = 2
+    dt = 1 # used in exit loop pausing
     
     @classmethod
     def wait(cls, t=None):
@@ -14,9 +15,9 @@ class Timer():
         Console.time("wait for {}\n".format(t))
         time.sleep(t)
 
-    @classmethod
-    def get_id(cls):
-        t = round(time.time())
-        id = "{}".format(str(t))
-        Console.time("get_id -> {}\n".format(id))
-        return id
+#    @classmethod
+#    def get_id(cls):
+#        t = round(time.time())
+#        id = "{}".format(str(t))
+#        Console.time("get_id -> {}\n".format(id))
+#        return id
