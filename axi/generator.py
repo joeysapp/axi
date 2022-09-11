@@ -28,7 +28,7 @@ class Generator():
         returns { nodes }, head
         """
         Console.method("generator.get_sketch_as_linked_list(id={})\n".format(id))
-        debug = False
+        debug = True
 
         # todo(joeysapp):
         # - Ability to insert a Sketch in the middle of already-printing Sketch?
@@ -43,6 +43,7 @@ class Generator():
         new_head = None
         new_nodes = {}
         first_node_id = None
+        tmp_node = None
 
         shape_idx = 0
         for shape in sketch.shapes:
@@ -66,28 +67,30 @@ class Generator():
                 else:
                     # head already exists -  so we need to create a new Node,
                     # set that head.next as the new Node we create, then set the head as that new node
-                    tmp_next_node = Node(pos=new_pos, id=new_id, state=new_state)                    
-                    
-                    # if debug: print('\n0', tmp_next_node, "\t", head_node)
+                    tmp_node = Node(pos=new_pos, id=new_id, state=new_state)                    
+                    if debug: print('\n( 00 - creating tmp_node )\n\ttmp_node=', tmp_node, "\n\thead_node=", head_node)
 
-                    head_node.next = tmp_next_node.id
+                    head_node.next = tmp_node.id
+                    if debug: print('\n( 01 - setting head.next = tmp )\n\ttmp_node=', tmp_node, "\n\thead_node=", head_node)
 
-                    # if debug: print('1', tmp_next_node, "\t", head_node)
-
-                    tmp_next_node.prev = head_node.id
-
-                    # if debug: print('2', tmp_next_node, "\t", head_node)
+                    tmp_node.prev = head_node.id
+                    if debug: print('\n( 02 - setting tmp.prev = head )\n\ttmp_node=', tmp_node, "\n\thead_node=", head_node)
 
                     # Do our Node creation / insertion here
+                    if debug: print('\n( 03 - about to insert transition nodes )\n\ttmp_node=', tmp_node, "\n\thead_node=", head_node)
+                    new_nodes, head_node = self.insert_transition_nodes(new_nodes, head_node, tmp_node)
+                    if debug: print('\n( 04 - back inside loop = head )\n\ttmp_node=', tmp_node, "\n\thead_node=", head_node)
                     
-                    head_node = tmp_next_node
+                    head_node = tmp_node
                     # set head_node.state based                
-                    # if debug: print('3', tmp_next_node, "\t", head_node)                    
+                    # if debug: print('3', tmp_node, "\t", head_node)                    
 
                 vertex_idx += 1
-                if (debug): print("head is now:", head_node)
+                # if (debug): print("head is now:", head_node)
                 # Console.puts("Adding this head node: {}\n".format(head_node))
                 new_nodes[new_id] = head_node
+                if debug: print('\n( !! new shape !! )\n\ttmp_node=', tmp_node, "\n\thead_node=", head_node)
+
             shape_idx += 1
 
         Console.puts("\n")
@@ -103,3 +106,25 @@ class Generator():
             # Finishing looping through Shape's vertices.
             # Do we need to raise, or do we leave that for the next iteration?
             
+
+    """
+       Called in get_sketch_as_linked_list
+
+       Inserts required "transition" Nodes with requisite NodeStates and positions
+       NodeState is a .types.enum with nice utility functions used here
+
+    """
+    def insert_transition_nodes(self, nodes, head_node, tmp_node) -> (dict, Node):
+        # head_node is None, add
+        <insert 7 nodes>
+        # self.goto_and_lower() -> 7 Nodes
+
+        # head_node.pos != tmp_node.pos and "same shape"
+        <insert move to tmp_node.pos>
+        # self.goto() -> 1 Node
+
+        # head_node.pos != tmp_node.pos and "different shape"
+        <insert 9 nodes>
+        # self.raise_and_goto() -> 9 Nodes
+
+        return nodes, tmp_node
