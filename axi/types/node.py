@@ -15,6 +15,12 @@
 
 from axi.util import Console
 from .enums import NodeState
+from .id import id
+
+
+
+#class NodeState(Enum):
+#    foo
 
 class Node:
     def __init__(self, **kwargs):

@@ -1,22 +1,22 @@
 """
-   NEEDS TO BE IMPLEMENTED.
-
-
-
-
-
-
-   Ids are extended to SketchId, ShapeId and NodeId.
-
-   They are how we store
-
-   Simple creation
+   Sketches, Shapes and Nodes all have ids
    
-   Future ideas: 
-   * Fast access and identification for Selector/Modifier
+   Useful for Generator's linked list creation e.g. "this is a new shape and diff. pos, raise pen"
+
+   Useful for future "Selectors" and "Modifiers",
 
 """
 import itertools
+
+class Id:
+    current_sketch = None
+    current_shape = None
+    current_vector = None
+    id_count = 0
+
+    def __init__(self):
+        
+        self.id_count += 1
 
 class Graph(dict):
     # Implement custom dict for the Scheduler to use
@@ -30,6 +30,7 @@ class NodeId:
     global_node_count = 0
 
     @classmethod
+    # could be self or cls, just an arg lol
     def add_node(self) -> None:
         self.global_node_count += 1
 
