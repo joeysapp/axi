@@ -20,23 +20,20 @@ $ python3.8 -m axi
 - [x] Handle exit signals for serial safely
 - [ ] Pause to reposition medium or change pen
 - [ ] Pause / resume sketch 
-- [ ] Repeat sketch
-- [ ] Cancel sketch
-- [ ] Save Sketches on exit
-- [ ] Load Sketches on load
-- [ ] Save entire state of Scheduler (or convert it to a Sketch itself?)
+- [ ] Cancel / repeat sketch
+- [ ] Save sketches on exit, load sketches on start
+- [ ] Save entire state of scheduler (or flatten it to a sketch itself)
 
 # Goals and Documentation
-Axi is a personal hobby project attempting to address several issues I've had with my Axidraw and generative work in the past. WYSIWYG and I make no claims for this being a worthwhile tool to use - I just like having fun with it.
+Axi is a personal hobby project attempting to address several issues I've had with my Axidraw and generative work in the past. WYSIWYG, I'm just having fun making it.
 
 What follows are explanations of the internal logic of Axi and possible future features I'd like to implement.
 
 # Architecture and Event Loop
-* `Shapes` are created by the user and are simply a list of coordinates `[[0, 0], [10, 10], ...`
-* `Sketches` are an ordered list of `Shapes`.
-* The `Generator` stores and translates `Sketches` into linked lists of `Nodes` for the `Scheduler`.
-- This translation of `Sketch` to `Node` handles pen position and location.
-* The `Scheduler` has a main linked list that it traverses, sending serial communication when needed.
+* `Shapes` are defined by the user and are simply a generated list of coords `[[0, 0], [10, 10], ...]`
+* `Sketches` are an ordered list of `Shapes`
+* The `Generator` stores and translates sketches into linked lists of `Nodes` for the `Scheduler`.
+* The `Scheduler` has a main linked list that it traverses, sending serial to Axidraw when needed.
 
 # Fundamental Types
 ## Shapes
