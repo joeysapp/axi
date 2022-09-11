@@ -9,7 +9,6 @@
 
 """
 
-from .shapes import line, square
 from .enums import ShapeType
 
 from axi.util import Console
@@ -23,9 +22,11 @@ class Shape(list):
         self.params = kwargs.get("params") or None
         self.line_length = 0
 
-        # idk if this werk
-        # if Shapes.type:
-        #     Shapes.type()
+        # type of ShapeType is used here to call
+        # .enums/ShapeType, which points to shapes/
+        if type:
+            print("type/shape.py, about to call type(params) with params={}".format(self.params))
+            self.vectors = type(params=self.params)
 
     def __repr__(self):
         vector_string = Console.list(self.vectors)

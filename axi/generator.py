@@ -2,7 +2,8 @@ import random, math, time
 # import opensimplex as osn
 
 from axi.util import Console, fmap, Timer
-from axi.types import Vector, Node, Sketch
+
+from axi.types import Vector, Node, Sketch, NodeState
  
 class Generator():
     def __init__(self, *args, **kwargs):
@@ -17,73 +18,55 @@ class Generator():
         self.sketches[id] = Sketch(id, sketches=kwargs.get("sketches"))
         return self.sketches[id]
 
-    def get_nodes_for_scheduler(self, id):
-        if not (id in self.sketches):
-            Console.error("generator.get_nodes_for_scheduler(id={}) -> {} not in self.sketches\n".format(id, id))
-        else:
-            Console.method("generator.get_nodes_for_scheduler(id={})\n".format(id))
-
-            shapes = self.sketches[id].shapes
-            nodes, head = self.translate_shapes_to_nodes(plot_id=id, shapes=shapes)
-            Console.method("generator.get_nodes_for_scheduler(id={})".format(id))
-            Console.puts("\n\t-> {}\n".format(
-                Console.format("(temporary.nodes {})".format(len(nodes.keys())), ["bold", "green"])))
-
-            return nodes, head
-
-    """
-
-       translate_shapes_to_nodes(plot_id, shapes, ...)
-
-       Translates a plot's Shapes into Nodes
-          * Node.pos is unchanged
-          * Node.id is unchanged
-          * Node.state is set (up/down/raise/lower/move/ ... wait/start/end)
-    
-        Removes the overhead of generating Node state elsewhere, and allows for //DYNAMIC CONTENT//
-    
-        It needs to do the following with a list of Shapes:
-        * Start and end the Plot properly (up/down)
-        * Handle shape "closing"
-        * Handle shapes being connected - both the Node.next/prev, and if the pen needs to raise.
-    
-    
-    """
-    def translate_shapes_to_nodes(self, plot_id, shapes, scheduler_head=None):
-        Console.method("generator.translate_shapes_to_nodes(id={}, shapes=[{} shapes], scheduler_head={})\n"
-                       .format(plot_id,
-                               len(shapes),
-                               "None"))
-
-        # For now, assume all sketches return to origin??
-        # Otherwise, we need to know where the Scheduler's head is..
-        scheduler_head = None
-        head_node = None
-        next_node = None
-        prev_node = None
-        nodes = {}
-
+    def get_sketch_as_linked_list(self, id) -> (dict, str):
+        """
+        * Transforms a Sketch into a linked_list of Nodes:
+        - Start, perform and finish necessary serial commands
+        - Handles movement for "connected" Shapes
+        - [?] - Handles closing Shapes - config?
+        
+        returns { nodes }, head
+        """
+        Console.method("generator.get_sketch_as_linked_list(id={})\n".format(id))
         debug = False
 
+        # todo(joeysapp):
+        # - Ability to insert a Sketch in the middle of already-printing Sketch?
+        # - OR, leave that for now and think about the Modifier doing that.
+        # scheduler_head = None                       
+        sketch = self.sketches.get(id)
+        Console.method("- sketch = {}\n".format(sketch))
+
+        head_node = None
+        prev_node = None
+
+        new_head = None
+        new_nodes = {}
+        first_node_id = None
+
         shape_idx = 0
-        for shape in shapes:
-            shape_type = shape.type
+        for shape in sketch.shapes:
+
+            shape_type = shape.type # ShapeType enum
             vertex_idx = 0
+
             for v in shape.vectors:
 
-                # (plot-id)-(shape-idx)-(shape-type)-(vertex-idx)
-                node_id = "{}-{}-{}-{}".format(plot_id, shape_idx, shape_type, vertex_idx)
-                node_pos = Vector(0, 0, 0)
-                node_state = "up"
+                x = v[0]
+                y = v[1]
+                new_pos = Vector(x, y, 0)
+                new_state = NodeState.up
+                # (sketch_id)-(relative_node_count)-(shape_idx)-(shape_type)-(vertex_idx)
+                new_id = "{}-{}-{}-{}".format(id, shape_idx, shape_type, vertex_idx)
 
                 if (head_node == None):
                     # Beginning of Nodes
-                    head_node = Node(pos=node_pos, id=node_id)
-                    first_node_id = node_id
+                    head_node = Node(pos=new_pos, id=new_id, state=new_state)
+                    first_node_id = new_id
                 else:
                     # head already exists -  so we need to create a new Node,
                     # set that head.next as the new Node we create, then set the head as that new node
-                    tmp_next_node = Node(pos=node_pos, state=node_state, id=node_id)                    
+                    tmp_next_node = Node(pos=new_pos, id=new_id, state=new_state)                    
                     
                     # if debug: print('\n0', tmp_next_node, "\t", head_node)
 
@@ -104,23 +87,19 @@ class Generator():
                 vertex_idx += 1
                 if (debug): print("head is now:", head_node)
                 # Console.puts("Adding this head node: {}\n".format(head_node))
-                nodes[node_id] = head_node
+                new_nodes[new_id] = head_node
             shape_idx += 1
 
-#        Console.method("generator.translate_shapes_to_nodes(plot_id={}, shapes=[2 shapes], scheduler_head={})\n"
-#                       .format(plot_id,
-#                               len(shapes),
-#                               "None"))
-#        Console.puts("="*80+"\n");
+        Console.puts("\n")
         Console.puts("\t-> A linked list of {} was created\n".format(
-            Console.format(str(len(nodes.keys()))+" Nodes", ["bold", "green"])))
-
+            Console.format(str(len(new_nodes.keys()))+" Nodes", ["bold", "green"])))
         Console.puts("\t-> The head of this linked list is: {}\n".format(
             Console.format(first_node_id, ["bold", "green"])))
-        for k in nodes.keys():
-            Console.puts("\t{}\n".format(nodes[k]))
 
-        return nodes, first_node_id
+        for k in new_nodes.keys():
+            Console.puts("\t{}\n".format(new_nodes[k]))
+
+        return new_nodes, first_node_id
             # Finishing looping through Shape's vertices.
             # Do we need to raise, or do we leave that for the next iteration?
             

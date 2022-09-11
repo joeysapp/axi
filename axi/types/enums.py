@@ -1,14 +1,22 @@
 from enum import Enum, auto
 
+from .shapes.line import line
+
+
+
+# Usable like:
+# list_of_xy_list = ShapeType.line(params=Params(...))
 class ShapeType(Enum):
     line = auto()
     square = auto()
 
-    # Usable like:
-    #        vectors = Shapes["line"]()
     def __call__(self, *args, **kwargs):
-        return eval(self.name)(args[0] if args else None)
+        return eval(self.name)(args, kwargs)
 
+
+# Usable like:
+# head_state = NodeState.up
+# next_state = head_state.get_next(head_node, tmp_node)
 
 class NodeState(Enum):
     up = auto()
@@ -17,15 +25,25 @@ class NodeState(Enum):
     down = auto()
     move = auto()
 
-    # Handle all of the state transitions here?
-    def __call__(self, **kwargs):
-        return eval(self.name)(kwargs)
+    def get_next(**kwargs):    
+        return NodeState.ascend
 
-    # do we want 
-    # state = head.state # a NodeState
-    # next_state = current_state.get_next(uh, states/position?)
+    def is_up(self):
+        return self.name == 'up'
+    
+    def is_raising(self):
+        return self.name == 'ascend'
 
-    # cause if all Nodes have a NodeState... these could just be classmethods?
+    def is_lowering(self):
+        return self.name == 'descend'
+
+    def is_down(self):
+        return self.name =='down'
+
+    def is_moving(self):
+        return self.name == 'move'
+
+
 
 
 #    @property

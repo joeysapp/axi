@@ -8,7 +8,7 @@ vertices = [
 class square():
     # class method = good? = bad?
     @classmethod
-    def get(cls):
+    def get(cls, params):
         return vertices
 
 #    def __init__(self):

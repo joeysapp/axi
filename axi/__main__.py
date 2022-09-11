@@ -15,7 +15,7 @@ from .generator import Generator
 from .modifier import Modifier
 
 from .util import Console, Timer
-from .types import Vector, Params
+from .types import Vector, Params, ShapeType
 
 
 # note(@joeysapp): this is so C-c won't kill python first before closing the plotter serial connection
@@ -66,12 +66,12 @@ def axi() -> int:
     # Console.info("\n")
 
     thing = generator.create_sketch(id="thing")
-    thing.add_shape(type="line", params=Params(x=0, y=0, w=10, h=10))
+    thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(10, 10, 0), rotate=45, length=5))
 
-    # nodes, head = generator.get_nodes_for_scheduler(id="thing")
-    # scheduler.add_nodes(new_nodes)
-    # scheduler.append_to_queue(new_head)
+    new_nodes, new_head = generator.get_sketch_as_linked_list(id="thing")
 
+    scheduler.add_nodes(new_nodes)
+    scheduler.append_to_queue(new_head)
 
 
     # Console.info("="*70+"\n")

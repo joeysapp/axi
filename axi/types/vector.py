@@ -35,7 +35,7 @@ class Vector:
         self.z = z
 
     def __repr__(self) -> str:
-        return "({:.4f} {:.4f} {:.4f}}".format(self.x, self.y, self.z)
+        return "({:.4f} {:.4f} {:.4f})".format(self.x, self.y, self.z)
 
     def __eq__(self, v2):
         if isinstance(v2, Vector):

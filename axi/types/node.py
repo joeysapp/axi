@@ -18,7 +18,7 @@ from .enums import NodeState
 
 class Node:
     def __init__(self, **kwargs):
-        Console.init("Node({})\n".format(kwargs))
+        # Console.init("Node({})\n".format(kwargs))
 
         self.id = kwargs.get("id") or None
         self.pos = kwargs.get("pos") or None
@@ -56,5 +56,5 @@ class Node:
             self.pos,
             Console.format(self.state, state_style),
             Console.format("\tid=..{}".format(self.id[-id_len:]), id_style),
-            Console.format("\tprev=\t\t" if self.prev == None else "\tprev=..{}".format(self.prev[-id_len:]), "gray-0"),
-            Console.format("\tnext=\t\t" if self.next == None else "\tnext=..{}".format(self.next[-id_len:]), "gray-0"))
+            Console.format("\tprev=None\t" if self.prev == None else "\tprev=..{}".format(self.prev[-id_len:]), "gray-0"),
+            Console.format("\tnext=None\t" if self.next == None else "\tnext=..{}".format(self.next[-id_len:]), "gray-0"))

@@ -8,3 +8,6 @@ class Params():
         Console.init("Params({})\n".format(kwargs))
         for key in kwargs:
             self.__setattr__(key, kwargs[key])
+
+    def __repr__(self) -> str:
+        return "Params({})".format(self.__dict__)    

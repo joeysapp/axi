@@ -1,6 +1,8 @@
 from axi.util import Console
 from axi.types import Bounds
 
+from axi.types import NodeState
+
 #class Scheduler(dict):
 class Scheduler():
     def __init__(self, *args, **kwargs):
@@ -27,39 +29,38 @@ class Scheduler():
     def get_serial_command(self):
         Console.method("scheduler.get_serial_command()")
 
-        head = self.nodes[self.head]
-        next = self.nodes[head.next] if head.next in self.nodes else None
-
         head_node = self.nodes.get(self.head)
+        next_node = self.nodes.get(head_node.next) if head_node.next in self.nodes else None
 
         command = None
         pos = None
-        if (head and next):
-            head_s = head.state
-            next_s = next.state
-            head_p = head.pos
-            next_p = next.pos
+
+        if (head_node and next_node):
+            head_state = head_node.state
+            next_state = next_node.state
+            head_pos = head_node.pos
+            next_pos = next_node.pos
             
             # Starting cond: If next is a new position, and head is currently stationary in up pos. 
             # Maybe should have a state of "starting" or something? 
-            if (head_p != next_p and (head_s == 'up' and next_s == 'move')):
-                command = "goto"
+            if (head_pos != next_pos and (head_state.is_up() and next_state.is_moving())):
+                command = "goto"                
                 pos = head_pos
 
             # Head/next are both in move state. Might be same pos (0, 0, 0) but just to make sure.
-            elif (head_s == 'move' and next_s == 'move'):
+            elif (head_pos != next_pos and head_state.is_moving() and next_state.is_moving()):
                 command = "goto"
-                pos = next_p
+                pos = next_pos
 
             # Same location, up -> lower
-            if (head_p == next_p and (head_s == "up" and next_s == "lower")):
-                command = "lower"
-                pos = head_p
+            if (head_pos == next_pos and (head_state.is_up() and next_state.is_lowering())):
+                command = "pendown"
+                pos = head_pos
 
             # Same location, down -> raise
-            if (head_p == next_p and (head_s == "down" and next_s == "raise")):
-                command = "raise"        
-                pos = head_p
+            if (head_pos == next_pos and (head_state.is_down() and next_state.is_raising())):
+                command = "penup"        
+                pos = head_pos
 
             #if command:
             #    Console.method("\t->{} {}\n".format(command, pos if pos else "None"))
@@ -87,7 +88,7 @@ class Scheduler():
 
     # Hopefully take this out after Generator is complete
     def is_head_within_bounds(self) -> bool:
-        Console.method("scheduler.is_head_within_bounds({})".format(bounds))
+        Console.method("scheduler.is_head_within_bounds({})".format(self.bounds))
         pos = self.nodes[self.head].pos
         in_bounds = self.bounds.check(pos)
         Console.puts("\n\t-> {}\n".format(
@@ -108,8 +109,6 @@ class Scheduler():
         Console.puts("\n\t-> {}".format(
             Console.format("(scheduler.nodes "+str(len(self.nodes.keys()))+")\n", ["green", "bold"])))
 
-
-
     def goto_next_node(self) -> None:
         Console.method("scheduler.goto_next_node()\n")
         Console.puts("\t   {}".format(
@@ -120,19 +119,17 @@ class Scheduler():
         Console.puts("\t-> {}".format(
             Console.format("head = "+str(self.head)+"\n", ["green" if self.head else "gray-0", "bold" if self.head else "italic"])))
 
-
-
     def append_to_queue(self, head) -> None:
         Console.method("scheduler.append_to_queue(head={})".format(head))
 
-        self.queue.append(head)
+        if (head): self.queue.append(head)
         Console.puts("\n\t   {}\n\t-> {}\n".format(
-            Console.format("(scheduler.queue "+str(len(self.queue)-1)+")", ["gray-0", "italic"]),
+            Console.format("(scheduler.queue "+str(max(0, len(self.queue)-1))+")", ["gray-0", "italic"]),
             Console.format("(scheduler.queue "+str(len(self.queue))+")", ["green", "bold"])))
 
     def pop_queue_to_head(self) -> None:
         Console.method("scheduler.pop_queue_to_head()")
-        if (self.head != None and self.head.next == None):
+        if (self.head != None):
             self.head.next = next_head
 
         Console.puts("\n\t   {}, {}".format(
@@ -150,12 +147,12 @@ class Scheduler():
     
     def get_graph_size(self) -> str:
         n = len(self.nodes.keys())
-        h = len(self.history)
+        h = len(self.prev)
         q = len(self.queue)
         return "{}\n\t{}\n\t{}".format(
             Console.format("(scheduler.nodes "+str(n)+")", ["orange", "italic"]),
             Console.format("(scheduler.queue "+str(q)+")", ["bold", ""] if q > 0 else ["gray-0", "italic"]),
-            Console.format("(scheduler.history "+str(h)+")", ["gray-0", "italic"]))
+            Console.format("(scheduler.prev "+str(h)+")", ["gray-0", "italic"]))
         
     def get_graph_state(self) -> str:
         head = None if not self.head or not self.nodes else self.nodes[self.head]
