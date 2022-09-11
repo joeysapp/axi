@@ -8,7 +8,7 @@
 """
 import itertools
 
-class Id:
+class id:
     current_sketch = None
     current_shape = None
     current_vector = None
@@ -18,13 +18,13 @@ class Id:
         
         self.id_count += 1
 
-class Graph(dict):
+# class Graph(dict):
     # Implement custom dict for the Scheduler to use
     # Implement custom dict for the Generator to use
     
     # Utility for Selector/Modifier?
     # "NodeGraph, please give me all the Nodes that look like XYZ."
-
+    
 
 class NodeId:
     global_node_count = 0

@@ -65,13 +65,13 @@ def axi() -> int:
     # Console.info(Console.format("="*80+"\n", ["gray-0"]))
     # Console.info("\n")
 
-    thing = generator.create_sketch(id="thing")
-    thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(10, 10, 0), rotate=45, length=5))
-
-    new_nodes, new_head = generator.get_sketch_as_linked_list(id="thing")
-
-    scheduler.add_nodes(new_nodes)
-    scheduler.append_to_queue(new_head)
+    #thing = generator.create_sketch(id="thing")
+    #thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(10, 10, 0), rotate=45, length=5))
+    #
+    #new_nodes, new_head = generator.get_sketch_as_linked_list(id="thing")
+    #
+    #scheduler.add_nodes(new_nodes)
+    #scheduler.append_to_queue(new_head)
 
 
     # Console.info("="*70+"\n")

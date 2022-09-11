@@ -138,7 +138,7 @@ class Generator():
             node4 = Node(pos=kwargs.get("pos"), state=NodeState.descend)
             node5 = Node(pos=kwargs.get("pos"), state=NodeState.down)
             node6 = Node(pos=kwargs.get("pos"), state=NodeState.move)
-            nodes.update(....)
+            # nodes.update(....)
             return new_nodes, node6
 
         # head_node.pos != tmp_node.pos and "same shape"

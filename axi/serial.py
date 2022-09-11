@@ -35,7 +35,7 @@ from axi.util import Console, Timer
 class Serial:
     def __init__(self, *args, **kwargs):
         Console.init("serial = Serial({})\n".format(kwargs))
-        return None
+        # return None
         self.axidraw = axidraw.AxiDraw()
         try:
             self.axidraw.interactive()
