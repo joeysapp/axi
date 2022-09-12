@@ -39,10 +39,11 @@ class Generator():
         returns { nodes }, head
         """
         Console.method("generator.get_sketch_as_linked_list({})\n".format(name))
-        debug = True
+        debug = False
 
         sketch = self.sketches.get(name)
-        Console.method("The shapes look like: {}\n".format(Console.list(sketch.shapes)))
+        if debug:
+            Console.method("The shapes look like: {}\n".format(Console.list(sketch.shapes)))
 
         head_node = None
         prev_node = None
@@ -65,10 +66,10 @@ class Generator():
                 print('========================================================== !! NEW SHAPE ================')
                 print('\t0 - Begin sketch.shapes[{}] with shape_id= {} = \n{}'.format(shape_idx, shape_id, shape))
             for v in shape.vectors:
-                print("new_nodes: ")
+                if debug: print("new_nodes: ")
 
                 for key in new_nodes.keys():
-                    print(new_nodes[key])
+                    if debug: print(new_nodes[key])
 
                 new_pos = Vector(v.x, v.y, v.z)
                 if debug: print('\t1 - Begin sketch.shapes[{}].vectors[{}] , new_pos is {}'.format(shape_idx, vector_idx, Console.format(new_pos, ["green", "bold"])))
@@ -81,7 +82,8 @@ class Generator():
                     
 
                 else:
-                    print('\t1a - head exists, creating tmp and calling helper fn, head is ='+str(head_node))
+                    if debug:
+                        print('\t1a - head exists, creating tmp and calling helper fn, head is ='+str(head_node))
                     tmp_node = Node(shape_id, pos=new_pos)
                     head_node.next = tmp_node.id.hash
                     tmp_node.prev = head_node.id.hash
@@ -98,10 +100,12 @@ class Generator():
                 if debug: print('\t2 - End of sketch.shapes[{}].vectors[{}]'.format(shape_idx, vector_idx))
 
 
-                print('\t=== SETTING HEAD = TMP, onto next Vector (or Shape) ===')
+                if debug:
+                    print('\t=== SETTING HEAD = TMP, onto next Vector (or Shape) ===')
                 head_node = tmp_node
                 new_nodes[head_node.id.hash] = head_node
-                print("\t== head is now: "+str(head_node))
+                if debug:
+                    print("\t== head is now: "+str(head_node))
 
 
                 vector_idx += 1
@@ -131,7 +135,6 @@ class Generator():
             # Console.puts("\t{:2n} {}\n".format(idx, new_nodes[k]))
             idx += 1
 
-        exit()
         return new_nodes, first_node_id
             # Finishing looping through Shape's vertices.
             # Do we need to raise, or do we leave that for the next iteration?
@@ -157,8 +160,11 @@ class Generator():
                                Console.format("\n\tkwargs={}".format(kwargs) if kwargs else "", ["blue"])
                                ))
         transition_nodes = {}
+
+        debug = False
+
         if (head_node == None):
-            print("[transition] head_node == None; shape_id={}".format(shape_id))
+            if debug: print("[transition] head_node == None; shape_id={}".format(shape_id))
 
             node1 = Node(shape_id, pos=Vector(0, 0, 0),   state=NodeState.move,    prev=tmp_node.id.hash)
             node2 = Node(shape_id, pos=kwargs.get("pos"), state=NodeState.move,    prev=node1.id.hash)
@@ -188,7 +194,7 @@ class Generator():
             tmp_node = node6
         # head_node.pos != tmp_node.pos and "same shape"
         elif (head_node.pos != tmp_node.pos and head_node.id.shape_id == tmp_node.id.shape_id):
-            print("\t[transition] within same Shape but head.pos != tmp.pos, set tmp.state to move");
+            if debug: print("\t[transition] within same Shape but head.pos != tmp.pos, set tmp.state to move");
 
             # print("\thead_node.id = {}".format(head_node.id.__dict__))
             # print("\ttmp_node.id = {}".format(tmp_node.id.__dict__))
@@ -199,9 +205,9 @@ class Generator():
             tmp_node = tmp_node
         # head_node.pos != tmp_node.pos and "different shape"
         elif (head_node.pos != tmp_node.pos and head_node.id.shape_id != tmp_node.id.shape_id):
-            print("\t[transition] new shape and new post, so move->down->ascend->up->move->move->up->descend->down->move ")
+            if debug: print("\t[transition] new shape and new post, so move->down->ascend->up->move->move->up->descend->down->move ")
             # not sure about this
-            print("\t[transition] head is the previous shape, but it didn't know it could end.")
+            if debug: print("\t[transition] head is the previous shape, but it didn't know it could end.")
 
 
             node0 = Node(shape_id, pos=head_node.pos,   state=NodeState.ascend,   prev=tmp_node.id.hash)
@@ -241,17 +247,20 @@ class Generator():
                 node7.id.hash: node7,
             })
 
-            print("0 tmp node is now: ", tmp_node)
-            print("0 node0 is now: ", node0)
+            if debug:
+                print("0 tmp node is now: ", tmp_node)
+                print("0 node0 is now: ", node0)
 
             # Tmp_node will be set to head outside of this function
             tmp_node = node7
 
-            print("1 tmp node is now: ", node7)
+            if debug:
+                print("1 tmp node is now: ", node7)
             # return new_nodes, node6
 
         elif (head_node.next == None):
-            print("\t[transition] end of sketch SO move->raise->up @ head, goto home because head.next == None")
+            if debug:
+                print("\t[transition] end of sketch SO move->raise->up @ head, goto home because head.next == None")
             node0 = Node(shape_id, pos=head_node.pos,   state=NodeState.down,    prev=head_node.id.hash)
             node1 = Node(shape_id, pos=head_node.pos,   state=NodeState.ascend,  prev=node0.id.hash    )
             node2 = Node(shape_id, pos=head_node.pos,   state=NodeState.up,      prev=node1.id.hash    )

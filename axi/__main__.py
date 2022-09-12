@@ -4,9 +4,9 @@ tool for interacting with Axidraw
 $ python3.8 -m axi
 
 """
-VERSION = (0, 4, 0)
+VERSION = (0, 9, 0)
 
-import argparse, sys, textwrap, time
+import argparse, sys, textwrap, time, math
 
 #from . import Serial, Scheduler, Generator, Modifier
 from .serial import Serial
@@ -14,7 +14,7 @@ from .scheduler import Scheduler
 from .generator import Generator
 from .modifier import Modifier
 
-from .util import Console, Timer
+from .util import Console, Timer, fmap
 from .types import Vector, Params, ShapeType
 
 
@@ -65,8 +65,34 @@ def axi() -> int:
     # Console.info("\n")
 
     thing = generator.create_sketch("foOO")
-    thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(10, 10, 0), length=10, degrees=45))
-    thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(0, 0, 0), length=10, degrees=45))
+
+    # Playing around
+    deg = 5
+    l = 10
+    for x in range(50, 75, 12):
+        for y in range(70, 111, 20):
+            deg = 3
+            for i in range(0, 360+deg+1, deg):
+                xamt = fmap(x, 20, 81, -3, -1)
+                yamt = fmap(y, 70, 106, 1, 3) 
+                freq = 4
+                # 30 frequency means in a full circle, you see a wave every 10 degrees
+                length = max(0 + (abs(xamt + yamt))*(1 + math.sin((i / 180) * freq * math.pi))*3, 1)
+                # print(x, y, (1 + math.sin((i/ 180) * freq* math.pi)), length)
+                lx = length*(math.cos((i / 180) * math.pi))
+                ly = length*(math.sin((i / 180) * math.pi))
+                px = x + lx
+                py = y + ly
+                print(i, x, y, '-> ', lx, ly)
+                pos = Vector(x, y)
+                
+            #print("a\n\n")
+                thing.add_shape(type=ShapeType.line, params=Params(pos=pos, length=length, degrees=i))
+                
+        # thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(0, 0, 0), length=10, degrees=45))
+
+
+
     # thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(25, 25, 0), length=5, degrees=225))
     
     new_nodes, new_head = generator.get_sketch_as_linked_list("foOO")
@@ -115,7 +141,7 @@ def axi() -> int:
             # Shouldn't the Generator handle that?
             head_within_bounds = scheduler.is_head_within_bounds()
             if not head_within_bounds:
-                Console.info("[BB  ] Scheduler head is out of bounds: {}\n".format(bounds))
+                Console.info("[BB  ] Scheduler head is out of bounds\n")
                 Console.error("[BB  ] Break loop for now, todo: think about this logic\n");
                 # No.. but are we raised? If we're lowered, should we raise?
                 # Prevent pen getting stuck in a down position, 
@@ -138,7 +164,7 @@ def axi() -> int:
                         # If we're moving, find out if we need to wait
                         travel_distance = scheduler.get_travel_distance()
                         # above is in mm units, so distance = 25mm = 1 inch? wait 1 second.
-                        travel_wait = travel_distance / 25.0
+                        travel_wait = travel_distance / 100.0
                         Console.info("[BAAA] plotter is moving {}mm -> wait for {}s\n".format(travel_distance, travel_wait))
                         Timer.wait(travel_wait)
                     else:

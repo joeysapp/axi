@@ -35,7 +35,7 @@ from axi.util import Console, Timer
 class Serial:
     def __init__(self, *args, **kwargs):
         # Console.init("serial = Serial({})\n".format(kwargs))
-        return None
+        # return None
         self.axidraw = axidraw.AxiDraw()
         try:
             self.axidraw.interactive()
@@ -52,24 +52,22 @@ class Serial:
 
     # [ main BAA -> Serial ]
     def do_serial_command(self, command, pos, disabled=False):    
-        if disabled:
-            Console.error("serial.do_serial_command({} {}) is currently disabled.".format(command, pos))
-            return None
-
+        Console.method("serial.do_serial_command({} {}, disabled={})\n".format(command, pos, disabled))
+        
+        disabled = False
         # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
         # Should only see 'raise' 'lower', and 'move'.
         if (command == 'goto' and pos):
-            Console.serial("GOTO {}\n".format(pos))
-            self.axidraw.goto(pos.x, pos.y)
+            Console.serial("GOTO {}".format(pos))
+            if not disabled: self.axidraw.goto(pos.x, pos.y)
 
-        elif (command == 'raise'):
-            Console.serial("PENUP\n")
-            self.axidraw.penup()
+        elif (command == 'penup'):
+            Console.serial("PENUP")
+            if not disabled: self.axidraw.penup()
 
-        elif (command == 'lower'):
-            Console.serial("PENDOWN\n")
-            self.axidraw.pendown()
-
+        elif (command == 'pendown'):
+            Console.serial("PENDOWN")
+            if not disabled: self.axidraw.pendown()
         else:
             Console.error("serial.do_serial_command({} {}) has no meaning\n".format(command, pos))
 

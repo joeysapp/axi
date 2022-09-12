@@ -90,7 +90,9 @@ class Scheduler():
     def is_head_within_bounds(self) -> bool:
         Console.method("scheduler.is_head_within_bounds({})".format(self.bounds))
         pos = self.nodes[self.head].pos
-        in_bounds = self.bounds.check(pos)
+
+        # in_bounds = self.bounds.check(pos)
+        in_bounds = True
         Console.puts("\n\t-> {}\n".format(
             Console.format("True", ["bold", "green"])
             if in_bounds else
@@ -160,10 +162,10 @@ class Scheduler():
         next = None if (not head or not head.next) else self.nodes[head.next]
 
         # return "\t<- prev = {}\n\thead =    {}\n\t-> next = {}".format(prev, head, next)
-        return "\t{}{}\n\t{}{}\n\t{}{}".format(
+        return "\t{}{}\n\t{}{}\n".format(
             Console.format("head = ", "orange"), Console.format(head, "orange"),
-            Console.format("prev = ", "gray-0"), Console.format(prev, "gray-0"),
             Console.format("next = ", "gray-0"), Console.format(next, "gray-0"))
+            #Console.format("prev = ", "gray-0"), Console.format(prev, "gray-0"),
 
     def __repr__(self) -> str:
         return "scheduler state:\n\t{}\n\n{}".format(self.get_graph_size(), self.get_graph_state())

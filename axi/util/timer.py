@@ -5,8 +5,8 @@ from .console import Console
 class Timer():
 
     # Class variables
-    default = 2
-    dt = 1 # used in exit loop pausing
+    default = 0.1
+    dt = 0.05 # used in exit loop pausing
     
     @classmethod
     def wait(cls, t=None):

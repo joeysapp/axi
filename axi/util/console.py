@@ -3,6 +3,7 @@ import sys, time
 attribute_code_escape_sequence = "\033["
 attribute_code_return_sequence = "m"
 attribute_codes = {
+    # 8-bit values
     "orange": "38;5;202",
     "lightblue": "38;5;81",
     "purple": "38;5;93",
@@ -35,7 +36,9 @@ attribute_codes = {
     
     # text effects
     "none": "0",
-    "reset": "0",
+    "reset": "48;5;16",
+
+    "reset": "",
     "bold": "1",
     "faint": "2",
     "italic": "3",
@@ -115,7 +118,9 @@ class Console():
         style = cls.ansi("bold") + cls.ansi("cyan")
         t = time.process_time()
         indent = kwargs.get("level") or 0
-        output = "{}{}{}{}{}{}{} {}{}".format("\t"*indent,style, cls.ts(t), "[SERI]", cls.ansi("reset"), cls.ansi("italic"), cls.ansi("bg-gray"), s, cls.ansi("reset"))
+        output = "{}{}{}{}{}{}".format(cls.ansi("reset"),style, cls.ts(t), cls.ansi("bg-gray"), "[serial]", " "*len(s)+"\n")
+        output += "{}{}{}{}{}{}{}{} {}{}".format(cls.ansi("reset"),"\t"*indent,style, cls.ts(t), "[serial]", cls.ansi("reset"), cls.ansi("italic"), cls.ansi("bg-gray"), s, cls.ansi("reset"))
+        output += "\n{}{}{}{}{}{}".format(cls.ansi("reset"), style, cls.ts(t), cls.ansi("bg-gray"), "[serial]", " "*len(s)+"\n")
         sys.stdout.write(output)
 
     @classmethod
