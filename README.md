@@ -1,15 +1,17 @@
 # Axi
-Generatively create and draw composable shapes with your [Axidraw](https://axidraw.com). Currently a wrapper around [pyaxidraw](https://github.com/evil-mad/axidraw/tree/master/cli/pyaxidraw). 
+Generatively create and draw composable shapes with your [Axidraw](https://axidraw.com).
+Currently implemented using [pyaxidraw](https://github.com/evil-mad/axidraw/tree/master/cli/pyaxidraw). 
 
 # Features
-Axi allows you to create sketches of complex shapes, which themselves are eventually translated into a series of ordered, safe serial commands for the Axidraw to execute.
+This tool allows you to create complex sketches and shapes that are easily translated into safe instructions for the Axidraw.
 * Composable, procedural sketch and shape creation
-* Base is a stateful directed graph of serial instructions
+* Base event loop is a stateful directed graph (doubly linked list)
+* Non-blocking event loop
 * Pausing, resuming, canceling, and looping of sketches
 * Handles all possible exits and disconnects from serial
 
 # Usage
-Currently usable as a `python` module:
+Currently usable as a python module:
 ```console
 $ git clone https://github.com/joeysapp/axi.git
 $ cd axi
@@ -17,12 +19,22 @@ $ python3.8 -m axi
 ```
 
 ## To-do
+- [ ] **Print a friggin' line**
+- [ ] **Print two friggin' lines**
+
 - [x] Handle exit signals for serial safely
 - [ ] Pause to reposition medium or change pen
 - [ ] Pause / resume sketch 
 - [ ] Cancel / repeat sketch
+
+- [ ] **Custom containers for nodes**
+  - Method of implementing Selectors and Modifiers?
+  - Consider Sketches themselves having Nodes, not Vectors
+
 - [ ] Save sketches on exit, load sketches on start
 - [ ] Save entire state of scheduler (or flatten it to a sketch itself)
+- [ ] Implement own serial connection
+
 
 # Goals and Documentation
 Axi is a personal hobby project attempting to address several issues I've had with my Axidraw and generative work in the past. WYSIWYG, I'm just having fun making it.
@@ -75,7 +87,7 @@ Possibly not within a Shape itself, but an external `Modifier` or `Selector`
 - [ ] repeat_shapes( shapes, offset_vector, times ) - draw shapes, adding offset_vector every loop
 - [ ] Masking a Shape within another Shape ("hatch fill")
 
-# Other Types
+# Basic Types
 ## id
 - [ ] Simplify `id` setting, make `Generator`'s linked list creation simpler
 
@@ -88,7 +100,8 @@ Possibly not within a Shape itself, but an external `Modifier` or `Selector`
 - [ ] vector.is_within(bounds)
 
 ## Nodes
-- [ ] Neighbors with weighted distances
+- [ ] Implement `neighbors` weighted distances
+  - If there's a ShapeType.Graph (e.g. draw a MST), we might want nodes outside of the scheduler.
 
 ## Params
 - [ ] Class design allowing for intuitive/arbitrary params
@@ -97,8 +110,10 @@ Possibly not within a Shape itself, but an external `Modifier` or `Selector`
 ## Longterm Goals
 - [ ] macOS and iOS interface
 - [ ] Quaternion -> (3D, STL) ShapeType, 3D to 2D projection (again)
-- [ ] Web interface
-- [ ] Bare C
+- [ ] Web/remote interface - e.g. rpi hooked up to Axidraw, send it commands
+- [ ] Bare C implementation
+
+
 
 # Troubleshooting
 Loss of serial connection from the Axi has resulted in some problems in the past. Worst case scenario you may have to flash on a new EBB firmware (which - I have not been able to compile the `mphidflash` tool on my M1 mac.
@@ -108,7 +123,9 @@ Loss of serial connection from the Axi has resulted in some problems in the past
 
 
 
-
 ## Notes
-* AxiDraw Software 3.5.0
-- added `progress bar`, `draw_path()` [https://github.com/evil-mad/axidraw/releases/tag/v3.5.0](https://github.com/evil-mad/axidraw/releases/tag/v3.5.0)
+* pyaxidraw - [https://github.com/evil-mad/axidraw/tree/master/cli/pyaxidraw](https://github.com/evil-mad/axidraw/tree/master/cli/pyaxidraw)
+
+* AxiDraw Software 3.5.0 - [https://github.com/evil-mad/axidraw/releases/tag/v3.5.0](https://github.com/evil-mad/axidraw/releases/tag/v3.5.0)
+  - `progress bar`, https://axidraw.com/doc/cli_api/#progress
+  - `draw_path(vertices)` - the irony is not lost on me

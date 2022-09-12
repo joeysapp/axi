@@ -4,30 +4,62 @@
 
     id
     type
-    vectors
     params
+    vectors
+
+    Vectors are created from ./shapes which pass in a lists of [x y ...z]
 
 """
+from enum import Enum, auto
 
-from .enums import ShapeType
+from .vector import Vector
+from .id import TypeId
+#from .shapes.line import line
+from .shapes import line
 
 from axi.util import Console
 
+
+class ShapeType(Enum):
+    line = auto()
+    square = auto()
+    def __call__(self, params, *args, **kwargs):
+        return eval(self.name)(params, args, kwargs)
+    @classmethod
+    def __str__(cls):
+        return "ShapeType has the following generators and types:\n"
+    # str for enums, interesting
+    def __str__(self):
+        return Console.format("{}".format(self.name), ["cyan"])
+
+
+
+
 class Shape(list):
-    def __init__(self, id, type: ShapeType, **kwargs):
-        Console.init("Shape(id={} type={}{})\n".format(id, type, kwargs))
-        self.id = id
-        self.type = type
+    def __init__(self, shape_type, params, *args,  **kwargs):
+        Console.init("shape.__init__({}, {})\n".format(shape_type, params))
+        self.id = TypeId.shape()
+        self.type = shape_type
+        self.params = params or None
+
         self.vectors = kwargs.get("vectors") or []
-        self.params = kwargs.get("params") or None
-        self.line_length = 0
 
-        # type of ShapeType is used here to call
-        # .enums/ShapeType, which points to shapes/
-        if type:
-            print("type/shape.py, about to call type(params) with params={}".format(self.params))
-            self.vectors = type(params=self.params)
+        self.area = 0
+        self.line_length = 0    
 
+        if shape_type:
+            xy_list = shape_type(self.params, args, kwargs)
+            for xy in xy_list:
+                x = xy[0]
+                y = xy[1]
+                z = 0
+                self.vectors.append(Vector(x, y, z))
+                
     def __repr__(self):
         vector_string = Console.list(self.vectors)
-        return "Shape(id={} type={} params={} vectors={})".format(self.id, self.type, self.params, self.vectors)
+        return "{}(\n\tid={}\n\ttype={}\n\tparams={}\n\tvectors={}\n)".format(
+            Console.format("Shape", ["cyan", "bold"]),
+            self.id,
+            self.type,
+            self.params,
+            self.vectors)

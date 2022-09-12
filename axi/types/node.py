@@ -12,55 +12,91 @@
    neighbors
 
 """
+from enum import Enum, auto
 
 from axi.util import Console
-from .enums import NodeState
-from .id import id
-
-
-
-#class NodeState(Enum):
-#    foo
+from .id import TypeId
 
 class Node:
-    def __init__(self, **kwargs):
-        # Console.init("Node({})\n".format(kwargs))
+    def __init__(self, shape_id, **kwargs):
+        # Console.init("Node(shape_id={} {})\n".format(shape_id, kwargs))        
+        self.id = TypeId.node(shape_id)
 
-        self.id = kwargs.get("id") or None
         self.pos = kwargs.get("pos") or None
         self.state = kwargs.get("state") or None
 
         self.next = kwargs.get("next") or None
         self.prev = kwargs.get("prev") or None
+
         self.neighbors = kwargs.get("neighbors") or []
+        # Console.init("Node {}\n".format(self.__dict__))
 
-        for key in kwargs:
-            self.__setattr__(key, kwargs[key])
-        Console.init("{}\n".format(self))
+    def set_state(self, state):
+        self.state = state        
 
+    def set_next(self, id):
+        self.next = id
 
+    def set_pos(self, pos):
+        self.pos = pos
 
+    # def set_prev(self, id):
+    #     self.prev = id
 
     def __repr__(self):
         #return "Node(id={} prev={} next={} state={} pos={})".format(self.id[-5:], self.prev[-5:] if self.prev else "None", self.next[-5:] if self.next else "None", self.state, self.pos)
-        id_len = 10
-        state_style = ["italic"]
-        if self.state == "up":
-            state_style.append("green") 
-        elif self.state == "down":
-            state_style.append("red") 
-        elif self.state == "raise":
-            state_style.append("red") 
-            state_style.append("bold") 
-        elif self.state == "lower":
-            state_style.append("red")
-            state_style.append("bold")              
-        elif self.state == "move":
-            state_style.append("yellow")
-        id_style = ["bold"]
-        return "Node({}\t{}\t{}{}{})".format(
+        id_len = 15
+        id_style = []
+        return "node({}\t{}\t{}\t{}\t{}\t)".format(
+            Console.format("{}".format(self.id), id_style),
+            Console.format("\tprev=None" if self.prev == None else "\tprev={}".format(self.prev[-id_len:]), "gray-0"),
+            Console.format("\tnext=None" if self.next == None else "\tnext={}".format(self.next[-id_len:]), "gray-0"),
             self.pos,
-            Console.format(self.state, state_style),
-            Console.format("\tid=..{}".format(self.id[-id_len:]), id_style),
-            Console.format("\tprev=None\t" if self.prev == None else "\tprev=..{}".format(self.prev[-id_len:]), "gray-0"),
-            Console.format("\tnext=None\t" if self.next == None else "\tnext=..{}".format(self.next[-id_len:]), "gray-0"))
+            self.state)
+
+
+# ... hmmmm... Usable like:
+# head_state = NodeState.up
+# next_state = head_state.get_next(head_node, tmp_node)
+
+class NodeState(Enum):
+    up = auto()
+    ascend = auto()
+    descend = auto()
+    down = auto()
+    move = auto()
+
+    def __str__(self):
+        style = []
+        if self == NodeState.up:
+           style.extend(["green", "bold"])
+        elif self == NodeState.down:
+           style.extend(["red", "bold"])
+        elif self == NodeState.move:
+           style.extend(["italic", "gray-1"])
+        elif self == NodeState.descend:
+           style.extend(["yellow", "bold"])
+        elif self == NodeState.ascend:
+           style.extend(["yellow", "bold"])
+
+        s = Console.format(self.name, style)
+        return s
+        # return self.name
+
+    def get_next(**kwargs):    
+        return NodeState.ascend
+
+    def is_up(self):
+        return self.name == 'up'
+    
+    def is_raising(self):
+        return self.name == 'ascend'
+
+    def is_lowering(self):
+        return self.name == 'descend'
+
+    def is_down(self):
+        return self.name =='down'
+
+    def is_moving(self):
+        return self.name == 'move'

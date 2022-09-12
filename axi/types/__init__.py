@@ -1,7 +1,8 @@
 # order of imports matters for circular references
 # from .generator import Generator
 
-from .node import Node
+from .node import Node, NodeState
+from .shape import Shape, ShapeType
 # from .plotter import Plotter
 # from .scheduler import Scheduler
 
@@ -11,12 +12,13 @@ from .vector import Vector
 from .bounds import Bounds
 from .params import Params
 
-from .enums import ShapeType, NodeState
+from .id import TypeId
 
 __all__ = [
     # "Plotter",
     # "Scheduler",
     "Node",
+    "Shape",
     
     "Sketch",
     "Vector",
@@ -26,6 +28,8 @@ __all__ = [
 
     "ShapeType",
     "NodeState",
+
+    "TypeId",
 
     # "Generator"
 ]

@@ -9,7 +9,7 @@ class Scheduler():
         # Making our Scheduler a dictionary type?
         # super(Scheduler, self).__init__(*args, **kwargs)
 
-        Console.init("scheduler = Scheduler({})\n".format(kwargs))
+        # Console.init("scheduler = Scheduler({})\n".format(kwargs))
         self.head = None      # id
         self.nodes = {}       # map of all Nodes, { id: node }
         self.queue = []       # stack of heads to print in the future, sent from Generator

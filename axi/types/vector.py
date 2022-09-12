@@ -1,8 +1,17 @@
+
+from .id import TypeId
+
+from axi.util import Console
+
 class Vector:
 #    @classmethod
 #    def norm(cls, v1):
 #        m = v1.mag()
 #        return cls.div(v1, m)
+
+    @classmethod
+    def copy(cls, v1):
+        return cls(v1.x, v1.y, v1.z)
 
     @classmethod
     def add(cls, v1, v2):
@@ -27,15 +36,26 @@ class Vector:
             return cls(v1.x/f, v1.y/f, v1.z/f)
 
 
-
-
     def __init__(self, x=0, y=0, z=0):
+        # self.id = TypeId.vector()
         self.x = x
         self.y = y
         self.z = z
 
     def __repr__(self) -> str:
-        return "({:.4f} {:.4f} {:.4f})".format(self.x, self.y, self.z)
+        left_max = 3
+
+        x = "{:.1f}".format(self.x).split('.')        
+        x_str = "{}.{}".format(x[0].rjust(left_max, "0"), x[1])
+
+        y = "{:.1f}".format(self.y).split('.')        
+        y_str = "{}.{}".format(y[0].rjust(left_max, "0"), y[1])
+
+        z = "{:.1f}".format(self.z).split('.')        
+        z_str = "{}.{}".format(z[0].rjust(left_max, "0"), z[1])
+
+        return Console.format("({},\t{})".format(x_str, y_str), [])
+        # return Console.format("({}, {})".format(x_str, y_str), ["black", "bg-gray-0"])
 
     def __eq__(self, v2):
         if isinstance(v2, Vector):
@@ -52,11 +72,3 @@ class Vector:
         return ((self.x - vec.x)**2 +
                 (self.y - vec.y)**2 +
                 (self.z - vec.z)**2)**0.5
-
-    
-
-
-#    def add(self, vec):
-#        return Vector(self.x + vec.x, self.y + vec.y, self.z + vec.z)
-#    def mult(self, f):
-#        return Vector(self.x*f, self.y*f, self.z*f)

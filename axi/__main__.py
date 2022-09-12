@@ -53,7 +53,6 @@ def axi() -> int:
     parser.add_argument('-d', '--debug', help='display debug info', action='count', default=0)
     cli_args = parser.parse_args()
 
-
     scheduler = Scheduler(cli_args)
     serial = Serial(cli_args)
     generator = Generator(cli_args)
@@ -65,13 +64,14 @@ def axi() -> int:
     # Console.info(Console.format("="*80+"\n", ["gray-0"]))
     # Console.info("\n")
 
-    #thing = generator.create_sketch(id="thing")
-    #thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(10, 10, 0), rotate=45, length=5))
-    #
-    #new_nodes, new_head = generator.get_sketch_as_linked_list(id="thing")
-    #
-    #scheduler.add_nodes(new_nodes)
-    #scheduler.append_to_queue(new_head)
+    thing = generator.create_sketch("thing")
+    thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(0, 0, 0), length=10, degrees=225))
+    thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(0, 0, 0), length=10, degrees=45))
+    
+    new_nodes, new_head = generator.get_sketch_as_linked_list("thing")
+    
+    scheduler.add_nodes(new_nodes)
+    scheduler.append_to_queue(new_head)
 
 
     # Console.info("="*70+"\n")
