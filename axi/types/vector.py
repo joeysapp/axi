@@ -45,13 +45,16 @@ class Vector:
     def __repr__(self) -> str:
         left_max = 3
 
-        x = "{:.1f}".format(self.x).split('.')        
+        x = "{:.1f}".format(self.x).split('.')
+        x_neg = True if self.x < 0 else False
         x_str = "{}.{}".format(x[0].rjust(left_max, "0"), x[1])
 
-        y = "{:.1f}".format(self.y).split('.')        
+        y = "{:.1f}".format(self.y).split('.')
+        y_neg = True if self.y < 0 else False    
         y_str = "{}.{}".format(y[0].rjust(left_max, "0"), y[1])
 
-        z = "{:.1f}".format(self.z).split('.')        
+        z = "{:.1f}".format(self.z).split('.')
+        z_neg = True if self.z < 0 else False 
         z_str = "{}.{}".format(z[0].rjust(left_max, "0"), z[1])
 
         return Console.format("({},\t{})".format(x_str, y_str), [])

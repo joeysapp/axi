@@ -10,23 +10,20 @@ from axi.util import Console
 class Params():
     def __init__(self, **kwargs):
         s = ""
+        string = ""
         for k in kwargs:
             s += "{}: {},\t".format(k, kwargs[k])
         Console.init("params.__init__(kwargs={})\n".format(s))
-        for key in kwargs:
+        idx = 0
+        for key in kwargs:            
             self.__setattr__(key, kwargs[key])
+            string += "{}={}".format(key, str(kwargs[key]))
+            if idx < len(kwargs.keys())-1: string += ", "
+            idx += 1
+        self.string = string
 
     def __repr__(self) -> str:
-        s = ""
-        for k in self.__dict__:
-            s += "{}: {},".format(k, self.__dict__[k])
-        return "params({})".format(s)
+        return "{ "+self.string+" }"
 
     def get(self, str):
         return getattr(self, str)
-
-    def get_all(self):
-        param_string = ""
-        for k in self.__dict__:
-            param_string += "{}: {},".format(k, self.__dict__.get(k))
-        return param_string

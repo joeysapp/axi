@@ -57,9 +57,18 @@ class Shape(list):
                 
     def __repr__(self):
         vector_string = Console.list(self.vectors)
-        return "{}(\n\tid={}\n\ttype={}\n\tparams={}\n\tvectors={}\n)".format(
-            Console.format("Shape", ["cyan", "bold"]),
+        return "{}({} type={}, params={}, vectors={})".format(
+            Console.format("shape", ["bold"]),
             self.id,
             self.type,
             self.params,
             self.vectors)
+
+#
+#        return "{}(\n\tid={}\n\ttype={}\n\tparams={}\n\tvectors={}\n)".format(
+#            Console.format("Shape", ["cyan", "bold"]),
+#            self.id,
+#            self.type,
+#            self.params,
+#            self.vectors)
+#

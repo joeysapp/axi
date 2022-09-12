@@ -64,15 +64,15 @@ def axi() -> int:
     # Console.info(Console.format("="*80+"\n", ["gray-0"]))
     # Console.info("\n")
 
-    thing = generator.create_sketch("thing")
-    thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(0, 0, 0), length=10, degrees=225))
+    thing = generator.create_sketch("foOO")
+    thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(10, 10, 0), length=10, degrees=45))
     thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(0, 0, 0), length=10, degrees=45))
+    # thing.add_shape(type=ShapeType.line, params=Params(pos=Vector(25, 25, 0), length=5, degrees=225))
     
-    new_nodes, new_head = generator.get_sketch_as_linked_list("thing")
+    new_nodes, new_head = generator.get_sketch_as_linked_list("foOO")
     
     scheduler.add_nodes(new_nodes)
     scheduler.append_to_queue(new_head)
-
 
     # Console.info("="*70+"\n")
     # todo(@joeysapp on 2022-09-03):
@@ -95,7 +95,7 @@ def axi() -> int:
         # [A]
         if (scheduler.head == None):
             Console.info("[A   ] Scheduler head does not exist\n")
-            # Are there any generators in the scheduler.stack?
+            # Are there any generators in the scheduler stack?
             if (len(scheduler.queue) == 0):
                 Console.info("[AA  ] There is nothing in Scheduler's queue\n")
                 Console.error("[AA  ] Exiting for now\n")

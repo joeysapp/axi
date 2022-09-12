@@ -18,6 +18,11 @@ $ cd axi
 $ python3.8 -m axi
 ```
 
+# Notes and Considerations
+* All shapes use millimeters as units.
+* No shape should ever generate negative values.
+  - Shapes may need to go out of bounds, but the Axidraw will never be told to go out of bounds.
+
 ## To-do
 - [ ] **Print a friggin' line**
 - [ ] **Print two friggin' lines**

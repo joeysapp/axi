@@ -33,7 +33,7 @@ class TypeId():
     def __repr__(self):
         class_color = "white"
         if self.type == "shape":
-            class_color = "cyan"
+            class_color = "orange"
         elif self.type == "node":
             class_color = "cyan"
 
@@ -46,7 +46,7 @@ class TypeId():
         return "{}{} {}{}{}".format(
             Console.format("(".format(self.type), ["", class_color]),
             Console.format(":{}".format(hash[0:cutoff]), [class_color]),
-            Console.format("{} ".format(self.shape_id if self.type == "node" else ""), ["cyan"]),
+            Console.format("{} ".format(self.shape_id if self.type == "node" else "_"), ["orange" if self.type == "node" else "gray-1"]),
             Console.format("{}".format(self.type), ["italic", class_color]),
             Console.format(")".format(self.type), ["", class_color]))
 
