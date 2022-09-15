@@ -29,11 +29,6 @@ Current main goal is "make it easier to use" however that can be done. I would l
 - [ ] Require less typing - "inferrable" structure to things
 
 - [ ] Easy Vector usage - is it possible to override/extend python lists?
-  - [ ] Re-code quaternions and `3D-to-2D` projection ...
-- [ ] Custom hash table/container for Nodes
-  - may make finding shapes easier e.g. b-trees or simple buckets for now
-  - faster collision/intersection calculations
-  - "insert a circle every 25mm along the current Node container, doing `xyz` rel to surrounding 3 Nodes"
 
 
 # Axi's general structure
@@ -43,18 +38,20 @@ Current main goal is "make it easier to use" however that can be done. I would l
   - Never lose track of the plotter's position or pen state
 
 ## Caveats
+* Look at `help(spiral)`, most shapes have lots of unique optional params.
 * All units are millimeters unless specified
   - The Axi has a microstep resolution of **(TBD)** so a point(**TBD**) will really depend on your pen and medium
 * All shapes are a series of lines
-* Shapes are created with unit vector lines `(0,0 to 1,1)` unless specified.
-* Shapes are created relative to `[0, 0]` unless specified
-  - Handy usage: plot shapes, move the plotter `[dx, dy]` and plot them again
+* Shapes are created with unit vector lines `(0,0 to 1,1)`
+  - The params object receives multiple props for this, e.g. width, length, radius and more.
+* Shapes are created relative to `[0, 0]`
+  - The params object receives a translation matrix for simple offset props.
+  - Imagined scenario: plot shapes, move the plotter `[dx, dy]` and plot them again
 * Check what `XY` is for you and your plotter
-* Most things in Axi are designed to be easy to use, meaning there are a lot of optional arguments and params. As a result, most things are passed around as kwargs. (is this good or bad practice, I don't know)
 
 # Types
 ## Shapes
-All shapes are an ordered list of lines. Shapes _always_ receive a single argument, a `Params` object which is simply a helper class around a dictionary. This informs the shape properties about itself.
+Shapes are classes. For now. I guess. All Shapes receive a single argument, a `Params` object which is a basic helper class around a dictionary. This informs the shape properties about itself. All shapes are (intended) to be immutable and are fully initiated generated on call.
 
 All Shapes have the following props:
 - [ ] shape.bounding_rect
@@ -93,26 +90,31 @@ All shapes can be created in multiple ways. I wanted to do this to offload a lot
     rect({ center: true, pos: [5, 5], width: 10, height: 10 })
 ```
 
-## Shape Params for Creation
+## Shape Creation
 There are some base props and methods of `Params` objects, such as:
 - [ ] translate
-  - Translate by xyz versus translation matrix
+  - (Translate by xyz versus translation matrix?)
   - [ ] transform 
   - [ ] skew
   - [ ] warp
 - [ ] subdivide
-
-## Shape Params for the Plotter
 - [ ] is_drawn
+  - Tells plotter if the pen should be down for this shape
 
 ## Shape Helper methods for Composition or Generation
-Turn complex sketches into parameterized shapes for easier use
+Simpler, algorithmic stuff I've done before:
 - [ ] grid({ width, height, rows, columns })
 - [ ] repeat({ shapes, translation_matrix, times )
   - draw shapes n times, translating reference matrix every loop
-  
-- [ ] Masking a Shape within another Shape ("hatch fill")
 
+More complex stuff I haven't done before:
+- [ ] Boolean logic e.g. Give me a shape that is the difference of these two shapes
+- [ ] Masking a Shape within another Shape ("hatch fill")
+- [ ] Evenly-space/pack 1000 vectors inside this shape (likely same intersection math as above)
+- [ ] Text using Python's fonttools and Glyph Tables
+
+## Shape Templating
+Make it easy to save sketches/shapes and make your own ShapeType like:
 - [ ] timestamp({ time, font, size })
 - [ ] git-commit-and-hash( ... )
 - [ ] my-cool-frame( ... )
@@ -128,10 +130,22 @@ Turn complex sketches into parameterized shapes for easier use
 - [ ] Implement `neighbors` weighted distances
   - If there's a ShapeType.Graph (e.g. draw a MST), we might want nodes outside of the scheduler.
 
-## Longterm Goals
+## Miscellanios/Big Goals/ideas
+- [ ] Implement a type allowing easy `mm <-> cm <-> in` usage, as in:
+  - `line({ pos:[ 1in, 1in ], length: 26cm })`
+- [ ] Custom hash table/container for Nodes
+  - Make finding shapes easier e.g. b-trees or simple buckets
+  - Faster intersection/collision/etc. calculations
+  - "Insert a circle every 25mm, `rotate XYZ` relative to surrounding 3 Nodes"
+  - "Remove every second node", "Subdivide"...
 - [ ] macOS and iOS interface
-- [ ] Quaternion -> (3D, STL) ShapeType, 3D to 2D projection (again)
-- [ ] Web/remote interface - e.g. rpi hooked up to Axidraw, send it commands
+- [ ] Quaternions .. again...
+- [ ] 3D to 2D projection .. again...
+- [ ] ShapeType to import non-native files
+  - CSV
+  - SVG
+  - STL/Obj (colors too)
+- [ ] Web/remote interface - e.g. RaspPi hooked up to Axidraw, send it remote instructions
 - [ ] Bare C implementation
 - [ ] Serial implementation
 
