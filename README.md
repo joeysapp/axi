@@ -1,124 +1,133 @@
 # Axi
-Generatively create and draw composable shapes with your [Axidraw](https://axidraw.com).
-Currently implemented using [pyaxidraw](https://github.com/evil-mad/axidraw/tree/master/cli/pyaxidraw). 
+Axi is a personal hobby project attempting to address several issues I've had with my Axidraw and generative work in the past. What follows are explanations of the internal logic of Axi and possible future features I'd like to implement.
+
+Currently using [pyaxidraw](https://github.com/evil-mad/axidraw/tree/master/cli/pyaxidraw)'s basic `.connect()`, need to use python's serial lib above 3.8 (... or below 3)
 
 # Features
-This tool allows you to create complex sketches and shapes that are easily translated into safe instructions for the Axidraw.
-* Composable, procedural sketch and shape creation
-* Base event loop is a stateful directed graph (doubly linked list)
-* Non-blocking event loop
-* Pausing, resuming, canceling, and looping of sketches
-* Handles all possible exits and disconnects from serial
+This tool gives you an interface to interactively create series of shapes that get translated into stateful serial instructions.
+* Defining something to be drawn is procedural
+  - You create compositions of fundamental shapes, the base shape being a line
+* Serial control structure is a linked list the plotter traverses 
+  - Never lose control of the Axidraw
+  - Non-blocking event loop
+  - Safe serial disconnects, always
+* Working on: pausing, resuming, canceling, and looping of sketches
+
 
 # Usage
-Currently usable as a python module:
+Currently usable as a python3.8 module
 ```console
 $ git clone https://github.com/joeysapp/axi.git
 $ cd axi
 $ python3.8 -m axi
 ```
 
-# Notes and Considerations
-* All shapes use millimeters as units.
-* No shape should ever generate negative values.
-  - Shapes may need to go out of bounds, but the Axidraw will never be told to go out of bounds.
-
 ## To-do
-- [ ] **Print a friggin' line**
-- [ ] **Print two friggin' lines**
+Current main goal is "make it easier to use" however that can be done. I would like to sit down, plot out my idea quickly and save it for later.
+- [ ] Pause / resume / cancel / repeat sketch
+- [ ] Save sketches - and/or state of scheduler, flattened
+- [ ] Require less typing - "inferrable" structure to things
 
-- [x] Handle exit signals for serial safely
-- [ ] Pause to reposition medium or change pen
-- [ ] Pause / resume sketch 
-- [ ] Cancel / repeat sketch
-
-- [ ] **Custom containers for nodes**
-  - Method of implementing Selectors and Modifiers?
-  - Consider Sketches themselves having Nodes, not Vectors
-
-- [ ] Save sketches on exit, load sketches on start
-- [ ] Save entire state of scheduler (or flatten it to a sketch itself)
-- [ ] Implement own serial connection
+- [ ] Easy Vector usage - is it possible to override/extend python lists?
+  - [ ] Re-code quaternions and `3D-to-2D` projection ...
+- [ ] Custom hash table/container for Nodes
+  - may make finding shapes easier e.g. b-trees or simple buckets for now
+  - faster collision/intersection calculations
+  - "insert a circle every 25mm along the current Node container, doing `xyz` rel to surrounding 3 Nodes"
 
 
-# Goals and Documentation
-Axi is a personal hobby project attempting to address several issues I've had with my Axidraw and generative work in the past. WYSIWYG, I'm just having fun making it.
+# Axi's general structure
+* Shapes are created by the user and are just ordered lists of coordinates
+* Shapes are added to sketches which are an ordered list of shapes
+* Sketches are translated into linked lists of stateful serial instructions (the main feature I wanted)
+  - Never lose track of the plotter's position or pen state
 
-What follows are explanations of the internal logic of Axi and possible future features I'd like to implement.
+## Caveats
+* All units are millimeters unless specified
+  - The Axi has a microstep resolution of **(TBD)** so a point(**TBD**) will really depend on your pen and medium
+* All shapes are a series of lines
+* Shapes are created with unit vector lines `(0,0 to 1,1)` unless specified.
+* Shapes are created relative to `[0, 0]` unless specified
+  - Handy usage: plot shapes, move the plotter `[dx, dy]` and plot them again
+* Check what `XY` is for you and your plotter
+* Most things in Axi are designed to be easy to use, meaning there are a lot of optional arguments and params. As a result, most things are passed around as kwargs. (is this good or bad practice, I don't know)
 
-# Architecture and Event Loop
-* `Shapes` are defined by the user and are simply a generated list of coords `[[0, 0], [10, 10], ...]`
-* `Sketches` are an ordered list of `Shapes`
-* The `Generator` stores and translates sketches into linked lists of `Nodes` for the `Scheduler`.
-* The `Scheduler` has a main linked list that it traverses, sending serial to Axidraw when needed.
-
-# Fundamental Types
+# Types
 ## Shapes
-All shapes are an ordered list of lines. Shapes can receive `Params` objects on creation to define unique properties of the shape. Shapes can also be used as building blocks for new, more complex shapes.
-- [ ] shape.bounding_box _(which is a Bounds object, which extends Shape)_
+All shapes are an ordered list of lines. Shapes _always_ receive a single argument, a `Params` object which is simply a helper class around a dictionary. This informs the shape properties about itself.
+
+All Shapes have the following props:
+- [ ] shape.bounding_rect
 - [ ] shape.centroid
-- [ ] shape.contains(vector) 
 - [ ] shape.area
 - [ ] shape.pen_travel_distance
-- [ ] shape.estimated_draw_time
+- [ ] shape.estimated_plot_time
 
-- [ ] shape.params.is_drawn
-- [ ] shape.params.transform
-- [ ] shape.params.translate
-- [ ] shape.params.skew
-- [ ] shape.params.warp
+All shapes have the following helper functions:
+- [ ] shape.contains(`vector`)
+- [ ] shape.copy()
 
+## Shape Creation
+All shapes can be created in multiple ways. I wanted to do this to offload a lot of annoying math from myself. It can seem a little obtuse at first (it probably is) but here are a few examples. You should be able to get this information from a given shape via `ShapeType.noise_field.info()`.
+```
+    # line of 10mm placed at 0,0
+    line({ length: 10, degree: 60 })
+    
+    # "center" for a line means its midpoint
+    line({ pos: [10,10], length: 10, center: true })
+    
+    # line creation with 2 positions
+    line({ pos1: [10,10], pos2: [20,20] })
+    
+    # some shapes have helper creator params which are noted in .info(), such as:
+    [list_of_ShapeType.line] = line({ pos1: [10,10], pos2: [20,20], pos3: [30,30], ... })
+    
+    # a triangle with radius of 1mm
+    polygon({ sides: 3 })
+    
+    # a circle
+    polygon({ sides: 360 })
+    polygon({ radians: math.pi/720 })
 
-## ShapeTypes
-- [x] Line
-- [ ] Point
-- [ ] Rect
-- [ ] Polygon
-- [ ] AsymetricPolygon
-- [ ] Text (`fonttools` and Glyph Tables, heavy sigh)
-- [ ] SVG, SVG.load_file
-- [ ] CSV, CSV.parse_file
+    # rect whose corner is at 0,0, goes to edge
+    rect({ center: true, pos: [5, 5], width: 10, height: 10 })
+```
 
-## Shape Methods
-Turn complex sketches into parameterized shapes for easier use.
-- [ ] readable-timestamp(now)
-- [ ] page-number-for-notebook(42)
+## Shape Params for Creation
+There are some base props and methods of `Params` objects, such as:
+- [ ] translate
+  - [ ] transform 
+  - [ ] skew
+  - [ ] warp
+- [ ] subdivide
+
+## Shape Params for the Plotter
+- [ ] is_drawn
+
+## Shape Helper methods for Composition or Generation
+Turn complex sketches into parameterized shapes for easier use
+- [ ] grid({ width, height, rows, columns })
+- [ ] timestamp({ time, font, size })
 - [ ] git-commit-and-hash( ... )
-- [ ] my-3d-cube(rotate, xsize, ysize, zsize)
-
-## Shape Creation with other Shapes
-Possibly not within a Shape itself, but an external `Modifier` or `Selector`
-- [ ] repeat_shapes( shapes, x_amount, y_amount ) - create a simple grid
-- [ ] repeat_shapes( shapes, offset_vector, times ) - draw shapes, adding offset_vector every loop
+- [ ] my-cool-frame( ... )
+- [ ] repeat([shapes], offset_vector, times ) - draw shapes, adding offset vector every loop
 - [ ] Masking a Shape within another Shape ("hatch fill")
 
-# Basic Types
-## id
-- [ ] Simplify `id` setting, make `Generator`'s linked list creation simpler
 
-## Bounds
-- [ ] Convert to extending Shape itself, allowing for a Bound to be any ShapeType
-- [ ] bounds.contains(vector)
-
+# More Types
 ## Vectors
-- [ ] Fully-implemented vector math
-- [ ] vector.is_within(bounds)
+- [ ] Implemented most-used vector math and utility
 
 ## Nodes
 - [ ] Implement `neighbors` weighted distances
   - If there's a ShapeType.Graph (e.g. draw a MST), we might want nodes outside of the scheduler.
-
-## Params
-- [ ] Class design allowing for intuitive/arbitrary params
-- [ ] Handle undefined values
 
 ## Longterm Goals
 - [ ] macOS and iOS interface
 - [ ] Quaternion -> (3D, STL) ShapeType, 3D to 2D projection (again)
 - [ ] Web/remote interface - e.g. rpi hooked up to Axidraw, send it commands
 - [ ] Bare C implementation
-
-
+- [ ] Serial implementation
 
 # Troubleshooting
 Loss of serial connection from the Axi has resulted in some problems in the past. Worst case scenario you may have to flash on a new EBB firmware (which - I have not been able to compile the `mphidflash` tool on my M1 mac.
