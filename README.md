@@ -38,7 +38,7 @@ Current main goal is "make it easier to use" however that can be done. I would l
   - Never lose track of the plotter's position or pen state
 
 ## Caveats
-* Look at `help(spiral)`, most shapes have lots of unique optional params.
+* Look at `help(thing)`, most shapes have lots of unique optional params.
 * All units are millimeters unless specified
   - The Axi has a microstep resolution of **(TBD)** so a point(**TBD**) will really depend on your pen and medium
 * All shapes are a series of lines
@@ -66,7 +66,7 @@ All shapes have the following helper functions:
 
 ## Shape Creation
 All shapes can be created in multiple ways. I wanted to do this to offload a lot of reptitive math from myself. You should be able to get this information from a given shape via the `help(thing)` method. Essentially it's just overloading. I may decide eventually something more pythonic would be better, but this is what I ended up with after a week or two of building this. Here are a few examples:
-```
+```python
     # line of 10mm placed at 0,0
     line({ length: 10, degree: 60 })
     
