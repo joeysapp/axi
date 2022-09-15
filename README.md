@@ -68,7 +68,7 @@ All shapes have the following helper functions:
 - [ ] shape.copy()
 
 ## Shape Creation
-All shapes can be created in multiple ways. I wanted to do this to offload a lot of annoying math from myself. It can seem a little obtuse at first (it probably is) but here are a few examples. You should be able to get this information from a given shape via `ShapeType.noise_field.info()`.
+All shapes can be created in multiple ways. I wanted to do this to offload a lot of reptitive math from myself. You should be able to get this information from a given shape via the `help(thing)` method. Essentially it's just overloading. I may decide eventually something more pythonic would be better, but this is what I ended up with after a week or two of building this. Here are a few examples:
 ```
     # line of 10mm placed at 0,0
     line({ length: 10, degree: 60 })
@@ -80,7 +80,7 @@ All shapes can be created in multiple ways. I wanted to do this to offload a lot
     line({ pos1: [10,10], pos2: [20,20] })
     
     # some shapes have helper creator params which are noted in .info(), such as:
-    [list_of_ShapeType.line] = line({ pos1: [10,10], pos2: [20,20], pos3: [30,30], ... })
+    [ ... lines ...] = line({ pos1: [10,10], pos2: [20,20], pos3: [30,30], ... })
     
     # a triangle with radius of 1mm
     polygon({ sides: 3 })
@@ -96,6 +96,7 @@ All shapes can be created in multiple ways. I wanted to do this to offload a lot
 ## Shape Params for Creation
 There are some base props and methods of `Params` objects, such as:
 - [ ] translate
+  - Translate by xyz versus translation matrix
   - [ ] transform 
   - [ ] skew
   - [ ] warp
@@ -107,11 +108,16 @@ There are some base props and methods of `Params` objects, such as:
 ## Shape Helper methods for Composition or Generation
 Turn complex sketches into parameterized shapes for easier use
 - [ ] grid({ width, height, rows, columns })
+- [ ] repeat({ shapes, translation_matrix, times )
+  - draw shapes n times, translating reference matrix every loop
+  
+- [ ] Masking a Shape within another Shape ("hatch fill")
+
 - [ ] timestamp({ time, font, size })
 - [ ] git-commit-and-hash( ... )
 - [ ] my-cool-frame( ... )
-- [ ] repeat([shapes], offset_vector, times ) - draw shapes, adding offset vector every loop
-- [ ] Masking a Shape within another Shape ("hatch fill")
+
+
 
 
 # More Types
