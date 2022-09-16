@@ -1,34 +1,26 @@
 
-# note(@joeysapp): order of imports matters for circular references
+# note(@joeysapp):
+# order of imports matters for circular references
+# v is referenced everywhere, so import it first?
+
+from .vec3d import v
+from .vector import Vector
+
+from .params import Params
+from .sketch import Sketch
+
 
 from .node import Node, NodeState
-
-from .shape import Shape, ShapeType
-from .params import Params
-
-from .sketch import Sketch
-from .vector import Vector
-from .vec3d import v
-
-
 from .id import TypeId
 
 __all__ = [
-    # "Plotter",
-    # "Scheduler",
-    "Node",
-    "Shape",
-    
-    "Sketch",
-    "Vector",
     "v",
 
+    "Rect",
     "Params",
+    "Sketch"
 
-    "ShapeType",
+    "Node",
     "NodeState",
-
     "TypeId",
-
-    # "Generator"
 ]

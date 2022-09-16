@@ -14,7 +14,7 @@ from .generator import Generator
 # from .modifier import Modifier
 
 from .util import Console, Timer, fmap
-from .types import Vector, Params, ShapeType, v
+from .types import Vector, Params, v
 
 
 # note(@joeysapp): this is so C-c won't kill python first before closing the plotter serial connection

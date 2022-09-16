@@ -9,7 +9,6 @@
    - line_length
 
 """
-from .shape import Shape
 from .id import TypeId
 
 from axi.util import Console
@@ -24,7 +23,7 @@ class Sketch():
         self.id = TypeId.sketch(name)
         self.shapes = []
         self.line_length = 0
-        self.bounds = kwargs.get("bounds") or Bounds()
+        self.bounds = None
 
         if (kwargs.get("sketches")):
             for other_sketch in kwargs.get("sketches"):
@@ -35,14 +34,11 @@ class Sketch():
         shapes_string = Console.list(self.shapes)
         return "Sketch({} shapes={})".format(self.id, shapes_string)
 
-    def add_shape(self, type, params):
+    def add_shape(self, shape, params):
         Console.method("sketch.add_shape(id={}, type={}, params={})\n".format(self.id, type, params))
-
-        new_shape = Shape(type, params=params)
-        self.shapes.append(new_shape)
-
-        self.bounds.extend(new_shape.bounds)
-        self.line_length += new_shape.line_length
+        self.shapes.append(shape)
+        self.bounds.extend(shape.bounds)
+        self.line_length += shape.line_length
 
     def get_shape_count(self):
         return len(self.shapes)

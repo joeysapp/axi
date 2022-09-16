@@ -1,7 +1,6 @@
-from axi.util import Console
-from axi.types import Bounds
+from axi.types import NodeState
 
-from axi.types import NodeState, Rect
+from axi.util import Console
 
 #class Scheduler(dict):
 class Scheduler():
@@ -16,7 +15,7 @@ class Scheduler():
         self.prev = []        # list of ids of Nodes that have been printed
 
         # Hopefully take this out after Generator is 100%
-        self.physical_bounds = Rect({ pos=v(0, 0, 0), width=431.8, height=279.4 });
+        # self.physical_bounds = Rect({ pos=v(0, 0, 0), width=431.8, height=279.4 });
 
 
     # Conditions the plotter needs to send a serial command:
