@@ -3,7 +3,7 @@ import random, math, time
 
 from axi.util import Console, fmap, Timer
 
-from axi.types import Vector, Node, Sketch, NodeState, TypeId
+from axi.types import Node, Sketch, NodeState, TypeId
  
 class Generator():
     def __init__(self, *args, **kwargs):

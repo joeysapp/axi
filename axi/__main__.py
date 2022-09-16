@@ -13,8 +13,10 @@ from .scheduler import Scheduler
 from .generator import Generator
 # from .modifier import Modifier
 
+from .types.shapes import line
+
+from .types import v, Sketch
 from .util import Console, Timer, fmap
-from .types import Vector, Params, v
 
 
 # note(@joeysapp): this is so C-c won't kill python first before closing the plotter serial connection
@@ -60,6 +62,10 @@ def axi() -> int:
     # selector = Selector(cli_args)
 
     thing = generator.create_sketch("foo")
+
+
+    a = line(subdivide=3)
+    Console.puts("\n\n\n{}\n\n\n\n".format(a))
 
     # for y in range(35, 100, 5):
     #     # thing.add_shape(ShapeType.line, Params(pos=Vector(0, y, 0), length=10, degrees=y/2.0))

@@ -17,19 +17,23 @@ for i in loop():
 idk. thankabowtit
 
 """
+from axi.types import v
+
 from axi.util import Console
 
 class Params(dict):
     def __init__(self, **kwargs):
-        Console.init("params.__init__(kwargs={})\n".format(s))
+        Console.init("params.__init__(kwargs={})\n".format(kwargs))
         self.width = 1;
         self.height = 1;
         self.length = 1;
 
+        # Position of shape
         self.v = v(0, 0, 0)
         self.v1 = v(0, 0, 0)
         self.v2 = v(0, 1, 0)
         # self.v3 ...
+
 
         # Matrices accomplish actual generation,
         # A translation is an affine transformation with the origin as a fixed poiont
@@ -39,9 +43,7 @@ class Params(dict):
         self.o_x = 0
         self.o_y = 0
         self.o_z = 0
-        self.o_v = None
-        self.o_v1 = None
-        self.o_v2 = None    
+        self.o_v = v(0, 0, 0)
 
         # https://en.wikipedia.org/wiki/Transformation_matrix
         self.transformation_matrix = None
@@ -61,7 +63,7 @@ class Params(dict):
 
 
     def __repr__(self) -> str:
-        return "{ "+self.string+" }"
+        return "params({})".format(self.__dict__)
 
     def get(self, str):
         return getattr(self, str)

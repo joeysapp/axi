@@ -1,9 +1,7 @@
 from .line import line
-
-from .rect import rect
+#from .rect import rect
 
 __all__ = [
     "line",
-
-     "rect",
+#    "rect",
 ]

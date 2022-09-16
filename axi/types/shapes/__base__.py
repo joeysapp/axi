@@ -5,15 +5,12 @@
     id
     type
     params
-    vectors
+    vecs
 
-    Vectors are created from ./shapes which pass in a lists of [x y ...z]
 """
 from enum import Enum, auto
 
-from .vector import Vector
-from .vec3d import v
-from .id import TypeId
+from axi.types import v, TypeId, Params
 
 from axi.util import Console
 
@@ -34,24 +31,25 @@ from axi.util import Console
 # 
 
 class Shape():
-    """ Help for the class Shape (axi/types/shape.py)
-        An umbrella class capable of generating ShapeTypes and providing helper functions
+    """
+    Help for the class Shape (axi/types/shape.py)
+    An abstract class that all shapes inherit with general properties and methods
     """
 
     @classmethod
-    def get_area(cls, vectors):
+    def _set_area(cls, vectors):
         return 0
 
     @classmethod
-    def get_line_length(cls, vectors):
+    def _set_line_length(cls, vectors):
         return 0
 
     @classmethod
-    def get_center(cls, vectors):
+    def _set_center(cls, vectors):
         return v(0, 0, 0)
 
     @classmethod
-    def get_bounding_box(cls, vectors):
+    def _set_bounding_box(cls, vectors):
         """
         Shape class method to return a bounding box, a Rect, of supplied list of vectors
         """
@@ -59,15 +57,15 @@ class Shape():
         max_y = -(2 ** 32)
         min_x = 2 ** 32
         min_y = 2 ** 32
-        for v in vectors:
-            if v.x > max_x:
-                max_x = v.x
-            if v.x < min_x:
-                min_x = v.x
-            if v.y > max_y:
-                max_y = v.y
-            if v.y < min_y:
-                min_y = v.y
+        for vec in vectors:
+            if vec.x > max_x:
+                max_x = vec.x
+            if vec.x < min_x:
+                min_x = vec.x
+            if vec.y > max_y:
+                max_y = vec.y
+            if vec.y < min_y:
+                min_y = vec.y
         return [v(min_x, min_y),
                 v(max_x, max_y)]
 
@@ -80,36 +78,28 @@ class Shape():
 #        within_y = self.min_y < _v.y and _v.y < self.max_y
 #        return within_x and within_y
 
-    def __init__(self, shape_type, params, *args,  **kwargs):
+    def __init__(self, **kwargs):
         """ Shape instance method to initialize and populate itself """
-        # Console.init("shape.__init__({}, {})\n".format(shape_type, params))
         self.id = TypeId.shape()
-        self.type = shape_type
-        self.params = params
+        self.params = Params(**kwargs)
 
-        self.vectors = AffineTransformation(shape_type(), params)
+        # could be a way of undoing actions on things, like
+        # give me a new square that doesn't have that last transformation..
+        self.actions = []
 
-        self.area = self.get_area(self.vectors)
-        self.center = self.get_center(self.vectors)
-        self.line_length = self.get_line_length(self.vectors)
-        self.bounding_box = self.get_bounding_box(self.vectors)
+        # self.vecs = AffineTransformation(shape_type(), params)
+        self.vecs = self.vecs
+
+        self.area = self._set_area(self.vecs)
+        self.center = self._set_center(self.vecs)
+        self.line_length = self._set_line_length(self.vecs)
+        self.bounding_box = self._set_bounding_box(self.vecs)
+
                 
     def __repr__(self):
-        vector_string = Console.list(self.vectors)
-        return "{}({} type={}, params={}, vectors={})".format(
-            Console.format("shape", ["bold"]),
+        return "{}({}  \n\tparams={}  \n\tvecs={})".format(
+            Console.format(self.type, ["blue"]),
             self.id,
             self.type,
-            self.params,
-            self.vectors)
-        
-#
-#        return "{}(\n\tid={}\n\ttype={}\n\tparams={}\n\tvectors={}\n)".format(
-#            Console.format("Shape", ["cyan", "bold"]),
-#            self.id,
-#            self.type,
-#            self.params,
-#            self.vectors)
-#
-
-
+            # self.params,
+            Console.list(self.vecs))

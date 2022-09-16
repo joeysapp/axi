@@ -1,7 +1,5 @@
 from pyaxidraw import axidraw
 
-from axi.types import v
-
 from axi.util import Console, Timer
 
 ## Underlying serial connection:
@@ -47,9 +45,9 @@ class Serial:
 
         # SE/A3 sizes: 11 x 17in -> 27.94 x 43.18cm -> mm
         # Handled by Scheduler atm, eventually Generator during list gen.
-        self.physical_min = v(0, 0)
-        self.physical_max = v(431.8, 279.4)
-        self.physical_margin = 0
+        # self.physical_min = v(0, 0)
+        # self.physical_max = v(431.8, 279.4)
+        # self.physical_margin = 0
 
         if self.do_serial:
             self.axidraw = axidraw.AxiDraw()

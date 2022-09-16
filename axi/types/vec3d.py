@@ -53,26 +53,26 @@ class v(list):
     def __init__(self, x=0, y=0, z=0):
         # self.id = TypeId.vector()
         if type(x) == list:
-            self.x = x[0]
-            self.y = x[1]
-            self.z = 0 if len(x) < 3 else x[2]
+            self.x = float(x[0])
+            self.y = float(x[1])
+            self.z = 0.0 if len(x) < 3 else float(x[2])
         else:
-            self.x = x
-            self.y = y
-            self.z = z
+            self.x = float(x)
+            self.y = float(y)
+            self.z = float(z)
 
     def __repr__(self) -> str:
         left_max = 3
 
-        x = "{:.1f}".format(self.x).split('.')
+        x = "{:.2f}".format(self.x).split('.')
         x_neg = True if self.x < 0 else False
         x_str = "{}.{}".format(x[0].rjust(left_max, "0"), x[1])
 
-        y = "{:.1f}".format(self.y).split('.')
+        y = "{:.2f}".format(self.y).split('.')
         y_neg = True if self.y < 0 else False    
         y_str = "{}.{}".format(y[0].rjust(left_max, "0"), y[1])
 
-        z = "{:.1f}".format(self.z).split('.')
+        z = "{:.2f}".format(self.z).split('.')
         z_neg = True if self.z < 0 else False 
         z_str = "{}.{}".format(z[0].rjust(left_max, "0"), z[1])
 

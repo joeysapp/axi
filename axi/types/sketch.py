@@ -21,6 +21,7 @@ class Sketch():
         Console.init("sketch.__init__(\"{}\"{})\n".format(name, "\tkwargs={}".format(s)))
 
         self.id = TypeId.sketch(name)
+
         self.shapes = []
         self.line_length = 0
         self.bounds = None
@@ -34,10 +35,11 @@ class Sketch():
         shapes_string = Console.list(self.shapes)
         return "Sketch({} shapes={})".format(self.id, shapes_string)
 
-    def add_shape(self, shape, params):
-        Console.method("sketch.add_shape(id={}, type={}, params={})\n".format(self.id, type, params))
+    def add_shape(self, shape):
+        Console.method("sketch.add_shape({})\n".format(shape))
+
         self.shapes.append(shape)
-        self.bounds.extend(shape.bounds)
+        self.bounding_box.extend(shape.bounding_box)
         self.line_length += shape.line_length
 
     def get_shape_count(self):

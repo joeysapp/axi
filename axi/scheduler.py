@@ -1,5 +1,3 @@
-from axi.types import NodeState
-
 from axi.util import Console
 
 #class Scheduler(dict):
