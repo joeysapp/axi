@@ -1,7 +1,10 @@
 import math
 
-def line(params, *args, **kwargs):
-    xylist = []
+def line():
+    return [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]
+
+def _line(params, *args, **kwargs):
+    vecs = []
     if (params.length and params.pos):
         if type(params.pos) == list:
             p1 = [params.pos[0], params.pos[1]]

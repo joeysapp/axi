@@ -29,7 +29,8 @@ Current main goal is "make it easier to use" however that can be done. I would l
 - [ ] Require less typing - "inferrable" structure to things
 
 - [ ] Easy Vector usage - is it possible to override/extend python lists?
-
+  - Vector(x, y, z) is too verbose, but vec[0] is annoying too
+  - Ideally, I want a [i j k] where I can access them via .x .y .z
 
 # Axi's general structure
 * Shapes are created by the user and are just ordered lists of coordinates

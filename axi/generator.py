@@ -31,104 +31,72 @@ class Generator():
 
     def get_sketch_as_linked_list(self, name) -> (dict, str):
         """
-        * Transforms a Sketch into a linked_list of Nodes:
-        - Start, perform and finish necessary serial commands
-        - Handles movement for "connected" Shapes
-        - [?] - Handles closing Shapes - config?
-        
-        returns { nodes }, head
+           Translates ordered list of Shapes (themselves lists of Vectors)
+           into working linked list of Nodes with necessary pen state transitions
         """
-        Console.method("generator.get_sketch_as_linked_list({})\n".format(name))
         debug = False
+        Console.method("generator.get_sketch_as_linked_list({})\n".format(name))
 
         sketch = self.sketches.get(name)
-        if debug:
-            Console.method("The shapes look like: {}\n".format(Console.list(sketch.shapes)))
-
-        head_node = None
-        prev_node = None
-
-        new_state = None
-        new_head = None
         new_nodes = {}
         first_node_id = None
+
+        head_node = None
         tmp_node = None
 
-        shape_idx = 0
+        shape_id = None
+
         for shape in sketch.shapes:
-            vector_idx = 0
 
             # Use this to determine whether or not the next node is the same shape or not
             shape_id = shape.id.shape_id
-            # print(shape.id.__dict__, shape.id.shape_id)
+            vector_idx = 0
 
             if debug:
                 print('========================================================== !! NEW SHAPE ================')
-                print('\t0 - Begin sketch.shapes[{}] with shape_id= {} = \n{}'.format(shape_idx, shape_id, shape))
+                print('\t0 - Loop of sketch.shapes with shape_id={} = \n{}'.format(shape_id, shape))
             for v in shape.vectors:
-                if debug: print("new_nodes: ")
-
-                for key in new_nodes.keys():
-                    if debug: print(new_nodes[key])
-
+                if debug:
+                    print("new_nodes: ")
+                    for key in new_nodes.keys():
+                        print(new_nodes[key])
                 new_pos = Vector(v.x, v.y, v.z)
-                if debug: print('\t1 - Begin sketch.shapes[{}].vectors[{}] , new_pos is {}'.format(shape_idx, vector_idx, Console.format(new_pos, ["green", "bold"])))
+
+                if debug: print('\t1 - Loop of sketch.shapes with shapes[{}].vectors[{}] = {}'.format(shape_id, vector_idx, Console.format(new_pos, ["green", "bold"])))
                 if (head_node == None):
                     if debug: print('\t1b - head = None, creating tmp and starting sketch')
                     # Create new node at 0 0 set to up, move to new pos and lower
                     tmp_node = Node(shape_id, pos=Vector(0, 0, 0), state=NodeState.up)
                     first_node_id = tmp_node.id.hash
                     new_nodes, tmp_node = self.insert_transition_nodes(new_nodes, head_node, tmp_node, shape_id, pos=new_pos, first_node_id=first_node_id)
-                    
-
                 else:
-                    if debug:
-                        print('\t1a - head exists, creating tmp and calling helper fn, head is ='+str(head_node))
+                    if debug: print('\t1a - head exists, make tmp and call transition fn, head is ='+str(head_node))
                     tmp_node = Node(shape_id, pos=new_pos)
                     head_node.next = tmp_node.id.hash
                     tmp_node.prev = head_node.id.hash
-
-                    # Do our Node creation / insertion here
                     new_nodes, tmp_node = self.insert_transition_nodes(new_nodes, head_node, tmp_node, shape_id)
-
-                    ###print('\t=== SETTING HEAD = TMP, onto next Vector (or Shape) ===')
-                    ###head_node = tmp_node
-                    ###new_nodes[head_node.id.hash] = head_node
-                    ###print("\t== head is now: "+str(head_node))
-
-
                 if debug: print('\t2 - End of sketch.shapes[{}].vectors[{}]'.format(shape_idx, vector_idx))
-
-
-                if debug:
-                    print('\t=== SETTING HEAD = TMP, onto next Vector (or Shape) ===')
+                if debug: print('\t=== SETTING HEAD = TMP, onto next Vector (or Shape) ===')
                 head_node = tmp_node
                 new_nodes[head_node.id.hash] = head_node
-                if debug:
-                    print("\t== head is now: "+str(head_node))
-
-
+                if debug: print("\t== head is now: "+str(head_node))
                 vector_idx += 1
             if debug: print('\t3 - End of sketch.shapes[{}] (no more vectors)'.format(shape_idx))
 
-            # This should only increment if head.next still has
-            #TypeId.increment_shape_pointer()
         # End of sketch, move -> raise -> goto 0 0
-        new_nodes, head_node = self.insert_transition_nodes(new_nodes, head_node, tmp_node, shape_id)
-
-
+        if (head_node):
+            new_nodes, head_node = self.insert_transition_nodes(new_nodes, head_node, tmp_node, shape_id)
 
         Console.puts("\n\tThe following list of Shapes were translated into a linked list: \n")
         for shape in sketch.shapes:
             Console.puts("\t{}\n".format(shape))
-
-
         Console.puts("\n\t-> A linked list of {} was created\n".format(
             Console.format(str(len(new_nodes.keys()))+" Nodes", ["bold", "green"])))
         Console.puts("\t-> The head of this linked list is: {}\n".format(
             Console.format(first_node_id, ["bold", "green"])))
         
         Console.puts("\n\t"+"="*114+"\n")
+
         idx = 0
         for k in new_nodes.keys():
             Console.puts("\t{}\n".format(new_nodes[k]))
@@ -136,9 +104,6 @@ class Generator():
             idx += 1
 
         return new_nodes, first_node_id
-            # Finishing looping through Shape's vertices.
-            # Do we need to raise, or do we leave that for the next iteration?
-            
 
     """
        Called in get_sketch_as_linked_list
@@ -159,13 +124,9 @@ class Generator():
                                tmp_node,
                                Console.format("\n\tkwargs={}".format(kwargs) if kwargs else "", ["blue"])
                                ))
-        transition_nodes = {}
-
         debug = False
-
         if (head_node == None):
             if debug: print("[transition] head_node == None; shape_id={}".format(shape_id))
-
             node1 = Node(shape_id, pos=Vector(0, 0, 0),   state=NodeState.move,    prev=tmp_node.id.hash)
             node2 = Node(shape_id, pos=kwargs.get("pos"), state=NodeState.move,    prev=node1.id.hash)
             node3 = Node(shape_id, pos=kwargs.get("pos"), state=NodeState.up,      prev=node2.id.hash)
@@ -173,14 +134,15 @@ class Generator():
             node5 = Node(shape_id, pos=kwargs.get("pos"), state=NodeState.down,    prev=node4.id.hash)
             node6 = Node(shape_id, pos=kwargs.get("pos"), state=NodeState.move,    prev=node5.id.hash)
 
-            # For the sake of argument, assume we'll be moving to truly hashable IDs (and not just indiceses)
+            # For the sake of argument, assume we'll eventually move to truly hashable IDs (and not just indiceses)
             tmp_node.set_next(node1.id.hash)
             node1.set_next(node2.id.hash)
             node2.set_next(node3.id.hash)
             node3.set_next(node4.id.hash)
             node4.set_next(node5.id.hash)
             node5.set_next(node6.id.hash)
-            # A nice NodeContainer method for this?
+
+            # todo(@joeysapp): A nice NodeContainer method for this?
             new_nodes.update({
                 tmp_node.id.hash: tmp_node,
                 node1.id.hash: node1,
@@ -190,28 +152,23 @@ class Generator():
                 node5.id.hash: node5,
                 node6.id.hash: node6,
             })
-            # Tmp_node will be set to head outside of this function
             tmp_node = node6
-        # head_node.pos != tmp_node.pos and "same shape"
+
+        # and -> "or" on 2022-09-14, maybe lets different shapes share pos?
         elif (head_node.pos != tmp_node.pos and head_node.id.shape_id == tmp_node.id.shape_id):
-            if debug: print("\t[transition] within same Shape but head.pos != tmp.pos, set tmp.state to move");
-
-            # print("\thead_node.id = {}".format(head_node.id.__dict__))
-            # print("\ttmp_node.id = {}".format(tmp_node.id.__dict__))
-
-            # We actually made tmp_node outside this loop (instantiated so the outside head node can get .next, .prev, etc.
-            # So we just need to do this:
+        # elif (head_node.pos != tmp_node.pos and head_node.id.shape_id == tmp_node.id.shape_id):
+            if debug: print("\t[transition] head.pos != tmp.pos but head.shape_id == tmp.shape_id, so set tmp.state to move");
+            # head is already in move state, so we just need to do this:
             tmp_node.set_state(NodeState.move)
             tmp_node = tmp_node
-        # head_node.pos != tmp_node.pos and "different shape"
+
         elif (head_node.pos != tmp_node.pos and head_node.id.shape_id != tmp_node.id.shape_id):
-            if debug: print("\t[transition] new shape and new post, so move->down->ascend->up->move->move->up->descend->down->move ")
-            # not sure about this
             if debug: print("\t[transition] head is the previous shape, but it didn't know it could end.")
 
-
+            # head and pos are different pos and different shape.
+            # todo(@joeysapp): handle "connected" shapes in the future, consider a utility Vector.equality(head.pos, tmp.pos, DELTA)
             node0 = Node(shape_id, pos=head_node.pos,   state=NodeState.ascend,   prev=tmp_node.id.hash)
-            node1 = Node(shape_id, pos=head_node.pos,   state=NodeState.up    ,   prev=node0.id.hash    )
+            node1 = Node(shape_id, pos=head_node.pos,   state=NodeState.up,       prev=node0.id.hash    )
             node2 = Node(shape_id, pos=head_node.pos,   state=NodeState.move,     prev=node1.id.hash    )
             node3 = Node(shape_id, pos=tmp_node.pos ,   state=NodeState.move,     prev=node2.id.hash    )
             node4 = Node(shape_id, pos=tmp_node.pos,    state=NodeState.up,       prev=node3.id.hash    )
@@ -219,9 +176,7 @@ class Generator():
             node6 = Node(shape_id, pos=tmp_node.pos,    state=NodeState.down,     prev=node5.id.hash    )
             node7 = Node(shape_id, pos=tmp_node.pos,    state=NodeState.move,     prev=node6.id.hash    )
 
-            # For the sake of argument, assume we'll be moving to truly hashable IDs (and not just indiceses)
-
-            # Force tmp_node here to be an interim Node, not the resulting head_node like normally
+            # Force tmp_node here to be a transition Node, *NOT* the resulting head as usual
             tmp_node.set_state(NodeState.down)
             tmp_node.set_pos(head_node.pos)
             tmp_node.set_next(node0.id.hash)
@@ -234,7 +189,6 @@ class Generator():
             node5.set_next(node6.id.hash)
             node6.set_next(node7.id.hash)
 
-            # A nice NodeContainer method for this?
             new_nodes.update({
                 tmp_node.id.hash: tmp_node,
                 node0.id.hash: node0,
@@ -245,19 +199,8 @@ class Generator():
                 node5.id.hash: node5,
                 node6.id.hash: node6,
                 node7.id.hash: node7,
-            })
-
-            if debug:
-                print("0 tmp node is now: ", tmp_node)
-                print("0 node0 is now: ", node0)
-
-            # Tmp_node will be set to head outside of this function
+            })        
             tmp_node = node7
-
-            if debug:
-                print("1 tmp node is now: ", node7)
-            # return new_nodes, node6
-
         elif (head_node.next == None):
             if debug:
                 print("\t[transition] end of sketch SO move->raise->up @ head, goto home because head.next == None")
@@ -268,7 +211,6 @@ class Generator():
             node4 = Node(shape_id, pos=Vector(0, 0, 0), state=NodeState.move,    prev=node3.id.hash    )
             node5 = Node(shape_id, pos=Vector(0, 0, 0), state=NodeState.up,      prev=node4.id.hash    )
 
-            # For the sake of argument, assume we'll be moving to truly hashable IDs (and not just indiceses)
             head_node.set_next(node0.id.hash)
             node0.set_next(node1.id.hash)
             node1.set_next(node2.id.hash)
@@ -276,7 +218,6 @@ class Generator():
             node3.set_next(node4.id.hash)
             node4.set_next(node5.id.hash)
 
-            # A nice NodeContainer method for this?
             new_nodes.update({
                 node0.id.hash: node0,
                 node1.id.hash: node1,
@@ -286,11 +227,7 @@ class Generator():
                 node5.id.hash: node5,
             })
 
-            # Tmp_node will be set to head outside of this function
             tmp_node = node5
-            # return new_nodes, node6
-            
-
         else:
             print(" weird final case idk about ")
 
@@ -303,5 +240,5 @@ class Generator():
                                Console.format("\n\tkwargs={}".format(kwargs) if kwargs else "", ["blue"])
                                ))
 
-        # Tmp_node will be set to head outside of this function
+        # tmp_node will be set to head
         return new_nodes, tmp_node

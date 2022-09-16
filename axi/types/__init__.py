@@ -1,16 +1,15 @@
-# order of imports matters for circular references
-# from .generator import Generator
+
+# note(@joeysapp): order of imports matters for circular references
 
 from .node import Node, NodeState
+
 from .shape import Shape, ShapeType
-# from .plotter import Plotter
-# from .scheduler import Scheduler
+from .params import Params
 
 from .sketch import Sketch
 from .vector import Vector
+from .vec3d import v
 
-from .bounds import Bounds
-from .params import Params
 
 from .id import TypeId
 
@@ -22,8 +21,8 @@ __all__ = [
     
     "Sketch",
     "Vector",
+    "v",
 
-    "Bounding",
     "Params",
 
     "ShapeType",

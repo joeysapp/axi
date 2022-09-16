@@ -2,16 +2,22 @@ from .id import TypeId
 
 from axi.util import Console
 
-class Vector(list):
+    # Wrapping lists with Vector behavior
+    # v1 = v(0, 0, 0) ... and... v1 = v(0, 0, 0)
+    # v1.x, v1.y, v1.z,
+
+    # v1 += [0, 5, 10]
+    
+    # v1.dist([0, 5, 0])
+    # v1.dist(v(0, 5, 0])
+
+class v(list):
 #    @classmethod
 #    def norm(cls, v1):
 #        m = v1.mag()
 #        return cls.div(v1, m)
 
-    # Wrapping lists with Vector behavior
-    # v1 = Vector(0, 0, 0) ... v1 = v(0, 0, 0)
-    # v1.x, v1.y, v1.z,
-    # v1 += [0, 5, 10]
+
 
 
     def __add__(self, *args, **kwargs):
@@ -46,9 +52,14 @@ class Vector(list):
 
     def __init__(self, x=0, y=0, z=0):
         # self.id = TypeId.vector()
-        self.x = x
-        self.y = y
-        self.z = z
+        if type(x) == list:
+            self.x = x[0]
+            self.y = x[1]
+            self.z = 0 if len(x) < 3 else x[2]
+        else:
+            self.x = x
+            self.y = y
+            self.z = z
 
     def __repr__(self) -> str:
         left_max = 3
@@ -65,7 +76,7 @@ class Vector(list):
         z_neg = True if self.z < 0 else False 
         z_str = "{}.{}".format(z[0].rjust(left_max, "0"), z[1])
 
-        return Console.format("({},\t{})".format(x_str, y_str), [])
+        return Console.format("[{},\t{}]".format(x_str, y_str), [])
         # return Console.format("({}, {})".format(x_str, y_str), ["black", "bg-gray-0"])
 
     def __eq__(self, v2):

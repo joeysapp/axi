@@ -10,7 +10,6 @@
 
 """
 from .shape import Shape
-from .bounds import Bounds
 from .id import TypeId
 
 from axi.util import Console
@@ -41,6 +40,8 @@ class Sketch():
 
         new_shape = Shape(type, params=params)
         self.shapes.append(new_shape)
+
+        self.bounds.extend(new_shape.bounds)
         self.line_length += new_shape.line_length
 
     def get_shape_count(self):

@@ -1,5 +1,7 @@
 from pyaxidraw import axidraw
 
+from axi.types import v
+
 from axi.util import Console, Timer
 
 ## Underlying serial connection:
@@ -33,28 +35,38 @@ from axi.util import Console, Timer
 ## ad.usb_command("HM,3200\r")     # Return home at 3200 steps/s
 
 class Serial:
-    def __init__(self, *args, **kwargs):
-        # Console.init("serial = Serial({})\n".format(kwargs))
-        # return None
-        self.axidraw = axidraw.AxiDraw()
-        try:
-            self.axidraw.interactive()
-            self.axidraw.connect()
-            # Next calls to .update(), wait so connection is up
-            Timer.wait()
-            self.configure();
-        except Exception as err:
-            Console.error("serial.__init__() -> {}\n".format(err))
 
     # def pause(self):
     # def resume(self):
     # def pause_to_change_pen_position_lol(self):
 
+    def __init__(self, *args, **kwargs):
+        Console.init("serial = Serial({})\n".format(kwargs))
+        self.do_lower = kwargs.get("do_lower")
+        self.do_serial = kwargs.get("do_serial")
+
+        # SE/A3 sizes: 11 x 17in -> 27.94 x 43.18cm -> mm
+        # Handled by Scheduler atm, eventually Generator during list gen.
+        self.physical_min = v(0, 0)
+        self.physical_max = v(431.8, 279.4)
+        self.physical_margin = 0
+
+        if self.do_serial:
+            self.axidraw = axidraw.AxiDraw()
+            try:
+                self.axidraw.interactive()
+                self.axidraw.connect()
+                # Next calls to .update(), wait so connection is up
+                Timer.wait()
+                self.configure();
+            except Exception as err:
+                Console.error("serial.__init__() -> {}\n".format(err));
+
     # [ main BAA -> Serial ]
-    def do_serial_command(self, command, pos, disabled=False):    
+    def do_serial_command(self, command, pos):    
         Console.method("serial.do_serial_command({} {}, disabled={})\n".format(command, pos, disabled))
         
-        disabled = False
+        disabled = not self.do_serial
         # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
         # Should only see 'raise' 'lower', and 'move'.
         if (command == 'goto' and pos):

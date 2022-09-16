@@ -1,7 +1,7 @@
 from axi.util import Console
 from axi.types import Bounds
 
-from axi.types import NodeState
+from axi.types import NodeState, Rect
 
 #class Scheduler(dict):
 class Scheduler():
@@ -16,7 +16,7 @@ class Scheduler():
         self.prev = []        # list of ids of Nodes that have been printed
 
         # Hopefully take this out after Generator is 100%
-        self.bounds = Bounds()
+        self.physical_bounds = Rect({ pos=v(0, 0, 0), width=431.8, height=279.4 });
 
 
     # Conditions the plotter needs to send a serial command:
@@ -74,9 +74,6 @@ class Scheduler():
 
         return command, pos
 
-
-
-
     # Should Nodes themselves know their distance? ... weighted edges...
     def get_travel_distance(self):
         p1 = self.nodes[self.head]
@@ -86,18 +83,21 @@ class Scheduler():
         Console.method("scheduler.get_travel_distance() -> {}\n".format(distance))
         return distance
 
-    # Hopefully take this out after Generator is complete
-    def is_head_within_bounds(self) -> bool:
-        Console.method("scheduler.is_head_within_bounds({})".format(self.bounds))
+
+
+    # todo(@joeysapp):
+    # Generator should prob handle bounds and pen state during linked list creation.
+    # Depends if we're gonna be modifying the resulting Nodes or not, I guess
+
+    def is_head_within_physical_bounds(self) -> bool:
+        Console.method("scheduler.is_head_within_physical_bounds({})".format(self.physical_bounds))
         pos = self.nodes[self.head].pos
 
-        # in_bounds = self.bounds.check(pos)
-        in_bounds = True
+        in_bounds = self.physical_bounds.contains(pos)
         Console.puts("\n\t-> {}\n".format(
             Console.format("True", ["bold", "green"])
             if in_bounds else
             Console.format("False", ["red", "italic"])))
-
         return in_bounds
 
     def add_nodes(self, nodes) -> None:
