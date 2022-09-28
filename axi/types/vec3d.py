@@ -2,7 +2,7 @@ from .id import TypeId
 
 from axi.util import Console
 
-    # Wrapping lists with Vector behavior
+    # Wrapping lists with v behavior
     # v1 = v(0, 0, 0) ... and... v1 = v(0, 0, 0)
     # v1.x, v1.y, v1.z,
 
@@ -12,17 +12,6 @@ from axi.util import Console
     # v1.dist(v(0, 5, 0])
 
 class v(list):
-#    @classmethod
-#    def norm(cls, v1):
-#        m = v1.mag()
-#        return cls.div(v1, m)
-
-
-
-
-    def __add__(self, *args, **kwargs):
-        return Vector(super().__ad__(*args, **kwargs))
-
     @classmethod
     def copy(cls, v1):
         return cls(v1.x, v1.y, v1.z)
@@ -37,21 +26,52 @@ class v(list):
 
     @classmethod
     def mult(cls, v1, v2):
-        if isinstance(v2, Vector):
+        if isinstance(v2, v):
             return cls(v1.x*v2.x, v1.y*v2.y, v1.z*v2.z)
         else:
             return cls(v1.x*f, v1.y*f, v1.z*f)
 
     @classmethod
     def div(cls, v1, v2):
-        if isinstance(v2, Vector):
+        if isinstance(v2, v):
             return cls(v1.x/v2.x, v1.y/v2.y, v1.z/v2.z)
         else:
             return cls(v1.x/f, v1.y/f, v1.z/f)
 
+    def mag(self):
+        return (self.x**2 + self.y**2 + self.z**2)**0.5
+
+    def dist(self, vec) -> float:
+        return ((self.x - vec.x)**2 +
+                (self.y - vec.y)**2 +
+                (self.z - vec.z)**2)**0.5
+
+    # @classmethod
+    # def norm(cls, v1):
+    #     m = v1.mag()
+    #     return cls.div(v1, m)
+
+    # def __add__(self, *args, **kwargs):
+    #     return v(super().__ad__(*args, **kwargs))
+
+    # todo(joeysapp): Potentially add in a delta so stuff really close is equal for pen
+    def __eq__(self, v2):
+        print("v.__eq__({} {})".format(self, v2))
+        if isinstance(v2, v):
+            return self.x == v2.x and \
+                   self.y == v2.y and \
+                   self.z == v2.z
+        return False
+
+    def __ne__(self, v2):
+        print("v.__ne__({} {})".format(self, v2))
+        if isinstance(v2, v):
+            return self.x != v2.x or \
+                   self.y != v2.y or \
+                   self.z != v2.z
+        return True
 
     def __init__(self, x=0, y=0, z=0):
-        # self.id = TypeId.vector()
         if type(x) == list:
             self.x = float(x[0])
             self.y = float(x[1])
@@ -60,6 +80,7 @@ class v(list):
             self.x = float(x)
             self.y = float(y)
             self.z = float(z)
+
 
     def __repr__(self) -> str:
         left_max = 3
@@ -76,21 +97,4 @@ class v(list):
         z_neg = True if self.z < 0 else False 
         z_str = "{}.{}".format(z[0].rjust(left_max, "0"), z[1])
 
-        return Console.format("[{},\t{}]".format(x_str, y_str), [])
-        # return Console.format("({}, {})".format(x_str, y_str), ["black", "bg-gray-0"])
-
-    def __eq__(self, v2):
-        if isinstance(v2, Vector):
-            return self.x == v2.x and \
-                   self.y == v2.y and \
-                   self.z == v2.z
-        return False
-
-    def mag(self):
-        return (self.x**2 + self.y**2 + self.z**2)**0.5
-
-    def dist(self, vec) -> float:
-        # note(@joeysapp): ** faster than math.pow, no fn call
-        return ((self.x - vec.x)**2 +
-                (self.y - vec.y)**2 +
-                (self.z - vec.z)**2)**0.5
+        return Console.format("[{}, {}, {}]".format(x_str, y_str, z_str), [])

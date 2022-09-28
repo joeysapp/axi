@@ -58,16 +58,17 @@ class Serial:
                 Timer.wait()
                 self.configure();
             except Exception as err:
-                Console.error("serial.__init__() -> {}\n".format(err));
+                Console.error("serial.__init__() -> {}\n".format(err))
+                exit()
 
     # [ main BAA -> Serial ]
     def do_serial_command(self, command, pos):    
-        Console.method("serial.do_serial_command({} {}, disabled={})\n".format(command, pos, disabled))
+        Console.method("serial.do_serial_command({} {})\n".format(command, pos))
         
         disabled = not self.do_serial
         # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
         # Should only see 'raise' 'lower', and 'move'.
-        if (command == 'goto' and pos):
+        if (command == 'goto'):
             Console.serial("GOTO {}".format(pos))
             if not disabled: self.axidraw.goto(pos.x, pos.y)
 

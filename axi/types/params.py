@@ -34,16 +34,15 @@ class Params(dict):
         self.v2 = v(0, 1, 0)
         # self.v3 ...
 
-
         # Matrices accomplish actual generation,
         # A translation is an affine transformation with the origin as a fixed poiont
         # https://en.wikipedia.org/wiki/Translation_(geometry)
         self.translation_matrix = None
         # Offsets
-        self.o_x = 0
-        self.o_y = 0
-        self.o_z = 0
-        self.o_v = v(0, 0, 0)
+        # self.o_x = 0
+        # self.o_y = 0
+        # self.o_z = 0
+        # self.o_v = v(0, 0, 0)
 
         # https://en.wikipedia.org/wiki/Transformation_matrix
         self.transformation_matrix = None
@@ -59,18 +58,15 @@ class Params(dict):
 
         for key in kwargs:            
             self.__setattr__(key, kwargs[key])
-        
-
 
     def __repr__(self) -> str:
-        return "params({})".format(self.__dict__)
+        s = ""
+        for key in self.__dict__:
+            s += "\t- {}: {}\n".format(key, getattr(self, key))
+        return "Params(\n{}\t)".format(s)
 
     def get(self, str):
         return getattr(self, str)
-
-
-
-
 
     def get_transformation_matrix(self):
         return None

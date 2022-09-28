@@ -39,7 +39,7 @@ class Sketch():
         Console.method("sketch.add_shape({})\n".format(shape))
 
         self.shapes.append(shape)
-        self.bounding_box.extend(shape.bounding_box)
+        # self.bounding_box.extend(shape.bounding_box)
         self.line_length += shape.line_length
 
     def get_shape_count(self):

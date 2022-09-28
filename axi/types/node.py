@@ -22,7 +22,8 @@ class Node:
         # Console.init("Node(shape_id={} {})\n".format(shape_id, kwargs))        
         self.id = TypeId.node(shape_id)
 
-        self.pos = kwargs.get("pos") or None
+        # note(joeysapp): a [0,0,0] v is considered None? is that an __eq__ thing?
+        self.pos = kwargs.get("pos")
         self.state = kwargs.get("state") or None
 
         self.next = kwargs.get("next") or None

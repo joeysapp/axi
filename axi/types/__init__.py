@@ -1,7 +1,6 @@
-
 # note(@joeysapp):
 # order of imports matters for circular references
-# v is referenced everywhere, so import it first?
+# v is referenced everywhere, so import it first
 
 from .vec3d import v
 

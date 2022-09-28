@@ -55,6 +55,8 @@ def axi() -> int:
     # parser.add_argument('-d', '--debug', help='display debug info', action='count', default=0)
     args = parser.parse_args()
 
+
+
     scheduler = Scheduler()
     serial = Serial(do_serial=args.do_serial, do_lower=args.do_lower)
     generator = Generator()
@@ -63,25 +65,11 @@ def axi() -> int:
 
     thing = generator.create_sketch("foo")
 
+    # a = line(subdivide=3)
+    a = line()
+    # Console.puts("\n\nprinting this random thing we're adding to the sketch\n{}\n\n\n\n".format(a))
 
-    a = line(subdivide=3)
-    Console.puts("\n\n\n{}\n\n\n\n".format(a))
-
-    # for y in range(35, 100, 5):
-    #     # thing.add_shape(ShapeType.line, Params(pos=Vector(0, y, 0), length=10, degrees=y/2.0))
-    #     for i in range(0, 10, 1):
-    #         p = fmap(y, 35, 100, 0, 180) + i/2.0            
-    #         p = (p / 180 * math.pi)
-    #         thing.add_shape(ShapeType.line, Params(pos=Vector(10, y+(i/2.0), 0), length=10/2.5 + 3.5*math.sin(p), degrees=225))
-    # 
-    # b1 = thing.get_bounds();
-    # vector_000 = thing.get_centroid();
-
-    # for x in range(0, 50, 1):
-    #     s = thing.get_shape(type=ShapeType.line, params=Params(pos=Vector(0, 0, 0), legnth = 10, degrees=0))    
-    #     s1, s2 = thing.modify_shapes([s], type=Modifier.subdivide, params=Params(count=1))
-    #     s3, s4 = thing.modify_shapes([s1, s2], type=Modifier.translate, params=Params(x=0, y=20))        
-    #     thing.add_shapes(s1, s2);
+    thing.add_shape(a)
 
     new_nodes, new_head = generator.get_sketch_as_linked_list("foo")
     scheduler.add_nodes(new_nodes)

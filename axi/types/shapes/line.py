@@ -3,12 +3,12 @@ from .__base__ import Shape
 
 def _line():
     return [v(0, 0, 0),
-            v(0, 1, 0)]
+            v(0, 10, 0)]
 
 class line(Shape):
     def __init__(self, **kwargs):
         self.type = "line"
-        self.vecs = _line()
+        self.vectors = _line()
 
 
 
@@ -28,7 +28,7 @@ class line(Shape):
                 x = 0.
                 y = 0. + (idx * (1 / (subdivide+1)))
                 ins = idx
-                self.vecs.insert(ins, v(x, y, 0))
+                self.vectors.insert(ins, v(x, y, 0))
 
             # what about recursive subdivision:
             # kid named finger:

@@ -87,6 +87,8 @@ class Scheduler():
     # Depends if we're gonna be modifying the resulting Nodes or not, I guess
 
     def is_head_within_physical_bounds(self) -> bool:
+        return True
+
         Console.method("scheduler.is_head_within_physical_bounds({})".format(self.physical_bounds))
         pos = self.nodes[self.head].pos
 

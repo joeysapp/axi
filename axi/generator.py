@@ -3,7 +3,7 @@ import random, math, time
 
 from axi.util import Console, fmap, Timer
 
-from axi.types import Node, Sketch, NodeState, TypeId
+from axi.types import Node, Sketch, NodeState, TypeId, v
  
 class Generator():
     def __init__(self, *args, **kwargs):
@@ -55,18 +55,18 @@ class Generator():
             if debug:
                 print('========================================================== !! NEW SHAPE ================')
                 print('\t0 - Loop of sketch.shapes with shape_id={} = \n{}'.format(shape_id, shape))
-            for v in shape.vectors:
+            for vec in shape.vectors:
                 if debug:
                     print("new_nodes: ")
                     for key in new_nodes.keys():
                         print(new_nodes[key])
-                new_pos = Vector(v.x, v.y, v.z)
+                new_pos = v(vec.x, vec.y, vec.z)
 
                 if debug: print('\t1 - Loop of sketch.shapes with shapes[{}].vectors[{}] = {}'.format(shape_id, vector_idx, Console.format(new_pos, ["green", "bold"])))
                 if (head_node == None):
                     if debug: print('\t1b - head = None, creating tmp and starting sketch')
                     # Create new node at 0 0 set to up, move to new pos and lower
-                    tmp_node = Node(shape_id, pos=Vector(0, 0, 0), state=NodeState.up)
+                    tmp_node = Node(shape_id, pos=v(0, 0, 0), state=NodeState.up)
                     first_node_id = tmp_node.id.hash
                     new_nodes, tmp_node = self.insert_transition_nodes(new_nodes, head_node, tmp_node, shape_id, pos=new_pos, first_node_id=first_node_id)
                 else:
@@ -124,10 +124,10 @@ class Generator():
                                tmp_node,
                                Console.format("\n\tkwargs={}".format(kwargs) if kwargs else "", ["blue"])
                                ))
-        debug = False
+        debug = True
         if (head_node == None):
             if debug: print("[transition] head_node == None; shape_id={}".format(shape_id))
-            node1 = Node(shape_id, pos=Vector(0, 0, 0),   state=NodeState.move,    prev=tmp_node.id.hash)
+            node1 = Node(shape_id, pos=v(0, 0, 0),   state=NodeState.move,    prev=tmp_node.id.hash)
             node2 = Node(shape_id, pos=kwargs.get("pos"), state=NodeState.move,    prev=node1.id.hash)
             node3 = Node(shape_id, pos=kwargs.get("pos"), state=NodeState.up,      prev=node2.id.hash)
             node4 = Node(shape_id, pos=kwargs.get("pos"), state=NodeState.descend, prev=node3.id.hash)
@@ -157,7 +157,7 @@ class Generator():
         # and -> "or" on 2022-09-14, maybe lets different shapes share pos?
         elif (head_node.pos != tmp_node.pos and head_node.id.shape_id == tmp_node.id.shape_id):
         # elif (head_node.pos != tmp_node.pos and head_node.id.shape_id == tmp_node.id.shape_id):
-            if debug: print("\t[transition] head.pos != tmp.pos but head.shape_id == tmp.shape_id, so set tmp.state to move");
+            if debug: print("\t[transition] head.pos != tmp.pos and head.shape_id == tmp.shape_id, so set tmp.state to move");
             # head is already in move state, so we just need to do this:
             tmp_node.set_state(NodeState.move)
             tmp_node = tmp_node
@@ -208,8 +208,8 @@ class Generator():
             node1 = Node(shape_id, pos=head_node.pos,   state=NodeState.ascend,  prev=node0.id.hash    )
             node2 = Node(shape_id, pos=head_node.pos,   state=NodeState.up,      prev=node1.id.hash    )
             node3 = Node(shape_id, pos=head_node.pos,   state=NodeState.move,    prev=node2.id.hash    )
-            node4 = Node(shape_id, pos=Vector(0, 0, 0), state=NodeState.move,    prev=node3.id.hash    )
-            node5 = Node(shape_id, pos=Vector(0, 0, 0), state=NodeState.up,      prev=node4.id.hash    )
+            node4 = Node(shape_id, pos=v(0, 0, 0), state=NodeState.move,    prev=node3.id.hash    )
+            node5 = Node(shape_id, pos=v(0, 0, 0), state=NodeState.up,      prev=node4.id.hash    )
 
             head_node.set_next(node0.id.hash)
             node0.set_next(node1.id.hash)
@@ -229,7 +229,18 @@ class Generator():
 
             tmp_node = node5
         else:
-            print(" weird final case idk about ")
+            print(" weird final case idk about, need to impl equality of v class? or are the shape_ids not eq?")
+            print("head.pos: {}".format(head_node.pos))
+            print("tmp.pos: {}".format(tmp_node.pos))
+            print("head_node.id: {}".format(head_node.id.shape_id))
+            print("tmp_node.id: {}".format(tmp_node.id.shape_id))
+
+            print("type(head)={}\ttpye(tmp)={}".format(type(head_node), type(tmp_node)))
+            print("pos_neq={}\tshape_id_eq={}".format(head_node.pos != tmp_node.pos, head_node.id.shape_id == tmp_node.id.shape_id))
+            #(head_node.pos != tmp_node.pos and head_node.id.shape_id == tmp_node.id.shape_id):
+
+            exit()
+            # print("are they equal? {}".format(tmp_node.pos == head_node.pos))
 
         Console.method("{} generator.insert_transition_nodes(\n\tsize(new_nodes)={}\n\thead={}\n\ttmp= {}{})\n\n"
                        .format(

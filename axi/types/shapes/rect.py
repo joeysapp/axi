@@ -10,8 +10,8 @@ def rect():
 class Rect(Shape):
     def __init__(self, **kwargs):
         self.type = "rect"
-        self.vecs = rect()        
+        self.vectors = rect()        
 
         super(self, **kwargs)
         
-        return self.vecs
+        return self.vectors

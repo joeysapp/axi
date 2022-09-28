@@ -5,7 +5,7 @@
     id
     type
     params
-    vecs
+    vectors
 
 """
 from enum import Enum, auto
@@ -87,19 +87,18 @@ class Shape():
         # give me a new square that doesn't have that last transformation..
         self.actions = []
 
-        # self.vecs = AffineTransformation(shape_type(), params)
-        self.vecs = self.vecs
+        # self.vectors = AffineTransformation(shape_type(), params)
+        self.vectors = self.vectors
 
-        self.area = self._set_area(self.vecs)
-        self.center = self._set_center(self.vecs)
-        self.line_length = self._set_line_length(self.vecs)
-        self.bounding_box = self._set_bounding_box(self.vecs)
+        self.area = self._set_area(self.vectors)
+        self.center = self._set_center(self.vectors)
+        self.line_length = self._set_line_length(self.vectors)
+        self.bounding_box = self._set_bounding_box(self.vectors)
 
                 
     def __repr__(self):
-        return "{}({}  \n\tparams={}  \n\tvecs={})".format(
+        return "Shape(\n\ttype={}\n\tid={}\n\tparams={}\n\tvectors={}\n)".format(
             Console.format(self.type, ["blue"]),
             self.id,
-            self.type,
-            # self.params,
-            Console.list(self.vecs))
+            self.params,
+            Console.list(self.vectors))
