@@ -56,7 +56,7 @@ class v(list):
 
     # todo(joeysapp): Potentially add in a delta so stuff really close is equal for pen
     def __eq__(self, v2):
-        print("v.__eq__({} {})".format(self, v2))
+        # Console.method("v.__eq__({} {})".format(self, v2))
         if isinstance(v2, v):
             return self.x == v2.x and \
                    self.y == v2.y and \
@@ -64,7 +64,7 @@ class v(list):
         return False
 
     def __ne__(self, v2):
-        print("v.__ne__({} {})".format(self, v2))
+        # Console.method("v.__ne__({} {})".format(self, v2))
         if isinstance(v2, v):
             return self.x != v2.x or \
                    self.y != v2.y or \

@@ -68,20 +68,20 @@ class Serial:
         disabled = not self.do_serial
         # action = [ 'up', 'down', 'raise', 'lower', 'move' ]
         # Should only see 'raise' 'lower', and 'move'.
+        
+        # the v.__eq__ and v.__neq__ mean a v(0 0 0) is None? lol
+
         if (command == 'goto'):
             Console.serial("GOTO {}".format(pos))
             if not disabled: self.axidraw.goto(pos.x, pos.y)
-
         elif (command == 'penup'):
             Console.serial("PENUP")
             if not disabled: self.axidraw.penup()
-
         elif (command == 'pendown'):
             Console.serial("PENDOWN")
             if not disabled: self.axidraw.pendown()
         else:
             Console.error("serial.do_serial_command({} {}) has no meaning\n".format(command, pos))
-
 
     # 1 if up, 0 if down
     def get_pen_state(self) -> int:

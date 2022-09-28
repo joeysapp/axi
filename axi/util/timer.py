@@ -10,5 +10,5 @@ class Timer():
     def wait(cls, t=None):
         if (t == None):
             t = cls.default
-        Console.time("wait for {}\n".format(t))
+        Console.time("{}\n".format(t))
         time.sleep(t)

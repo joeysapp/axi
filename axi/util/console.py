@@ -118,9 +118,19 @@ class Console():
         style = cls.ansi("bold") + cls.ansi("cyan")
         t = time.process_time()
         indent = kwargs.get("level") or 0
-        output = "{}{}{}{}{}{}".format(cls.ansi("reset"),style, cls.ts(t), cls.ansi("bg-gray"), "[serial]", " "*len(s)+"\n")
-        output += "{}{}{}{}{}{}{}{} {}{}".format(cls.ansi("reset"),"\t"*indent,style, cls.ts(t), "[serial]", cls.ansi("reset"), cls.ansi("italic"), cls.ansi("bg-gray"), s, cls.ansi("reset"))
-        output += "\n{}{}{}{}{}{}".format(cls.ansi("reset"), style, cls.ts(t), cls.ansi("bg-gray"), "[serial]", " "*len(s)+"\n")
+        # output = "{}{}{}{}{}{}".format(cls.ansi("reset"),style, cls.ts(t), cls.ansi(""), "[serial]", " "*len(s)+"\n")
+        output = ""
+        output += "{}[serial] {}\n".format(style, "="*50);
+        output += "{}[serial] {}\n".format(style, "="*50);
+        output += "{}[serial] {}\n".format(style, "="*50);
+
+        output += "{}[serial] {}{}\n".format(style, cls.ansi("italic"), s)
+        # output += "{}{}{}{}{}{}{}{} {}{}\n".format(cls.ansi("reset"),"\t"*indent,style, cls.ts(t), "[serial]", cls.ansi("reset"), cls.ansi("italic"), cls.ansi(""), s, cls.ansi("reset"))
+
+        # output += "\n{}{}{}{}{}{}".format(cls.ansi("reset"), style, cls.ts(t), cls.ansi(""), "[serial]", " "*len(s)+"\n")
+        output += "{}[serial] {}\n".format(style, "="*50);
+        output += "{}[serial] {}\n".format(style, "="*50);
+        output += "{}[serial] {}\n".format(style, "="*50);
         sys.stdout.write(output)
 
     @classmethod
