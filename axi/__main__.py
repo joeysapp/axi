@@ -66,12 +66,15 @@ def axi() -> int:
     thing = generator.create_sketch("foo")
 
     # a = line(subdivide=3)
-    a = line()
+    a = line(pos=v(0, 0), length=10, degrees=60)
     # Console.puts("\n\nprinting this random thing we're adding to the sketch\n{}\n\n\n\n".format(a))
 
     thing.add_shape(a)
 
     new_nodes, new_head = generator.get_sketch_as_linked_list("foo")
+    
+    print("\n\n\n")
+    exit()
     scheduler.add_nodes(new_nodes)
     scheduler.append_to_queue(new_head)
 
@@ -99,7 +102,7 @@ def axi() -> int:
                 scheduler.pop_queue_to_head()
         # [B]
         elif (scheduler.head != None):
-            Console.info("[B   ] Scheduler checks if head.pos is within physical plotter limits")
+            Console.info("[B   ] Scheduler checks if head.pos is within physical plotter limits\n")
             # For now, there's a hardcoded check (not even with a ShapeType.rect)
             # Think about the logistics of raising/lowering and Generator.linked_list_creation.
             head_within_bounds = scheduler.is_head_within_physical_bounds()

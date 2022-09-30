@@ -115,7 +115,8 @@ class Generator():
 
     """
     def insert_transition_nodes(self, new_nodes, head_node, tmp_node, shape_id, **kwargs) -> (dict, Node):
-        Console.method("{} generator.insert_transition_nodes(\n\tshape_id={}\n\tsize(new_nodes)={}\n\thead={}\n\ttmp= {}{})\n\n"
+        debug = False
+        if debug: Console.method("{} generator.insert_transition_nodes(\n\tshape_id={}\n\tsize(new_nodes)={}\n\thead={}\n\ttmp= {}{})\n\n"
                        .format(
                                Console.format("[START]", ["bold", "bg-green"]),
                                shape_id,
@@ -124,7 +125,6 @@ class Generator():
                                tmp_node,
                                Console.format("\n\tkwargs={}".format(kwargs) if kwargs else "", ["blue"])
                                ))
-        debug = True
         if (head_node == None):
             if debug: print("[transition] head_node == None; shape_id={}".format(shape_id))
             node1 = Node(shape_id, pos=v(0, 0, 0),   state=NodeState.move,    prev=tmp_node.id.hash)
@@ -242,14 +242,15 @@ class Generator():
             exit()
             # print("are they equal? {}".format(tmp_node.pos == head_node.pos))
 
-        Console.method("{} generator.insert_transition_nodes(\n\tsize(new_nodes)={}\n\thead={}\n\ttmp= {}{})\n\n"
-                       .format(
+        if (debug):
+            Console.method("{} generator.insert_transition_nodes(\n\tsize(new_nodes)={}\n\thead={}\n\ttmp= {}{})\n\n"
+                           .format(
                                Console.format("[END]", ["bold", "bg-red"]),
                                len(new_nodes.keys()),
                                head_node,
                                tmp_node,
                                Console.format("\n\tkwargs={}".format(kwargs) if kwargs else "", ["blue"])
-                               ))
+                           ))
 
         # tmp_node will be set to head
         return new_nodes, tmp_node

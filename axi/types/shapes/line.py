@@ -1,16 +1,17 @@
 from axi.types import v
 from .__base__ import Shape
 
+from axi.util import Console
+
 def _line():
     return [v(0, 0, 0),
             v(0, 10, 0)]
 
 class line(Shape):
     def __init__(self, **kwargs):
+        Console.init("shape.line.__init__(kwargs={})\n".format(kwargs))
         self.type = "line"
         self.vectors = _line()
-
-
 
         # Global Shape handles of Params
         super(self.__class__, self).__init__(**kwargs)

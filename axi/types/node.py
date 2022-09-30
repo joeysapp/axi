@@ -48,10 +48,10 @@ class Node:
         #return "Node(id={} prev={} next={} state={} pos={})".format(self.id[-5:], self.prev[-5:] if self.prev else "None", self.next[-5:] if self.next else "None", self.state, self.pos)
         id_len = 15
         id_style = []
-        return "node({}\t{}\t{}\t{}\t{}\t)".format(
+        return "node{}{}{}\t{} {}".format(
             Console.format("{}".format(self.id), id_style),
-            Console.format("\tprev=None" if self.prev == None else "\tprev={}".format(self.prev[-id_len:]), "gray-0"),
-            Console.format("\tnext=None" if self.next == None else "\tnext={}".format(self.next[-id_len:]), "gray-0"),
+            Console.format("\tp=None  " if self.prev == None else "\tp={}".format(self.prev[-id_len:]), "gray-0"),
+            Console.format("\tn=None  " if self.next == None else "\tn={}".format(self.next[-id_len:]), "gray-0"),
             self.pos,
             self.state)
 

@@ -37,13 +37,13 @@ class TypeId():
         elif self.type == "node":
             class_color = "cyan"
 
-        cutoff = 14
+        cutoff = 12
         hash = "{}{}".format(self.hash, " "*cutoff)
 
         # if (self.type == "node"):
         #     return "(:{} {})".format(hash[0:cutoff], self.type)
 
-        return "{}{} {}{}{}".format(
+        return "{}{}{}{}{}".format(
             Console.format("(".format(self.type), ["", class_color]),
             Console.format(":{}".format(hash[0:cutoff]), [class_color]),
             Console.format("{} ".format(self.shape_id if self.type == "node" else "_"), ["orange" if self.type == "node" else "gray-1"]),

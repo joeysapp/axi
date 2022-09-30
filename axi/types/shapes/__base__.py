@@ -97,8 +97,8 @@ class Shape():
 
                 
     def __repr__(self):
-        return "Shape(\n\ttype={}\n\tid={}\n\tparams={}\n\tvectors={}\n)".format(
-            Console.format(self.type, ["blue"]),
+        return "Shape(type={}\tid={}\tparams=...\tvectors={}\n".format(
+            Console.format(self.type, ["blue", "underline"]),
             self.id,
-            self.params,
+            # self.params,
             Console.list(self.vectors))
