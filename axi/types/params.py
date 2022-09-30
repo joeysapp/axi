@@ -1,60 +1,42 @@
 """
 Params objects are used to pass unique information from Generator to Sketch to Shape.
-They are essentially a wrapper around what would be **kwargs, but I would like them to
-act almost like Shapes themselves - imagine the following scenario
-
-Plus, think about:
-   p.width = (logic to parse out args)
-   p.get_props():
-       
-base_params = { pos, degrees }
-for i in loop():
-
-    # do something complex, like rotate and change a transformation matrix all in one op
-    new_params = Params.do_action(base_params, thing)
-    s = Line(new_params)
-
-idk. thankabowtit
-
+They are essentially a wrapper around what would be **kwargs
 """
-from axi.types import v
 
+from axi.types import v
 from axi.util import Console
 
 class Params(dict):
     def __init__(self, **kwargs):
         Console.init("params.__init__(kwargs={})\n".format(kwargs))
-        self.width = 1;
-        self.height = 1;
-        self.length = 1;
+        # We first transform a shape's generated vectors, then translate them.
+        # https://en.wikipedia.org/wiki/Transformation_matrix
+        self.transformation = None
 
-        # Position of shape
-        self.v = v(0, 0, 0)
-        self.v1 = v(0, 0, 0)
-        self.v2 = v(0, 1, 0)
-        # self.v3 ...
-
-        # Matrices accomplish actual generation,
         # A translation is an affine transformation with the origin as a fixed poiont
         # https://en.wikipedia.org/wiki/Translation_(geometry)
-        self.translation_matrix = None
-        # Offsets
-        # self.o_x = 0
-        # self.o_y = 0
-        # self.o_z = 0
-        # self.o_v = v(0, 0, 0)
+        self.translation = None
 
-        # https://en.wikipedia.org/wiki/Transformation_matrix
-        self.transformation_matrix = None
-        # Stretching        
-        # Squeezing
-        # Rotation    
-        self.degrees = 0
-        self.radians = 0
-        # Shearing
-        # https://en.wikipedia.org/wiki/Shear_matrix
-        # Reflection
-        # Orthagonal projection
+        pos = kwargs.get("pos")
+        if (pos):
+            self.translation = [0, 0, 0]            
+            # Create our translation matrix
+        degrees = kwargs.get("degrees")
+        radians = kwargs.get("radians")
+        if degrees or radians:
+            self.transformation = [[0, 0, 0],
+                                   [0, 0, 0],
+                                   [0, 0, 0]]
+            # Apply a rotation matrix
+
+        
+        length = kwargs.get("length")
+        if length:
+            self.transformation = [[0, 0, 0],
+                                   [0, 0, 0],
+                                   [0, 0, 0]]
+            # Apply a ... scaling? Homothety? matrix
+
 
         for key in kwargs:            
             self.__setattr__(key, kwargs[key])
